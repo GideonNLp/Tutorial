@@ -1,0 +1,761 @@
+/**
+ * Română — dicționarul implicit al interfeței.
+ *
+ * Reguli de redactare (valabile pentru orice limbă adăugată):
+ *  - persoana a II-a singular, ton cald și direct, fără diminutive;
+ *  - formulări neutre ca gen despre utilizator („dacă simți oboseală”, nu „dacă ești obosită”);
+ *  - fără diagnostice și fără afirmații medicale categorice: „poate ajuta”, „merită discutat cu un medic”;
+ *  - orice estimare este numită estimare.
+ */
+
+const plural = new Intl.PluralRules('ro');
+
+/** „1 zi”, „5 zile”, „20 de zile”. */
+function count(n: number, one: string, few: string, other: string): string {
+  const form = plural.select(n);
+  return `${n} ${form === 'one' ? one : form === 'few' ? few : other}`;
+}
+
+const zile = (n: number) => count(n, 'zi', 'zile', 'de zile');
+const cicluri = (n: number) => count(n, 'ciclu', 'cicluri', 'de cicluri');
+const luni = (n: number) => count(n, 'lună', 'luni', 'de luni');
+
+export const ro = {
+  meta: { name: 'Română', htmlLang: 'ro', intl: 'ro-RO' },
+
+  common: {
+    appName: 'CycleCare',
+    back: 'Înapoi',
+    next: 'Continuă',
+    skip: 'Sari peste',
+    done: 'Gata',
+    save: 'Salvează',
+    cancel: 'Renunță',
+    close: 'Închide',
+    delete: 'Șterge',
+    add: 'Adaugă',
+    today: 'Azi',
+    saved: 'Salvat',
+    loading: 'Se încarcă…',
+    estimate: 'estimare',
+    skipToContent: 'Sari la conținut',
+    days: zile,
+    cycles: cicluri,
+    months: luni,
+    notAvailable: 'Indisponibil',
+    on: 'Pornit',
+    off: 'Oprit',
+  },
+
+  nav: {
+    label: 'Navigare principală',
+    today: 'Azi',
+    calendar: 'Calendar',
+    journal: 'Jurnal',
+    tips: 'Sfaturi',
+    stats: 'Statistici',
+    settings: 'Setări',
+  },
+
+  phase: {
+    menstruation: 'Menstruație',
+    follicular: 'Faza foliculară',
+    ovulation: 'Ovulație',
+    luteal: 'Faza luteală',
+  },
+  /** Folosit în propoziții: „ești în …”. */
+  phaseInSentence: {
+    menstruation: 'menstruație',
+    follicular: 'faza foliculară',
+    ovulation: 'faza de ovulație',
+    luteal: 'faza luteală',
+  },
+
+  flow: {
+    spotting: 'Spotting',
+    light: 'Ușor',
+    medium: 'Mediu',
+    heavy: 'Abundent',
+    unspecified: 'Fără intensitate',
+  },
+  flowSummary: {
+    spotting: 'spotting',
+    light: 'flux ușor',
+    medium: 'flux mediu',
+    heavy: 'flux abundent',
+    unspecified: 'zi de menstruație',
+  },
+
+  symptomGroup: {
+    pain: 'Durere',
+    digestive: 'Digestie',
+    skin: 'Piele',
+    general: 'Stare generală',
+    emotional: 'Emoții',
+  },
+  symptom: {
+    cramps: 'Crampe',
+    headache: 'Dureri de cap',
+    backache: 'Dureri de spate',
+    breast_tenderness: 'Sensibilitate la sâni',
+    bloating: 'Balonare',
+    nausea: 'Greață',
+    constipation: 'Constipație',
+    diarrhea: 'Diaree',
+    cravings: 'Pofte alimentare',
+    acne: 'Acnee',
+    fatigue: 'Oboseală',
+    insomnia: 'Insomnie',
+    dizziness: 'Amețeli',
+    irritability: 'Iritabilitate',
+    anxiety: 'Anxietate',
+    sadness: 'Tristețe',
+    mood_swings: 'Schimbări de dispoziție',
+  },
+  intensity: { 1: 'Ușor', 2: 'Moderat', 3: 'Sever' },
+  mood: { 1: 'Foarte scăzută', 2: 'Scăzută', 3: 'Neutră', 4: 'Bună', 5: 'Foarte bună' },
+  energy: { 1: 'Foarte scăzută', 2: 'Scăzută', 3: 'Medie', 4: 'Ridicată', 5: 'Foarte ridicată' },
+  mucus: {
+    dry: 'Uscat',
+    sticky: 'Lipicios',
+    creamy: 'Cremos',
+    watery: 'Apos',
+    eggwhite: 'Albuș de ou',
+  },
+  mucusHelp: {
+    dry: 'nimic vizibil',
+    sticky: 'dens, se rupe ușor',
+    creamy: 'alb, ca o loțiune',
+    watery: 'limpede, fluid',
+    eggwhite: 'transparent, elastic',
+  },
+
+  goal: {
+    contraception: 'Contracepție',
+    conception: 'Planificarea unei sarcini',
+    general: 'Urmărire generală',
+    symptoms: 'Înțelegerea simptomelor',
+  },
+  goalHint: {
+    contraception: 'Vezi zilele fertile estimate, cu limitele lor',
+    conception: 'Urmărești fereastra fertilă estimată',
+    general: 'Știi când vine menstruația și în ce fază ești',
+    symptoms: 'Descoperi tipare în simptome și dispoziție',
+  },
+
+  /** Avertismentul obligatoriu de lângă orice estimare de fertilitate. */
+  contraceptionWarning: 'Zilele fertile și ovulația sunt estimări. Nu sunt un mijloc sigur de contracepție.',
+  contraceptionGoalWarning:
+    'CycleCare nu este un mijloc de contracepție. Estimările zilelor fertile pot greși cu mai multe zile și nu pot preveni o sarcină. Un medic te poate ajuta să alegi o metodă potrivită.',
+
+  onboarding: {
+    progress: (step: number, total: number) => `Pasul ${step} din ${total}`,
+    welcome: {
+      title: 'Ciclul tău, pe înțelesul tău',
+      lead: 'Notezi în câteva atingeri cum te simți, iar CycleCare îți arată în ce fază ești și când este de așteptat următoarea menstruație.',
+      points: [
+        'Estimări cu interval, nu o singură dată promisă',
+        'Jurnal zilnic pentru flux, simptome, dispoziție și energie',
+        'Fără cont și fără server: datele rămân criptate pe acest dispozitiv',
+      ],
+      start: 'Începe',
+      demo: 'Explorează cu date demonstrative',
+      demoNote: 'Datele demonstrative sunt inventate și pot fi șterse oricând din Setări.',
+    },
+    lastPeriod: {
+      title: 'Când a început ultima ta menstruație?',
+      hint: 'Alege prima zi. Dacă nu ții minte exact, o dată aproximativă e de ajuns: o poți corecta mai târziu.',
+      label: 'Prima zi a ultimei menstruații',
+      skip: 'Nu-mi amintesc',
+      tooOld: 'Data este de acum mai bine de 90 de zile. O poți folosi, dar estimările vor fi nesigure până notezi următoarea menstruație.',
+      future: 'Alege o zi de până azi.',
+    },
+    cycleLength: {
+      title: 'Cât durează, de obicei, un ciclu?',
+      hint: 'Numără de la prima zi a unei menstruații până la prima zi a următoarei. Între 21 și 45 de zile.',
+      label: 'Durata ciclului, în zile',
+      skip: 'Nu știu',
+    },
+    periodLength: {
+      title: 'Câte zile durează, de obicei, menstruația?',
+      hint: 'Între 2 și 10 zile.',
+      label: 'Durata menstruației, în zile',
+      skip: 'Nu știu',
+    },
+    goals: {
+      title: 'La ce ți-ar folosi CycleCare?',
+      hint: 'Poți alege mai multe. Răspunsul schimbă doar ce îți arătăm mai întâi.',
+    },
+    finish: {
+      title: 'Aproape gata',
+      lead: 'Două setări opționale. Le găsești oricând și în Setări.',
+      pinTitle: 'Blochează aplicația cu un PIN',
+      pinBody: 'Fără PIN, oricine îți deblochează telefonul poate deschide jurnalul.',
+      pinLabel: 'PIN (4–8 cifre)',
+      pinRepeat: 'Repetă PIN-ul',
+      pinMismatch: 'Cele două PIN-uri nu sunt la fel.',
+      pinInvalid: 'PIN-ul trebuie să aibă între 4 și 8 cifre.',
+      pinWarning: 'Ține-l minte: PIN-ul nu poate fi recuperat, iar fără el datele nu pot fi citite.',
+      reminderTitle: 'Memento înainte de menstruație',
+      reminderBody: 'Cu două zile înainte de data estimată, la 9:00. Textul notificării rămâne discret.',
+      open: 'Deschide CycleCare',
+      summaryCycle: (n: number) => `Ciclu obișnuit: ${zile(n)}`,
+      summaryPeriod: (n: number) => `Menstruație: ${zile(n)}`,
+      summaryDefault: 'Pornim de la valorile obișnuite (28 și 5 zile) și le ajustăm după ce înregistrezi.',
+    },
+  },
+
+  lock: {
+    title: 'CycleCare este blocată',
+    prompt: 'Introdu PIN-ul',
+    entered: (n: number) => `${count(n, 'cifră introdusă', 'cifre introduse', 'de cifre introduse')}`,
+    unlock: 'Deblochează',
+    deleteDigit: 'Șterge ultima cifră',
+    wrong: (left: number) => `PIN greșit. Mai ai ${count(left, 'încercare', 'încercări', 'de încercări')} până la o pauză.`,
+    paused: (seconds: number) =>
+      seconds >= 90
+        ? `Prea multe încercări. Mai așteaptă ${count(Math.ceil(seconds / 60), 'minut', 'minute', 'de minute')}.`
+        : `Prea multe încercări. Mai așteaptă ${count(seconds, 'secundă', 'secunde', 'de secunde')}.`,
+    biometric: 'Deblochează cu amprenta sau fața',
+    biometricFailed: 'Deblocarea biometrică nu a reușit. Folosește PIN-ul.',
+    forgot: 'Am uitat PIN-ul',
+    forgotTitle: 'PIN-ul nu poate fi recuperat',
+    forgotBody:
+      'Datele sunt criptate cu PIN-ul tău și nu există nicio copie a lor în altă parte. Dacă nu ți-l mai amintești, singura cale este să ștergi toate datele și să începi din nou.',
+    wipe: 'Șterge toate datele',
+    unavailableTitle: 'Datele nu pot fi deschise',
+    unavailableBody:
+      'Cheia de criptare păstrată de browser lipsește sau s-a schimbat (de exemplu, după ștergerea parțială a datelor site-ului). Jurnalul nu mai poate fi citit.',
+  },
+
+  today: {
+    title: 'Azi',
+    cycleDay: (n: number) => `Ziua ${n}`,
+    ofCycle: 'a ciclului',
+    dialLabel: (day: number, phase: string) => `Ziua ${day} a ciclului, ${phase}`,
+    dialEmpty: 'Încă nu există un ciclu înregistrat',
+    periodDay: (n: number) => `Ziua ${n} de menstruație`,
+    next: {
+      heading: 'Următoarea menstruație',
+      between: (from: string, to: string) => `Probabil între ${from} și ${to}`,
+      likely: (date: string, n: number) =>
+        `Cel mai probabil în jurul datei de ${date}, ${n === 0 ? 'adică azi' : n === 1 ? 'adică mâine' : `peste ${zile(n)}`}.`,
+      due: (latest: string) => `Poate începe în orice zi. Intervalul estimat ține până pe ${latest}.`,
+      late: (n: number) => `Întârzie cu ${zile(n)} față de estimare.`,
+      lateHint: 'Întârzierile au multe cauze posibile. Vezi câteva repere în Sfaturi.',
+    },
+    confidence: { low: 'Precizie scăzută', medium: 'Precizie medie', high: 'Precizie bună' },
+    basis: {
+      default: 'Pornim de la un ciclu obișnuit de 28 de zile.',
+      declared: 'Pe baza duratei declarate de tine.',
+      history: (n: number) => (n === 1 ? 'Pe baza ultimului ciclu înregistrat.' : `Pe baza ultimelor ${cicluri(n)} înregistrate.`),
+    },
+    fertility: {
+      heading: 'Fertilitate',
+      window: (range: string) => `Zile fertile estimate: ${range}`,
+      ovulation: (date: string) => `Ovulație estimată: ${date}, cu o marjă de câteva zile`,
+      todayFertile: 'Azi este o zi fertilă estimată.',
+      todayOvulation: 'Azi este ziua estimată a ovulației.',
+    },
+    noData: {
+      title: 'Notează prima zi de menstruație',
+      body: 'După prima înregistrare vezi ziua ciclului, fazele și o estimare pentru următoarea menstruație.',
+      action: 'Deschide jurnalul',
+    },
+    quick: {
+      title: 'Cum e azi?',
+      flow: 'Flux azi',
+      open: 'Deschide jurnalul de azi',
+      logged: 'Azi ai notat:',
+      nothing: 'Încă nu ai notat nimic azi.',
+      symptoms: (n: number) => count(n, 'simptom', 'simptome', 'de simptome'),
+      mood: (label: string) => `dispoziție ${label.toLowerCase()}`,
+      energy: (label: string) => `energie ${label.toLowerCase()}`,
+      note: 'o notă',
+      bbt: (value: string) => `${value} °C`,
+    },
+    reminders: {
+      title: 'Memento-uri azi',
+      period: 'Menstruație estimată',
+      fertile: 'Zile fertile estimate',
+    },
+    flags: {
+      title: 'De urmărit',
+      seeAll: 'Vezi toate observațiile',
+    },
+    tip: { title: 'Un sfat pentru azi', more: 'Toate sfaturile' },
+    demo: {
+      text: 'Acestea sunt date demonstrative, inventate. Nu sunt datele tale.',
+      remove: 'Șterge datele demonstrative',
+    },
+    storage: {
+      session:
+        'Browserul nu permite salvarea pe dispozitiv (fereastră privată sau stocare blocată). Ce notezi se păstrează doar până închizi pagina.',
+      plain:
+        'Criptarea nu este disponibilă aici (pagina nu este servită prin HTTPS). Ce notezi se păstrează doar în această sesiune.',
+    },
+  },
+
+  calendar: {
+    title: 'Calendar',
+    prevMonth: 'Luna anterioară',
+    nextMonth: 'Luna următoare',
+    goToday: 'Înapoi la azi',
+    weekdaysShort: ['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'],
+    weekdaysLong: ['luni', 'marți', 'miercuri', 'joi', 'vineri', 'sâmbătă', 'duminică'],
+    gridLabel: (month: string) => `Calendar, ${month}`,
+    legend: {
+      title: 'Legendă',
+      periodLogged: 'Menstruație notată',
+      periodPredicted: 'Menstruație estimată',
+      fertile: 'Zi fertilă estimată',
+      ovulation: 'Ovulație estimată',
+      entry: 'Zi cu notițe',
+      bleed: 'Sângerare între menstruații',
+    },
+    aria: {
+      today: 'azi',
+      cycleDay: (n: number) => `ziua ${n} a ciclului`,
+      periodLogged: 'menstruație notată',
+      periodPredicted: 'menstruație estimată',
+      fertile: 'zi fertilă estimată',
+      ovulation: 'ovulație estimată',
+      entry: 'are notițe în jurnal',
+      bleed: 'sângerare între menstruații',
+      spotting: 'spotting',
+      selected: 'selectată',
+    },
+    detail: {
+      cycleDay: (n: number) => `Ziua ${n} a ciclului`,
+      estimated: 'Estimare',
+      noInfo: 'Pentru această zi nu există încă date sau estimări.',
+      open: 'Deschide în jurnal',
+      future: 'Zi din viitor: aici vezi doar estimări.',
+      nothing: 'Nimic notat în jurnal.',
+      periodPredicted: 'Menstruație estimată',
+      fertile: 'Zi fertilă estimată',
+      ovulation: 'Ziua estimată a ovulației',
+      bleed: 'Sângerare între menstruații',
+    },
+    edit: {
+      start: 'Editează zilele de menstruație',
+      done: 'Am terminat',
+      hint: 'Atinge zilele în care ai avut menstruație. Poți marca ziua de azi și zile trecute.',
+      marked: (date: string) => `${date}, marcată ca zi de menstruație`,
+      unmarked: (date: string) => `${date}, marcaj eliminat`,
+    },
+  },
+
+  journal: {
+    title: 'Jurnal',
+    prevWeek: 'Săptămâna anterioară',
+    nextWeek: 'Săptămâna următoare',
+    weekLabel: 'Alege ziua',
+    hasEntry: 'are notițe',
+    cycleInfo: (day: number, phase: string) => `Ziua ${day} a ciclului, ${phase}`,
+    autosave: 'Tot ce notezi se salvează pe loc.',
+    flow: {
+      title: 'Flux',
+      hint: 'Spottingul nu se numără ca zi de menstruație.',
+      unspecified: 'Zi marcată ca menstruație. Alege intensitatea, dacă o știi.',
+      none: 'Fără sângerare',
+    },
+    symptoms: {
+      title: 'Simptome',
+      hint: 'Atinge ce ai simțit azi. Apoi poți alege intensitatea.',
+      intensityTitle: 'Intensitate',
+      intensityFor: (name: string) => `Intensitate pentru ${name.toLowerCase()}`,
+    },
+    mood: { title: 'Dispoziție' },
+    energy: { title: 'Energie' },
+    bbt: {
+      title: 'Temperatură bazală',
+      label: 'Temperatura, în °C',
+      hint: 'Măsurată dimineața, înainte să te ridici din pat.',
+      invalid: 'Introdu o valoare între 34 și 42 °C.',
+      imported: (device: string) => `Importată din ${device}`,
+      importAction: 'Importă din fișier',
+      clear: 'Șterge temperatura',
+    },
+    mucus: { title: 'Secreție cervicală' },
+    note: {
+      title: 'Notă',
+      label: 'Notă pentru această zi',
+      placeholder: 'Orice vrei să ții minte despre ziua asta',
+      counter: (used: number, max: number) => `${used} din ${max} caractere`,
+    },
+    clear: 'Golește alegerea',
+  },
+
+  importTemps: {
+    title: 'Importă temperaturi',
+    intro:
+      'Alege un fișier CSV exportat din aplicația brățării, a inelului sau a termometrului. Fișierul este citit doar pe acest dispozitiv și nu este trimis nicăieri.',
+    format: 'Fișierul are nevoie de o coloană cu data și una cu temperatura, în °C sau °F.',
+    choose: 'Alege fișierul',
+    device: 'Numele dispozitivului',
+    devicePlaceholder: 'de exemplu: inel, brățară, termometru',
+    deviceDefault: 'Dispozitiv',
+    found: (n: number, from: string, to: string) => `${count(n, 'valoare', 'valori', 'de valori')} între ${from} și ${to}`,
+    skipped: (n: number) => `${count(n, 'rând nu a putut fi folosit', 'rânduri nu au putut fi folosite', 'de rânduri nu au putut fi folosite')}.`,
+    fahrenheit: 'Valorile par a fi în °F și vor fi convertite în °C.',
+    conflicts: (n: number) => `${count(n, 'zi are', 'zile au', 'de zile au')} deja o temperatură notată.`,
+    overwrite: 'Înlocuiește valorile notate cu cele din fișier',
+    confirm: 'Importă',
+    done: (n: number) => `Am importat ${count(n, 'temperatură', 'temperaturi', 'de temperaturi')}.`,
+    problem: {
+      empty: 'Fișierul este gol.',
+      no_date_column: 'Nu am găsit o coloană cu data.',
+      no_temperature_column: 'Nu am găsit o coloană cu temperatura.',
+      unreadable: 'Fișierul nu a putut fi citit.',
+      none: 'Nu am găsit nicio valoare care să poată fi folosită.',
+    },
+    native:
+      'În aplicația pentru telefon, importul se face direct din Apple Health sau Health Connect, după un acord separat.',
+  },
+
+  tips: {
+    title: 'Sfaturi',
+    flags: {
+      title: 'De urmărit',
+      intro: 'Observații făcute pe baza a ceea ce ai notat. Nu sunt un diagnostic.',
+      dismiss: 'Am înțeles',
+      dismissed: 'Observația a fost ascunsă pentru 30 de zile.',
+    },
+    phase: {
+      title: 'Pentru faza în care ești',
+      choose: 'Alege faza',
+      current: 'acum',
+      none: 'După ce notezi prima menstruație, aici apar sfaturi pentru faza în care ești. Până atunci, le poți răsfoi pe toate.',
+    },
+    category: { nutrition: 'Alimentație', movement: 'Mișcare', sleep: 'Somn', skin: 'Piele' },
+    categoryLabel: 'Alege tema',
+    symptoms: {
+      title: 'Pentru ce ai notat recent',
+      empty: 'Când notezi simptome în jurnal, aici apar sugestii potrivite lor.',
+      logged: (n: number) => `Notat în ${zile(n)} din ultimele 14`,
+      helps: 'Ce poate ajuta',
+      doctor: 'Când merită să ceri sfatul unui medic',
+    },
+    disclaimer:
+      'Sfaturile sunt informații generale, nu recomandări medicale, și nu înlocuiesc discuția cu un medic. Dacă ceva te îngrijorează, cere o părere de specialitate.',
+  },
+
+  stats: {
+    title: 'Statistici',
+    summary: {
+      avgCycle: 'Ciclu mediu',
+      variation: 'Variație',
+      avgPeriod: 'Menstruație, în medie',
+      recorded: 'Cicluri înregistrate',
+      daysUnit: 'zile',
+      range: (a: number, b: number) => (a === b ? `${a}` : `${a}–${b}`),
+      basis: (n: number) => `Mediile folosesc ultimele ${cicluri(n)} încheiate, cel mult șase.`,
+      none: '–',
+    },
+    cycles: {
+      title: 'Durata ciclurilor',
+      subtitle: 'zile de la o menstruație la următoarea',
+      mean: (n: string) => `medie ${n}`,
+      current: (n: number) => `în curs, ziua ${n}`,
+      excluded: 'nu intră în medie',
+      tooltip: (start: string, n: number) => `Început pe ${start}: ${zile(n)}`,
+      period: (n: number) => `menstruație ${zile(n)}`,
+      colStart: 'Început',
+      colLength: 'Durata ciclului',
+      colPeriod: 'Durata menstruației',
+    },
+    symptoms: {
+      title: 'Simptome pe luni',
+      subtitle: 'în câte zile ai notat fiecare simptom',
+      colSymptom: 'Simptom',
+      tooltip: (name: string, month: string, n: number, severe: number) =>
+        `${name}, ${month}: ${zile(n)}${severe > 0 ? `, dintre care ${severe} cu intensitate severă` : ''}`,
+      empty: 'Niciun simptom notat în ultimele șase luni.',
+    },
+    mood: {
+      title: 'Dispoziție și energie',
+      subtitle: 'medii săptămânale, pe o scală de la 1 la 5',
+      mood: 'Dispoziție',
+      energy: 'Energie',
+      period: 'Menstruație',
+      weekOf: (date: string) => `Săptămâna din ${date}`,
+      colWeek: 'Săptămâna',
+      empty: 'Notează dispoziția și energia în jurnal ca să vezi cum se schimbă de la o săptămână la alta.',
+    },
+    byPhase: {
+      title: 'Dispoziție și energie pe faze',
+      subtitle: 'medii din ultimele șase luni',
+      colPhase: 'Faza',
+      colDays: 'Zile notate',
+    },
+    bbt: {
+      title: 'Temperatură bazală',
+      subtitle: 'ultimele 45 de zile, în °C',
+      colDate: 'Data',
+      colValue: 'Temperatura',
+      tooltip: (date: string, value: string) => `${date}: ${value} °C`,
+    },
+    table: 'Vezi datele ca tabel',
+    empty: {
+      title: 'Încă nu sunt destule date',
+      body: 'Graficele apar pe măsură ce notezi în jurnal. Durata ciclurilor se vede după a doua menstruație înregistrată.',
+    },
+    export: {
+      title: 'Raport pentru medic',
+      body: 'Un PDF cu ciclurile, simptomele și dispoziția din perioada aleasă. Se creează pe dispozitiv; tu hotărăști cui îl arăți.',
+      open: 'Creează raportul PDF',
+      range: 'Perioada',
+      months: (n: number) => `Ultimele ${luni(n)}`,
+      notes: 'Include notele din jurnal',
+      notesHint: 'Notele pot conține detalii personale. Sunt lăsate deoparte dacă nu bifezi.',
+      generate: 'Generează PDF',
+      generating: 'Se generează…',
+      saved: 'Raportul a fost salvat.',
+      declined: 'Salvarea a fost anulată.',
+      failed: 'Raportul nu a putut fi salvat pe acest dispozitiv.',
+      filename: (date: string) => `CycleCare-raport-${date}.pdf`,
+    },
+  },
+
+  settings: {
+    title: 'Setări',
+    sections: {
+      cycle: { title: 'Ciclul meu', hint: 'Durate obișnuite, obiective, estimări de fertilitate' },
+      reminders: { title: 'Memento-uri', hint: 'Menstruație, zile fertile, pilulă și alte medicamente' },
+      privacy: { title: 'Confidențialitate și securitate', hint: 'PIN, biometrie, acorduri, ștergerea datelor' },
+      data: { title: 'Datele mele', hint: 'Export, copie de siguranță, import din dispozitive' },
+      appearance: { title: 'Aspect și accesibilitate', hint: 'Temă, dimensiunea textului, limbă' },
+      about: { title: 'Despre CycleCare', hint: 'Versiune, limite, licențe' },
+    },
+    cycle: {
+      cycleLength: 'Durata obișnuită a ciclului',
+      periodLength: 'Durata obișnuită a menstruației',
+      unknown: 'Nu știu',
+      lengthsHint:
+        'Aceste valori contează mai ales la început. După trei cicluri înregistrate, estimările folosesc doar ce ai notat.',
+      goals: 'Obiective',
+      fertility: 'Arată estimările de fertilitate',
+      fertilityHint:
+        'Ascunde ovulația și zilele fertile dacă nu ți se potrivesc, de exemplu dacă folosești contracepție hormonală: aceasta schimbă ciclul natural, iar estimările nu se mai aplică.',
+    },
+    reminders: {
+      status: {
+        granted: 'Notificările sunt permise pe acest dispozitiv.',
+        default: 'Pentru notificări de sistem este nevoie de permisiunea ta.',
+        denied: 'Notificările sunt blocate din setările browserului. Memento-urile apar doar în aplicație.',
+        unsupported: 'Acest browser nu poate afișa notificări de sistem. Memento-urile apar doar în aplicație.',
+      },
+      allow: 'Permite notificările',
+      webNote:
+        'În prototipul web, memento-urile apar cât timp aplicația este deschisă și, la deschidere, pe ecranul „Azi”. Aplicația pentru telefon le programează în sistem, fără server.',
+      discreet: 'Text discret în notificări',
+      discreetHint: 'Notificarea spune doar „Ai un memento”, fără cuvinte despre ciclu sau medicamente.',
+      period: 'Începutul menstruației estimate',
+      fertile: 'Zilele fertile estimate',
+      fertileHidden: 'Estimările de fertilitate sunt ascunse din „Ciclul meu”.',
+      daysBefore: 'Cu câte zile înainte',
+      daysBeforeValue: (n: number) => (n === 0 ? 'În ziua respectivă' : `Cu ${zile(n)} înainte`),
+      time: 'Ora',
+      repeatPeriod: 'Repetă zilnic până în ziua estimată',
+      repeatFertile: 'Repetă în fiecare zi fertilă estimată',
+      medications: 'Pilulă și alte medicamente',
+      medicationsEmpty: 'Niciun memento pentru medicamente.',
+      addMedication: 'Adaugă un memento',
+      addPill: 'Adaugă pilula',
+      pillName: 'Pilula',
+      medName: 'Denumire',
+      medNamePlaceholder: 'de exemplu: Pilula, Fier, Magneziu',
+      medDays: 'Zilele',
+      everyDay: 'În fiecare zi',
+      removeMedication: (name: string) => `Elimină memento-ul pentru ${name}`,
+      enabledFor: (name: string) => `Memento activ pentru ${name}`,
+    },
+    privacy: {
+      lockTitle: 'Blocarea aplicației',
+      pinOn: 'PIN activ',
+      pinOff: 'Fără PIN',
+      pinHint:
+        'Cu PIN, cheia de criptare este protejată de el: fără PIN datele nu pot fi citite, nici măcar copiate de pe dispozitiv.',
+      setPin: 'Setează un PIN',
+      changePin: 'Schimbă PIN-ul',
+      removePin: 'Dezactivează PIN-ul',
+      currentPin: 'PIN-ul actual',
+      newPin: 'PIN nou (4–8 cifre)',
+      repeatPin: 'Repetă PIN-ul nou',
+      wrongPin: 'PIN-ul actual nu este corect.',
+      pinSet: 'PIN-ul a fost setat.',
+      pinRemoved: 'PIN-ul a fost dezactivat.',
+      pinUnavailable: 'Blocarea cu PIN are nevoie de stocare criptată, care nu este disponibilă în acest browser.',
+      biometric: 'Deblocare cu amprenta sau fața',
+      biometricHint: 'Folosește senzorul dispozitivului. PIN-ul rămâne varianta de rezervă.',
+      biometricNeedsPin: 'Setează mai întâi un PIN.',
+      biometricUnavailable: 'Dispozitivul sau browserul nu oferă deblocare biometrică pentru această pagină.',
+      biometricFailed: 'Activarea nu a reușit. Senzorul nu a confirmat sau browserul nu oferă funcția necesară.',
+      biometricOn: 'Deblocarea biometrică este activă.',
+      autoLock: 'Blochează automat',
+      autoLockOptions: { 0: 'Imediat ce ies din aplicație', 1: 'După 1 minut', 5: 'După 5 minute', never: 'Doar când o blochez eu' },
+      lockNow: 'Blochează acum',
+      storageTitle: 'Unde sunt datele',
+      storage: {
+        encrypted: 'Pe acest dispozitiv, criptate cu AES-256. Nu există cont și nu există server.',
+        session: 'Doar în memoria acestei pagini: browserul nu permite salvarea pe dispozitiv.',
+        plain: 'Doar în memoria acestei pagini, necriptate: criptarea nu este disponibilă fără HTTPS.',
+      },
+      sharingTitle: 'Partajare cu terți',
+      sharing:
+        'Nimic nu este partajat. Dacă o funcție viitoare ar presupune trimiterea de date către altcineva, îți vom cere un acord separat, pentru acel caz, și îl vei putea retrage oricând.',
+      consentTitle: 'Acordul tău',
+      consentGiven: (date: string, version: string) => `Acord pentru prelucrarea datelor privind sănătatea, dat pe ${date} (textul versiunea ${version}).`,
+      withdraw: 'Retrage acordul și șterge datele',
+      withdrawBody:
+        'Fără acord, CycleCare nu poate păstra date despre ciclul tău. Retragerea șterge tot ce ai notat și te întoarce la ecranul de început.',
+      policy: 'Citește declarația de confidențialitate',
+      deleteTitle: 'Șterge toate datele',
+      deleteBody:
+        'Jurnalul, setările, PIN-ul și cheile de criptare sunt șterse de pe acest dispozitiv. Nu există copie din care să poată fi recuperate.',
+      deleteAction: 'Șterge toate datele',
+      deleteConfirmTitle: 'Ștergi definitiv toate datele?',
+      deleteConfirmBody:
+        'Acțiunea nu poate fi anulată. Dacă vrei să păstrezi ceva, fă mai întâi un export din „Datele mele”.',
+      deleteConfirm: 'Da, șterge tot',
+      deleted: 'Toate datele au fost șterse.',
+    },
+    data: {
+      pdfTitle: 'Raport PDF pentru medic',
+      pdfHint: 'Îl creezi din ecranul Statistici.',
+      pdfOpen: 'Mergi la Statistici',
+      backupTitle: 'Copie de siguranță',
+      backupHint:
+        'Toate datele, într-un fișier JSON pe care îl poți citi și muta pe alt dispozitiv. Fișierul nu este criptat: păstrează-l într-un loc sigur.',
+      export: 'Exportă datele (JSON)',
+      exported: 'Fișierul a fost salvat.',
+      exportFailed: 'Fișierul nu a putut fi salvat.',
+      exportFilename: (date: string) => `CycleCare-date-${date}.json`,
+      import: 'Restaurează dintr-un fișier',
+      importConfirmTitle: 'Înlocuiești datele de pe acest dispozitiv?',
+      importConfirmBody: (days: number) =>
+        `Fișierul conține ${count(days, 'zi notată', 'zile notate', 'de zile notate')}. Jurnalul și setările actuale vor fi înlocuite.`,
+      importConfirm: 'Înlocuiește',
+      imported: 'Datele au fost restaurate.',
+      importError: {
+        not_json: 'Fișierul nu este un export CycleCare valid.',
+        not_cyclecare: 'Fișierul nu este un export CycleCare.',
+        unsupported_version: 'Fișierul vine dintr-o versiune mai nouă a aplicației.',
+      },
+      devicesTitle: 'Dispozitive purtabile',
+      devicesHint: 'Importă temperatura bazală dintr-un fișier exportat de brățară, inel sau termometru.',
+      importTemps: 'Importă temperaturi',
+      batches: 'Importuri făcute',
+      batch: (device: string, n: number, date: string) => `${device}: ${count(n, 'valoare', 'valori', 'de valori')}, importate pe ${date}`,
+      demoTitle: 'Date demonstrative',
+      demoHint: 'Încarcă șapte luni de date inventate ca să vezi cum arată graficele și sfaturile. Înlocuiesc jurnalul actual.',
+      demoLoad: 'Încarcă date demonstrative',
+      demoConfirmTitle: 'Înlocuiești jurnalul cu date demonstrative?',
+      demoConfirmBody: 'Ce ai notat până acum va fi șters de pe acest dispozitiv.',
+      demoConfirm: 'Încarcă',
+      demoLoaded: 'Datele demonstrative au fost încărcate.',
+      demoRemove: 'Șterge datele demonstrative',
+      demoRemoved: 'Datele demonstrative au fost șterse.',
+    },
+    appearance: {
+      theme: 'Temă',
+      themes: { system: 'Ca dispozitivul', light: 'Luminoasă', dark: 'Întunecată' },
+      textSize: 'Dimensiunea textului',
+      textSizes: { small: 'Mic', normal: 'Normal', large: 'Mare', xlarge: 'Foarte mare' },
+      textSizeHint: 'Se adaugă peste dimensiunea aleasă în setările dispozitivului sau ale browserului.',
+      sample: 'Următoarea menstruație: probabil între 30 noiembrie și 6 decembrie.',
+      language: 'Limbă',
+      languageHint: 'Alte limbi apar aici pe măsură ce sunt adăugate.',
+      motion: 'Animațiile respectă setarea „Reducere mișcare” a dispozitivului.',
+    },
+    about: {
+      version: (v: string) => `Versiunea ${v}, prototip`,
+      notMedical:
+        'CycleCare este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu poate fi folosit ca metodă de contracepție.',
+      estimates:
+        'Estimările pornesc de la datele pe care le notezi și presupun cicluri naturale. Sunt mai puțin de încredere în primele luni de folosire, la cicluri neregulate, în timpul contracepției hormonale, după naștere, în perioada de alăptare și la perimenopauză.',
+      emergency: 'Pentru urgențe medicale, sună la 112.',
+      licenses: 'Fonturi: Figtree și Bricolage Grotesque (SIL Open Font License 1.1). Pictograme: Lucide (ISC).',
+      docs: 'Documentația prototipului (ecrane, model de date, algoritm, conținut, texte juridice) se află în dosarul docs al proiectului.',
+    },
+  },
+
+  notification: {
+    discreetTitle: 'CycleCare',
+    discreetBody: 'Ai un memento.',
+    periodTitle: 'Menstruație',
+    period: (daysBefore: number) =>
+      daysBefore === 0
+        ? 'Menstruația este estimată să înceapă azi.'
+        : daysBefore === 1
+          ? 'Menstruația este estimată să înceapă mâine.'
+          : `Menstruația este estimată să înceapă peste ${zile(daysBefore)}.`,
+    fertileTitle: 'Zile fertile',
+    fertile: (daysBefore: number) =>
+      daysBefore === 0
+        ? 'Azi este o zi fertilă estimată.'
+        : daysBefore === 1
+          ? 'Fereastra fertilă estimată începe mâine.'
+          : `Fereastra fertilă estimată începe peste ${zile(daysBefore)}.`,
+    medicationTitle: 'Memento',
+    medication: (name: string) => `E timpul pentru: ${name}`,
+  },
+
+  pdf: {
+    title: 'Raport ciclu menstrual',
+    generated: (date: string) => `Generat pe ${date} din aplicația CycleCare`,
+    period: (from: string, to: string) => `Perioada: ${from} – ${to}`,
+    summary: 'Rezumat',
+    avgCycle: 'Durata medie a ciclului',
+    variation: 'Cel mai scurt și cel mai lung ciclu',
+    avgPeriod: 'Durata medie a menstruației',
+    recorded: 'Cicluri încheiate în perioadă',
+    declared: 'Durate declarate la înregistrare',
+    declaredValue: (cycle: string, period: string) => `ciclu ${cycle}, menstruație ${period}`,
+    unknown: 'nedeclarat',
+    daysValue: (value: string) => `${value} zile`,
+    cycles: 'Cicluri',
+    cyclesChart: 'Durata ciclurilor (zile)',
+    colIndex: 'Nr.',
+    colStart: 'Prima zi',
+    colLength: 'Durata ciclului',
+    colPeriod: 'Menstruație',
+    colHeavy: 'Zile cu flux abundent',
+    colNote: 'Observații',
+    inProgress: 'în curs',
+    excluded: 'peste 90 de zile, nu intră în medie',
+    betweenBleeding: 'sângerare între menstruații',
+    symptoms: 'Simptome',
+    symptomsNote: 'Numărul de zile în care a fost notat fiecare simptom. În paranteză: zile cu intensitate severă.',
+    colSymptom: 'Simptom',
+    colTotal: 'Total',
+    mood: 'Dispoziție și energie',
+    moodNote: 'Medii lunare pe o scală de la 1 (foarte scăzută) la 5 (foarte bună / foarte ridicată).',
+    colMonth: 'Luna',
+    colMood: 'Dispoziție',
+    colEnergy: 'Energie',
+    colDays: 'Zile notate',
+    byPhase: 'Medii pe faze ale ciclului',
+    colPhase: 'Faza',
+    bbt: 'Temperatură bazală',
+    bbtNote: (n: number) => `${count(n, 'măsurătoare', 'măsurători', 'de măsurători')} în perioadă. Valori în °C.`,
+    colCycleDay: 'Ziua ciclului',
+    colTemp: '°C',
+    colDate: 'Data',
+    observations: 'Observații generate de aplicație',
+    observationsNote: 'Constatări automate pe baza datelor notate. Nu reprezintă un diagnostic.',
+    notes: 'Note din jurnal',
+    none: 'Nimic notat în perioadă.',
+    disclaimer:
+      'Raport generat de utilizator din datele introduse în aplicația CycleCare. Fazele, ovulația și zilele fertile sunt estimări calculate din durata ciclurilor. Documentul nu reprezintă un diagnostic.',
+    page: (n: number, total: number) => `Pagina ${n} din ${total}`,
+  },
+
+  errors: {
+    generic: 'Ceva nu a mers. Încearcă din nou.',
+    boundaryTitle: 'Ecranul nu a putut fi afișat',
+    boundaryBody: 'Datele tale sunt în siguranță. Reîncarcă pagina; dacă problema persistă, exportă datele din Setări.',
+    reload: 'Reîncarcă',
+  },
+};
