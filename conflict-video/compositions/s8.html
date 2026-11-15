@@ -1,0 +1,99 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s8-bg { position: absolute; inset: 0; background: #ffd43b; }
+    .s8-bub { position: absolute; top: 400px; width: 456px; height: 360px; }
+    .s8-bub svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s8-bub .flip { transform: scaleX(-1); }
+    .s8-bub .txt {
+      position: absolute; left: 0; right: 0; top: 86px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 104px; line-height: 1; color: #ffffff;
+    }
+    #s8-a { left: 240px; z-index: 2; }
+    #s8-b { left: 1224px; z-index: 1; }
+    #s8-title {
+      position: absolute; left: 140px; top: 88px;
+      font-family: "Archivo Black", sans-serif; font-size: 92px; line-height: 1; color: #14110f;
+    }
+    .s8-tag {
+      position: absolute; padding: 12px 24px 16px; background: #ffffff; border: 7px solid #14110f; border-radius: 16px;
+      box-shadow: 9px 9px 0 #14110f; font-family: "Inter", sans-serif; font-weight: 900; font-size: 48px; line-height: 1; color: #14110f; z-index: 3;
+    }
+    #s8-t1 { left: 250px; top: 300px; }
+    #s8-t2 { left: 1180px; top: 300px; }
+    #s8-t3 { left: 260px; top: 700px; }
+    #s8-heart { position: absolute; left: 1470px; top: 420px; width: 130px; height: 120px; overflow: visible; z-index: 3; }
+    #s8-common {
+      position: absolute; left: 0; width: 1920px; top: 262px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 96px; line-height: 1; color: #14110f; z-index: 3;
+    }
+    #s8-star { position: absolute; left: 900px; top: 470px; width: 120px; height: 120px; overflow: visible; z-index: 3; }
+  </style>
+  <div id="root" data-composition-id="s8" data-width="1920" data-height="1080">
+    <div id="s8-bg"></div>
+    <div id="s8-a" class="s8-bub">
+      <svg viewBox="0 0 380 300">
+        <path id="s8-a-sh" transform="translate(12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        <path id="s8-a-body" fill="#ff5a1f" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+      </svg>
+      <div id="s8-a-t0" class="txt">#@!</div>
+      <div id="s8-a-t1" class="txt">...</div>
+    </div>
+    <div id="s8-b" class="s8-bub">
+      <svg class="flip" viewBox="0 0 380 300">
+        <path transform="translate(-12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        <path fill="#2f5bff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+      </svg>
+      <div id="s8-b-t0" class="txt">?!</div>
+      <div id="s8-b-t1" class="txt">...</div>
+    </div>
+    <div id="s8-title">REZOLVARE CONSTRUCTIVĂ</div>
+    <div id="s8-t1" class="s8-tag">DIALOG DESCHIS</div>
+    <div id="s8-t2" class="s8-tag">ASCULTARE EMPATICĂ</div>
+    <svg id="s8-heart" viewBox="0 0 130 120">
+      <path transform="translate(8 8)" fill="#14110f" d="M65 112 C20 80 4 58 4 36 C4 16 20 4 36 4 C50 4 60 12 65 24 C70 12 80 4 94 4 C110 4 126 16 126 36 C126 58 110 80 65 112 Z" />
+      <path fill="#e5383b" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M65 112 C20 80 4 58 4 36 C4 16 20 4 36 4 C50 4 60 12 65 24 C70 12 80 4 94 4 C110 4 126 16 126 36 C126 58 110 80 65 112 Z" />
+    </svg>
+    <div id="s8-t3" class="s8-tag">TRANSPARENȚĂ</div>
+    <div id="s8-common">VALORI COMUNE</div>
+    <svg id="s8-star" viewBox="0 0 120 120">
+      <polygon transform="translate(7 7)" fill="#14110f" points="60,4 75,42 116,44 84,70 95,110 60,87 25,110 36,70 4,44 45,42" />
+      <polygon fill="#ffffff" stroke="#14110f" stroke-width="7" stroke-linejoin="round" points="60,4 75,42 116,44 84,70 95,110 60,87 25,110 36,70 4,44 45,42" />
+    </svg>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      var tagIn = function (sel, t, rot) {
+        tl.fromTo(sel, { opacity: 0, scale: 1.4, rotation: rot * 3 }, { opacity: 1, scale: 1, rotation: rot, duration: 0.26, ease: "back.out(1.8)" }, t);
+      };
+      // colour flood from the arbitration world
+      tl.fromTo("#s8-bg", { backgroundColor: "#ffd43b" }, { backgroundColor: "#29c79a", duration: 0.4, ease: "power2.inOut" }, 0);
+      tl.fromTo(["#s8-a-t0", "#s8-b-t0"], { opacity: 1 }, { opacity: 0, duration: 0.15, ease: "power2.in" }, 0.2);
+      tl.fromTo("#s8-a", { x: 0 }, { x: 80, duration: 0.6, ease: "power3.inOut" }, 0.2);
+      tl.fromTo("#s8-b", { x: 0 }, { x: -80, duration: 0.6, ease: "power3.inOut" }, 0.2);
+      // "constructivă" (1.31)
+      tl.fromTo("#s8-title", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 1.28);
+      // "dialogul deschis" (2.49): they take turns speaking
+      tl.fromTo("#s8-a-t1", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 2.49);
+      tl.fromTo("#s8-b-t1", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 2.75);
+      tagIn("#s8-t1", 2.49, -3);
+      // "ascultarea empatică" (3.71 / 4.30)
+      tagIn("#s8-t2", 3.71, 2);
+      tl.fromTo("#s8-heart", { opacity: 0, scale: 0.2, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.28, ease: "back.out(2.2)" }, 4.28);
+      // "transparența" (5.13): the orange side becomes see-through
+      tagIn("#s8-t3", 5.1, -2);
+      tl.fromTo("#s8-a-body", { fillOpacity: 1 }, { fillOpacity: 0.35, duration: 0.35, ease: "power2.inOut" }, 5.13);
+      tl.fromTo("#s8-a-sh", { opacity: 1 }, { opacity: 0, duration: 0.35, ease: "power2.inOut" }, 5.13);
+      // "căutarea valorilor comune" (5.87 / 6.31): they overlap; the common ground is named
+      tl.to(["#s8-t1", "#s8-t2", "#s8-t3", "#s8-heart"], { opacity: 0, filter: "blur(8px)", duration: 0.16, ease: "power3.in" }, 5.7);
+      tl.to(["#s8-a-t1", "#s8-b-t1"], { opacity: 0, duration: 0.15, ease: "power2.in" }, 5.75);
+      tl.to("#s8-a-body", { fillOpacity: 0.82, duration: 0.3, ease: "power2.out" }, 5.85);
+      tl.to("#s8-a", { x: 380, duration: 0.55, ease: "power3.inOut" }, 5.85);
+      tl.to("#s8-b", { x: -380, duration: 0.55, ease: "power3.inOut" }, 5.85);
+      tl.fromTo("#s8-common", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 6.31);
+      tl.fromTo("#s8-star", { opacity: 0, scale: 0.2, rotation: -40, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, rotation: 0, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(2)" }, 6.4);
+      window.__timelines["s8"] = tl;
+    })();
+  </script>
+</template>

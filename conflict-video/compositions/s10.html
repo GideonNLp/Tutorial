@@ -1,0 +1,75 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s10-bg { position: absolute; inset: 0; background: #ffffff; }
+    #s10-cam { position: absolute; inset: 0; }
+    .s10-t { position: absolute; font-family: "Archivo Black", sans-serif; line-height: 1; color: #14110f; }
+    #s10-chap { left: 140px; top: 110px; font-family: "Inter", sans-serif; font-weight: 900; font-size: 54px; color: #6b707a; }
+    #s10-conf { left: 140px; top: 190px; font-size: 140px; }
+    #s10-evit { left: 140px; top: 380px; font-size: 128px; color: #e5383b; }
+    #s10-strike { position: absolute; left: 120px; top: 432px; width: 640px; height: 26px; background: #14110f; border-radius: 13px; transform-origin: 0% 50%; }
+    #s10-int { left: 900px; top: 380px; font-size: 120px; }
+    #s10-gest-bg { position: absolute; left: 880px; top: 534px; width: 880px; height: 136px; background: #29c79a; border-radius: 16px; transform-origin: 0% 50%; }
+    #s10-gest { left: 900px; top: 548px; font-size: 120px; }
+    #s10-resp { left: 904px; top: 704px; font-family: "Inter", sans-serif; font-weight: 900; font-size: 58px; }
+    .s10-mini { position: absolute; top: 560px; width: 260px; height: 205px; }
+    .s10-mini svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s10-mini .flip { transform: scaleX(-1); }
+    #s10-a { left: 170px; z-index: 2; }
+    #s10-b { left: 380px; z-index: 1; }
+  </style>
+  <div id="root" data-composition-id="s10" data-width="1920" data-height="1080">
+    <div id="s10-bg"></div>
+    <div id="s10-cam">
+      <div id="s10-chap" class="s10-t">ÎN CONCLUZIE</div>
+      <div id="s10-conf" class="s10-t">CONFLICTUL</div>
+      <div id="s10-evit" class="s10-t">EVITAT</div>
+      <div id="s10-strike" data-layout-allow-occlusion></div>
+      <div id="s10-int" class="s10-t">ÎNȚELES</div>
+      <div id="s10-gest-bg"></div>
+      <div id="s10-gest" class="s10-t">GESTIONAT</div>
+      <div id="s10-resp" class="s10-t">CU RESPECT RECIPROC</div>
+      <div id="s10-a" class="s10-mini">
+        <svg viewBox="0 0 380 300">
+          <path transform="translate(12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path fill="#ff5a1f" fill-opacity="0.85" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+      </div>
+      <div id="s10-b" class="s10-mini">
+        <svg class="flip" viewBox="0 0 380 300">
+          <path transform="translate(-12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path fill="#2f5bff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      var blurIn = function (sel, t) {
+        tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, t);
+      };
+      // blur swap in
+      tl.fromTo("#s10-cam", { filter: "blur(8px)" }, { filter: "blur(0px)", duration: 0.15, ease: "power2.out" }, 0);
+      // "În concluzie" (0.17)
+      tl.fromTo("#s10-chap", { opacity: 0.0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 0.15);
+      // "conflictul" (1.12)
+      blurIn("#s10-conf", 1.1);
+      // "evitat" (2.05): written, then struck out
+      blurIn("#s10-evit", 2.03);
+      tl.fromTo("#s10-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.22, ease: "power3.out" }, 2.42);
+      tl.to("#s10-evit", { opacity: 0.45, duration: 0.2, ease: "power2.out" }, 2.5);
+      // "înțeles" (3.11), "gestionat" (3.99)
+      blurIn("#s10-int", 3.09);
+      tl.fromTo("#s10-gest-bg", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power3.out" }, 3.96);
+      blurIn("#s10-gest", 3.99);
+      // "respect reciproc" (4.88): the two sides together
+      blurIn("#s10-resp", 4.86);
+      tl.fromTo("#s10-a", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.4, ease: "expo.out" }, 4.88);
+      tl.fromTo("#s10-b", { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.4, ease: "expo.out" }, 4.96);
+      // whip out
+      tl.to("#s10-cam", { x: -900, filter: "blur(16px)", duration: 0.28, ease: "power3.in" }, 6.17);
+      window.__timelines["s10"] = tl;
+    })();
+  </script>
+</template>

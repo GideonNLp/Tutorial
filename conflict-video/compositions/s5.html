@@ -1,0 +1,158 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s5-bg { position: absolute; inset: 0; background: #ffffff; }
+    #s5-cam { position: absolute; inset: 0; }
+    .s5-big { font-family: "Archivo Black", sans-serif; line-height: 1.02; color: #14110f; position: absolute; }
+    #s5-title { left: 140px; top: 80px; font-size: 92px; }
+    #s5-under { position: absolute; left: 136px; top: 186px; width: 800px; height: 18px; background: #e5383b; border-radius: 9px; transform-origin: 0% 50%; }
+    #s5-c1-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #s5-c1-l1 { left: 1230px; top: 380px; font-size: 92px; }
+    #s5-c1-l2 { left: 1230px; top: 478px; font-size: 92px; color: #ff5a1f; }
+    #s5-c2-label { left: 140px; top: 236px; font-size: 76px; }
+    .s5-mini { position: absolute; top: 380px; width: 400px; height: 316px; }
+    .s5-mini svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s5-mini .flip { transform: scaleX(-1); }
+    .s5-mini .txt { position: absolute; left: 0; right: 0; top: 62px; text-align: center; font-family: "Archivo Black", sans-serif; font-size: 128px; line-height: 1; color: #ffffff; }
+    #s5-c2-a { left: 230px; }
+    #s5-c2-b { left: 1290px; }
+    #s5-c2-tile { position: absolute; left: 815px; top: 430px; width: 290px; height: 290px; background: #ffd43b; border: 8px solid #14110f; border-radius: 22px; box-shadow: 12px 12px 0 #14110f; }
+    #s5-c2-digit { position: absolute; left: 0; right: 0; top: 28px; text-align: center; font-family: "Archivo Black", sans-serif; font-size: 210px; line-height: 1; color: #14110f; }
+    #s5-c3-svg { position: absolute; left: 300px; top: 380px; width: 800px; height: 360px; overflow: visible; }
+    #s5-c3-l1 { left: 1180px; top: 410px; font-size: 84px; }
+    #s5-c3-l2 { left: 1180px; top: 500px; font-size: 84px; color: #2f5bff; }
+    #s5-c4-badge { position: absolute; left: 770px; top: 230px; width: 380px; height: 560px; overflow: visible; transform-origin: 50% 0%; }
+    #s5-c4-q { position: absolute; left: 770px; top: 610px; width: 380px; text-align: center; font-family: "Archivo Black", sans-serif; font-size: 96px; line-height: 1; color: #e5383b; }
+    #s5-c4-l1 { left: 1240px; top: 430px; font-size: 92px; }
+    #s5-c4-l2 { left: 1240px; top: 528px; font-size: 92px; color: #e5383b; }
+    #s5-dip { position: absolute; inset: 0; background: #14110f; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s5" data-width="1920" data-height="1080">
+    <div id="s5-bg"></div>
+    <div id="s5-cam">
+      <div id="s5-title" class="s5-big">CAUZE FRECVENTE</div>
+      <div id="s5-under"></div>
+
+      <!-- 1. obiective divergente: two arrows leave the same point -->
+      <svg id="s5-c1-svg" viewBox="0 0 1920 1080">
+        <g id="s5-c1-arrows">
+          <path class="s5-draw" d="M760 760 C700 600 520 480 430 330" pathLength="100" fill="none" stroke="#14110f" stroke-width="46" stroke-linecap="round" stroke-dasharray="100 120" stroke-dashoffset="110" />
+          <path class="s5-draw" d="M760 760 C700 600 520 480 430 330" pathLength="100" fill="none" stroke="#ff5a1f" stroke-width="30" stroke-linecap="round" stroke-dasharray="100 120" stroke-dashoffset="110" />
+          <path class="s5-draw" d="M760 760 C820 600 1000 480 1090 330" pathLength="100" fill="none" stroke="#14110f" stroke-width="46" stroke-linecap="round" stroke-dasharray="100 120" stroke-dashoffset="110" />
+          <path class="s5-draw" d="M760 760 C820 600 1000 480 1090 330" pathLength="100" fill="none" stroke="#2f5bff" stroke-width="30" stroke-linecap="round" stroke-dasharray="100 120" stroke-dashoffset="110" />
+          <polygon class="s5-head" points="410,296 418,378 478,342" fill="#ff5a1f" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+          <polygon class="s5-head" points="1110,296 1102,378 1042,342" fill="#2f5bff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+          <circle id="s5-c1-origin" cx="760" cy="760" r="26" fill="#ffffff" stroke="#14110f" stroke-width="8" />
+        </g>
+      </svg>
+      <div id="s5-c1-l1" class="s5-big">OBIECTIVE</div>
+      <div id="s5-c1-l2" class="s5-big">DIVERGENTE</div>
+
+      <!-- 2. percepții diferite: one tile, two readings -->
+      <div id="s5-c2-label" class="s5-big">PERCEPȚII DIFERITE</div>
+      <div id="s5-c2-a" class="s5-mini">
+        <svg viewBox="0 0 380 300">
+          <path transform="translate(12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path fill="#ff5a1f" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+        <div id="s5-c2-at" class="txt">6</div>
+      </div>
+      <div id="s5-c2-b" class="s5-mini">
+        <svg class="flip" viewBox="0 0 380 300">
+          <path transform="translate(-12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path fill="#2f5bff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+        <div id="s5-c2-bt" class="txt">9</div>
+      </div>
+      <div id="s5-c2-tile"><div id="s5-c2-digit">6</div></div>
+
+      <!-- 3. competiție pe resurse: one pie, two pulls -->
+      <svg id="s5-c3-svg" viewBox="0 0 800 360">
+        <g id="s5-c3-pull-a">
+          <path d="M250 180 H40" stroke="#14110f" stroke-width="44" stroke-linecap="round" />
+          <path d="M250 180 H40" stroke="#ff5a1f" stroke-width="28" stroke-linecap="round" />
+          <polygon points="0,180 60,130 60,230" fill="#ff5a1f" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+        </g>
+        <g id="s5-c3-pull-b">
+          <path d="M550 180 H760" stroke="#14110f" stroke-width="44" stroke-linecap="round" />
+          <path d="M550 180 H760" stroke="#2f5bff" stroke-width="28" stroke-linecap="round" />
+          <polygon points="800,180 740,130 740,230" fill="#2f5bff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+        </g>
+        <g id="s5-c3-pie">
+          <circle cx="412" cy="192" r="150" fill="#14110f" />
+          <circle cx="400" cy="180" r="150" fill="#ffd43b" stroke="#14110f" stroke-width="8" />
+          <path d="M400 180 L400 30 M400 180 L530 255 M400 180 L270 255" stroke="#14110f" stroke-width="8" stroke-linecap="round" />
+        </g>
+      </svg>
+      <div id="s5-c3-l1" class="s5-big">COMPETIȚIE</div>
+      <div id="s5-c3-l2" class="s5-big">PE RESURSE</div>
+
+      <!-- 4. roluri neclare: a badge with no role on it -->
+      <svg id="s5-c4-badge" viewBox="0 0 380 560">
+        <path d="M150 0 L170 130 M230 0 L210 130" stroke="#14110f" stroke-width="16" stroke-linecap="round" />
+        <rect x="32" y="142" width="340" height="410" rx="28" fill="#14110f" />
+        <rect x="20" y="130" width="340" height="410" rx="28" fill="#ffffff" stroke="#14110f" stroke-width="8" />
+        <rect x="150" y="150" width="80" height="22" rx="11" fill="#8a8f98" />
+        <circle cx="190" cy="250" r="54" fill="#8a8f98" stroke="#14110f" stroke-width="8" />
+        <path d="M110 360 C110 300 270 300 270 360 Z" fill="#8a8f98" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+      </svg>
+      <div id="s5-c4-q">ROL: ???</div>
+      <div id="s5-c4-l1" class="s5-big">ROLURI</div>
+      <div id="s5-c4-l2" class="s5-big">NECLARE</div>
+    </div>
+    <div id="s5-dip"></div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      var blurIn = function (sel, t) {
+        tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, t);
+      };
+      var out = function (sel, t) {
+        tl.to(sel, { opacity: 0, filter: "blur(8px)", duration: 0.18, ease: "power3.in" }, t);
+      };
+      // whip in from the right
+      tl.fromTo("#s5-cam", { x: 900, filter: "blur(16px)" }, { x: 0, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, 0);
+      tl.fromTo("#s5-title", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 0.22);
+      tl.fromTo("#s5-under", { scaleX: 0 }, { scaleX: 1, duration: 0.35, ease: "power3.out" }, 0.55);
+
+      // 1. "obiectivele" (1.41) "divergente" (2.23)
+      tl.fromTo("#s5-c1-origin", { opacity: 0, scale: 0, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.2, ease: "back.out(2)" }, 1.36);
+      tl.fromTo("#s5-c1-svg .s5-draw", { strokeDashoffset: 110 }, { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" }, 1.41);
+      tl.fromTo("#s5-c1-svg .s5-head", { opacity: 0, scale: 0.4, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2)" }, 2.05);
+      blurIn("#s5-c1-l1", 1.41);
+      blurIn("#s5-c1-l2", 2.2);
+      out(["#s5-c1-svg", "#s5-c1-l1", "#s5-c1-l2"], 3.2);
+
+      // 2. "percepțiile" (3.40) "diferite" (4.07)
+      blurIn("#s5-c2-label", 3.4);
+      tl.fromTo("#s5-c2-tile", { opacity: 0, scale: 0.5, rotation: -30 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.3, ease: "back.out(1.7)" }, 3.42);
+      tl.fromTo("#s5-c2-a", { opacity: 0, x: -120 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, 3.5);
+      tl.fromTo("#s5-c2-b", { opacity: 0, x: 120 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, 3.58);
+      tl.fromTo("#s5-c2-at", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2)" }, 4.05);
+      tl.fromTo("#s5-c2-bt", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2)" }, 4.2);
+      out(["#s5-c2-label", "#s5-c2-tile", "#s5-c2-a", "#s5-c2-b"], 4.55);
+
+      // 3. "competiția" (4.73) "resurse" (5.56)
+      tl.fromTo("#s5-c3-pie", { opacity: 0, scale: 0.3, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(1.7)" }, 4.73);
+      tl.fromTo("#s5-c3-pull-a", { opacity: 0, x: 120 }, { opacity: 1, x: 0, duration: 0.3, ease: "expo.out" }, 4.85);
+      tl.fromTo("#s5-c3-pull-b", { opacity: 0, x: -120 }, { opacity: 1, x: 0, duration: 0.3, ease: "expo.out" }, 4.95);
+      tl.fromTo("#s5-c3-pie", { rotation: 0 }, { rotation: -7, duration: 0.14, ease: "power2.out" }, 5.5);
+      tl.to("#s5-c3-pie", { rotation: 6, duration: 0.18, ease: "power2.inOut" }, 5.64);
+      tl.to("#s5-c3-pie", { rotation: 0, duration: 0.2, ease: "power2.out" }, 5.82);
+      blurIn("#s5-c3-l1", 4.73);
+      blurIn("#s5-c3-l2", 5.52);
+      out(["#s5-c3-svg", "#s5-c3-l1", "#s5-c3-l2"], 6.36);
+
+      // 4. "rolurile" (6.55) "neclare" (7.15)
+      tl.fromTo("#s5-c4-badge", { opacity: 0, y: -380, rotation: 10 }, { opacity: 1, y: 0, rotation: 0, duration: 0.5, ease: "back.out(1.4)" }, 6.5);
+      blurIn("#s5-c4-l1", 6.55);
+      blurIn("#s5-c4-l2", 7.12);
+      tl.fromTo("#s5-c4-q", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.22, ease: "back.out(1.8)" }, 7.15);
+
+      // dip cut: darken for three frames, then hard cut
+      tl.fromTo("#s5-dip", { opacity: 0 }, { opacity: 0.4, duration: 0.05, ease: "none" }, 8.04);
+      window.__timelines["s5"] = tl;
+    })();
+  </script>
+</template>

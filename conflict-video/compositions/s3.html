@@ -1,0 +1,98 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s3-bg { position: absolute; inset: 0; background: #29c79a; }
+    .s3-bub { position: absolute; top: 380px; width: 456px; height: 360px; transform-origin: 50% 50%; }
+    .s3-bub svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s3-bub .flip { transform: scaleX(-1); }
+    .s3-bub .sh { fill: #14110f; }
+    .s3-bub .body { stroke: #14110f; stroke-width: 8; stroke-linejoin: round; }
+    #s3-a { left: 330px; }
+    #s3-b { left: 1134px; }
+    #s3-a .body { fill: #ff5a1f; }
+    #s3-b .body { fill: #2f5bff; }
+    .s3-bub .txt {
+      position: absolute; left: 0; right: 0; top: 86px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 104px; line-height: 1; color: #ffffff;
+    }
+    #s3-prod {
+      position: absolute; left: 560px; top: 120px;
+      font-family: "Archivo Black", sans-serif; font-size: 84px; line-height: 1; color: #14110f;
+    }
+    #s3-bar {
+      position: absolute; left: 700px; top: 360px; width: 150px; height: 400px;
+      background: #ffffff; border: 8px solid #14110f; border-radius: 10px 10px 0 0;
+      box-shadow: 12px 0 0 #14110f; transform-origin: 50% 100%;
+    }
+    #s3-base { position: absolute; left: 650px; top: 756px; width: 260px; height: 12px; background: #14110f; border-radius: 6px; }
+    #s3-down { position: absolute; left: 872px; top: 520px; width: 90px; height: 130px; overflow: visible; }
+    #s3-colab {
+      position: absolute; left: 1000px; top: 244px;
+      font-family: "Archivo Black", sans-serif; font-size: 84px; line-height: 1; color: #14110f;
+    }
+    #s3-colab-x {
+      position: absolute; left: 984px; top: 270px; width: 600px; height: 28px;
+      background: #e5383b; border-radius: 14px; transform-origin: 0% 50%;
+    }
+    #s3-lock { position: absolute; left: 1010px; top: 420px; width: 210px; height: 260px; overflow: visible; }
+  </style>
+  <div id="root" data-composition-id="s3" data-width="1920" data-height="1080">
+    <div id="s3-bg"></div>
+    <div id="s3-prod">PRODUCTIVITATE</div>
+    <div id="s3-base"></div>
+    <div id="s3-bar"></div>
+    <svg id="s3-down" viewBox="0 0 90 130">
+      <path d="M45 124 L84 76 H60 V6 H30 V76 H6 Z" fill="#e5383b" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+    </svg>
+    <div id="s3-colab">COLABORARE</div>
+    <div id="s3-colab-x" data-layout-allow-occlusion></div>
+    <svg id="s3-lock" viewBox="0 0 210 260">
+      <path d="M50 120 V82 A55 55 0 0 1 160 82 V120" fill="none" stroke="#14110f" stroke-width="30" stroke-linecap="round" />
+      <path d="M50 120 V82 A55 55 0 0 1 160 82 V120" fill="none" stroke="#8a8f98" stroke-width="14" stroke-linecap="round" />
+      <rect x="22" y="118" width="178" height="134" rx="18" fill="#14110f" />
+      <rect x="12" y="108" width="178" height="134" rx="18" fill="#ffd43b" stroke="#14110f" stroke-width="8" />
+      <circle cx="101" cy="164" r="16" fill="#14110f" />
+      <rect x="94" y="170" width="14" height="40" rx="6" fill="#14110f" />
+    </svg>
+    <div id="s3-a" class="s3-bub">
+      <svg viewBox="0 0 380 300">
+        <path class="sh" transform="translate(12 12)" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        <path id="s3-a-body" class="body" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+      </svg>
+      <div class="txt">...</div>
+    </div>
+    <div id="s3-b" class="s3-bub">
+      <svg class="flip" viewBox="0 0 380 300">
+        <path class="sh" transform="translate(-12 12)" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        <path id="s3-b-body" class="body" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+      </svg>
+      <div id="s3-b-txt" class="txt">...</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      tl.fromTo("#s3-bg", { backgroundColor: "#29c79a" }, { backgroundColor: "#8a8f98", duration: 0.4, ease: "power2.inOut" }, 0);
+      // "Lăsat nerezolvat" (0.16): the sides turn their backs and lose colour
+      tl.fromTo("#s3-a", { x: 0, y: 0, rotation: 0 }, { x: -210, y: 40, rotation: -8, duration: 0.8, ease: "power2.inOut" }, 0.16);
+      tl.fromTo("#s3-b", { x: 0, y: 0, rotation: 0 }, { x: 210, y: 40, rotation: 8, duration: 0.8, ease: "power2.inOut" }, 0.16);
+      tl.fromTo("#s3-a-body", { fill: "#ff5a1f" }, { fill: "#b9876f", duration: 0.6, ease: "power2.inOut" }, 0.3);
+      tl.fromTo("#s3-b-body", { fill: "#2f5bff" }, { fill: "#6f7ba6", duration: 0.6, ease: "power2.inOut" }, 0.3);
+      // "scade productivitatea" (1.05 / 1.35)
+      tl.fromTo("#s3-prod", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 1.0);
+      tl.fromTo(["#s3-base", "#s3-bar"], { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "power2.out" }, 1.0);
+      tl.fromTo("#s3-bar", { scaleY: 1 }, { scaleY: 0.26, duration: 0.8, ease: "power3.in" }, 1.35);
+      tl.fromTo("#s3-down", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.in" }, 1.6);
+      // "blochează colaborarea" (2.38 / 2.83)
+      tl.fromTo("#s3-lock", { opacity: 0, scale: 1.6, y: -40 }, { opacity: 1, scale: 1, y: 0, duration: 0.28, ease: "back.out(1.6)" }, 2.36);
+      tl.fromTo("#s3-colab", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 2.8);
+      tl.fromTo("#s3-colab-x", { scaleX: 0 }, { scaleX: 1, duration: 0.24, ease: "power3.out" }, 3.15);
+      // zoom through the blue bubble into the next world
+      tl.to(["#s3-prod", "#s3-bar", "#s3-base", "#s3-down", "#s3-colab", "#s3-colab-x", "#s3-lock", "#s3-a"], { opacity: 0, duration: 0.15, ease: "power2.in" }, 3.62);
+      tl.to("#s3-b-txt", { opacity: 0, duration: 0.1, ease: "power2.in" }, 3.62);
+      tl.to("#s3-b-body", { fill: "#2f5bff", duration: 0.15, ease: "power2.out" }, 3.6);
+      tl.to("#s3-b", { x: -400, y: -120, rotation: 0, scale: 7, duration: 0.42, ease: "power3.in" }, 3.62);
+      window.__timelines["s3"] = tl;
+    })();
+  </script>
+</template>
