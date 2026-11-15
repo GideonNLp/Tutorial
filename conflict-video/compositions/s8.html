@@ -87,6 +87,8 @@
       tl.fromTo("#s8-a-sh", { opacity: 1 }, { opacity: 0, duration: 0.35, ease: "power2.inOut" }, 5.13);
       // "căutarea valorilor comune" (5.87 / 6.31): they overlap; the common ground is named
       tl.to(["#s8-t1", "#s8-t2", "#s8-t3", "#s8-heart"], { opacity: 0, filter: "blur(8px)", duration: 0.16, ease: "power3.in" }, 5.7);
+      tl.to(["#s8-a-t1", "#s8-b-t1"], { opacity: 0, duration: 0.15, ease: "power2.in" }, 5.75);
+      tl.to("#s8-a-body", { fillOpacity: 0.82, duration: 0.3, ease: "power2.out" }, 5.85);
       tl.to("#s8-a", { x: 380, duration: 0.55, ease: "power3.inOut" }, 5.85);
       tl.to("#s8-b", { x: -380, duration: 0.55, ease: "power3.inOut" }, 5.85);
       tl.fromTo("#s8-common", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 6.31);
