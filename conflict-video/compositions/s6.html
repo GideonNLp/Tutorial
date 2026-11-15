@@ -1,0 +1,60 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s6-bg { position: absolute; inset: 0; background: #14110f; }
+    #s6-title {
+      position: absolute; left: 140px; top: 96px;
+      font-family: "Archivo Black", sans-serif; font-size: 120px; line-height: 1; color: #ffffff;
+    }
+    #s6-svg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+    #s6-hidden {
+      position: absolute; left: 110px; top: 380px;
+      font-family: "Archivo Black", sans-serif; font-size: 80px; line-height: 1; color: #8a8f98;
+    }
+    #s6-final {
+      position: absolute; right: 110px; top: 616px; text-align: right;
+      font-family: "Archivo Black", sans-serif; font-size: 80px; line-height: 1; color: #ffffff;
+    }
+    #s6-final-u { position: absolute; right: 110px; top: 708px; width: 760px; height: 18px; background: #e5383b; border-radius: 9px; transform-origin: 100% 50%; }
+  </style>
+  <div id="root" data-composition-id="s6" data-width="1920" data-height="1080">
+    <div id="s6-bg"></div>
+    <div id="s6-title">ETAPE</div>
+    <svg id="s6-svg" viewBox="0 0 1920 1080">
+      <path id="s6-line" d="M140 520 H1780" pathLength="100" fill="none" stroke="#ffffff" stroke-width="24" stroke-linecap="round" stroke-dasharray="100 120" stroke-dashoffset="110" />
+      <path id="s6-burn" d="M140 520 H1780" pathLength="100" fill="none" stroke="#e5383b" stroke-width="34" stroke-linecap="round" stroke-dasharray="100 120" stroke-dashoffset="110" />
+      <circle id="s6-n0" class="s6-node" cx="140" cy="520" r="40" fill="#ffffff" stroke="#14110f" stroke-width="9" />
+      <circle id="s6-n1" class="s6-node" cx="550" cy="520" r="40" fill="#ffffff" stroke="#14110f" stroke-width="9" />
+      <circle id="s6-n2" class="s6-node" cx="960" cy="520" r="40" fill="#ffffff" stroke="#14110f" stroke-width="9" />
+      <circle id="s6-n3" class="s6-node" cx="1370" cy="520" r="40" fill="#ffffff" stroke="#14110f" stroke-width="9" />
+      <circle id="s6-n4" class="s6-node" cx="1780" cy="520" r="40" fill="#ffffff" stroke="#14110f" stroke-width="9" />
+    </svg>
+    <div id="s6-hidden">TENSIUNE ASCUNSĂ</div>
+    <div id="s6-final">CONSECINȚE FINALE</div>
+    <div id="s6-final-u"></div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      // the path of a conflict draws across the frame; its steps appear as it passes
+      tl.fromTo("#s6-line", { strokeDashoffset: 110 }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" }, 0.15);
+      ["#s6-n0", "#s6-n1", "#s6-n2", "#s6-n3", "#s6-n4"].forEach(function (n, i) {
+        tl.fromTo(n, { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, transformOrigin: "50% 50%", duration: 0.24, ease: "back.out(2)" }, 0.2 + i * 0.3);
+      });
+      // "etape" (1.57)
+      tl.fromTo("#s6-title", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 1.52);
+      // "tensiunea ascunsă" (2.33): the first step, wiped in, still grey
+      tl.fromTo("#s6-hidden", { clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power2.out" }, 2.3);
+      tl.to("#s6-n0", { fill: "#ff5a1f", duration: 0.2, ease: "power2.out" }, 2.33);
+      // "consecințele finale" (3.71 / 4.48): red runs to the end, the last step swells
+      tl.fromTo("#s6-burn", { strokeDashoffset: 110 }, { strokeDashoffset: 0, duration: 0.75, ease: "power2.in" }, 3.68);
+      ["#s6-n1", "#s6-n2", "#s6-n3", "#s6-n4"].forEach(function (n, i) {
+        tl.to(n, { fill: "#e5383b", duration: 0.08, ease: "none" }, 3.9 + i * 0.13);
+      });
+      tl.to("#s6-n4", { scale: 1.8, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(2)" }, 4.43);
+      tl.fromTo("#s6-final", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 3.71);
+      tl.fromTo("#s6-final-u", { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "power3.out" }, 4.45);
+      window.__timelines["s6"] = tl;
+    })();
+  </script>
+</template>

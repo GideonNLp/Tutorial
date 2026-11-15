@@ -1,0 +1,88 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s2-bg { position: absolute; inset: 0; background: #ffd43b; }
+    .s2-bub { position: absolute; top: 380px; width: 456px; height: 360px; }
+    .s2-bub svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s2-bub .flip { transform: scaleX(-1); }
+    .s2-bub .sh { fill: #14110f; }
+    .s2-bub .body { stroke: #14110f; stroke-width: 8; stroke-linejoin: round; }
+    #s2-a { left: 538px; }
+    #s2-b { left: 926px; }
+    #s2-a .body { fill: #ff5a1f; }
+    #s2-b .body { fill: #2f5bff; }
+    .s2-bub .txt {
+      position: absolute; left: 0; right: 0; top: 86px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 104px; line-height: 1; color: #ffffff;
+    }
+    #s2-check { position: absolute; left: 875px; top: 470px; width: 170px; height: 170px; overflow: visible; }
+    #s2-bulb { position: absolute; left: 290px; top: 64px; width: 150px; height: 200px; overflow: visible; }
+    #s2-inov {
+      position: absolute; left: 470px; top: 112px;
+      font-family: "Archivo Black", sans-serif; font-size: 112px; line-height: 1; color: #14110f;
+    }
+    #s2-arrow { position: absolute; left: 960px; top: 226px; width: 90px; height: 120px; overflow: visible; }
+    #s2-dec {
+      position: absolute; left: 1068px; top: 252px;
+      font-family: "Archivo Black", sans-serif; font-size: 78px; line-height: 1; color: #14110f;
+    }
+  </style>
+  <div id="root" data-composition-id="s2" data-width="1920" data-height="1080">
+    <div id="s2-bg"></div>
+    <div id="s2-a" class="s2-bub">
+      <svg viewBox="0 0 380 300">
+        <path class="sh" transform="translate(12 12)" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        <path class="body" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+      </svg>
+      <div id="s2-a-t1" class="txt">#@!</div>
+      <div id="s2-a-t2" class="txt">...</div>
+    </div>
+    <div id="s2-b" class="s2-bub">
+      <svg class="flip" viewBox="0 0 380 300">
+        <path class="sh" transform="translate(-12 12)" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        <path class="body" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+      </svg>
+      <div id="s2-b-t1" class="txt">?!</div>
+      <div id="s2-b-t2" class="txt">...</div>
+    </div>
+    <svg id="s2-check" viewBox="0 0 170 170">
+      <circle cx="91" cy="91" r="76" fill="#14110f" />
+      <circle cx="85" cy="85" r="76" fill="#ffffff" stroke="#14110f" stroke-width="8" />
+      <path d="M48 88 L74 114 L124 58" fill="none" stroke="#29c79a" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <svg id="s2-bulb" viewBox="0 0 150 200">
+      <path transform="translate(10 10)" d="M75 8 C36 8 10 38 10 74 C10 100 26 116 40 132 L44 150 H106 L110 132 C124 116 140 100 140 74 C140 38 114 8 75 8 Z" fill="#14110f" />
+      <path d="M75 8 C36 8 10 38 10 74 C10 100 26 116 40 132 L44 150 H106 L110 132 C124 116 140 100 140 74 C140 38 114 8 75 8 Z" fill="#ffffff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+      <rect x="46" y="154" width="58" height="30" rx="8" fill="#8a8f98" stroke="#14110f" stroke-width="8" />
+      <path d="M58 104 L66 70 L75 92 L84 70 L92 104" fill="none" stroke="#ff5a1f" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <div id="s2-inov">INOVARE</div>
+    <svg id="s2-arrow" viewBox="0 0 90 120">
+      <path d="M45 6 L84 52 H60 V114 H30 V52 H6 Z" fill="#29c79a" stroke="#14110f" stroke-width="8" stroke-linejoin="round" />
+    </svg>
+    <div id="s2-dec">DECIZII MAI BUNE</div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      // colour flood: the bubbles stay, the ground turns mint
+      tl.fromTo("#s2-bg", { backgroundColor: "#ffd43b" }, { backgroundColor: "#29c79a", duration: 0.4, ease: "power2.inOut" }, 0);
+      // "Gestionat" (0.18): the two sides step apart and calm down
+      tl.fromTo("#s2-a", { x: 0 }, { x: -208, duration: 0.6, ease: "power3.inOut" }, 0.16);
+      tl.fromTo("#s2-b", { x: 0 }, { x: 208, duration: 0.6, ease: "power3.inOut" }, 0.16);
+      tl.fromTo(["#s2-a-t1", "#s2-b-t1"], { opacity: 1 }, { opacity: 0, duration: 0.15, ease: "power2.in" }, 0.3);
+      tl.fromTo(["#s2-a-t2", "#s2-b-t2"], { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, 0.45);
+      // "corect" (0.57): the check lands between them
+      tl.fromTo("#s2-check", { scale: 0, rotation: -20 }, { scale: 1, rotation: 0, duration: 0.32, ease: "back.out(1.8)" }, 0.55);
+      // "inovarea" (1.83)
+      tl.fromTo("#s2-bulb", { opacity: 0, y: 40, rotation: -12 }, { opacity: 1, y: 0, rotation: 0, duration: 0.4, ease: "back.out(1.6)" }, 1.78);
+      tl.fromTo("#s2-inov", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 1.83);
+      // "decizii" (3.23)
+      tl.fromTo("#s2-arrow", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.35, ease: "expo.out" }, 3.18);
+      tl.fromTo("#s2-dec", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.3, ease: "expo.out" }, 3.23);
+      // exit: everything but the bubbles
+      tl.to(["#s2-check", "#s2-bulb", "#s2-inov", "#s2-arrow", "#s2-dec"], { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in", stagger: 0.03 }, 4.25);
+      window.__timelines["s2"] = tl;
+    })();
+  </script>
+</template>

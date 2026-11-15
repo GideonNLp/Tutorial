@@ -1,0 +1,63 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s4-bg { position: absolute; inset: 0; background: #2f5bff; }
+    #s4-cam { position: absolute; inset: 0; }
+    #s4-bub { position: absolute; left: 370px; top: 60px; width: 1180px; height: 700px; overflow: visible; }
+    #s4-title {
+      position: absolute; left: 390px; width: 1140px; top: 128px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 112px; line-height: 1; color: #14110f;
+    }
+    #s4-stamp {
+      position: absolute; left: 640px; top: 330px; width: 640px; padding: 22px 0 28px; text-align: center;
+      border: 12px solid #e5383b; border-radius: 22px; background: #ffffff;
+      font-family: "Archivo Black", sans-serif; font-size: 100px; line-height: 1; color: #e5383b;
+      box-shadow: 12px 12px 0 #14110f;
+    }
+    #s4-slot { position: absolute; left: 390px; width: 1140px; top: 300px; height: 300px; overflow: hidden; }
+    .s4-word {
+      position: absolute; left: 0; width: 100%; top: 40px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 150px; line-height: 1; color: #14110f;
+    }
+    #s4-w1 { color: #e5383b; }
+    #s4-w2 { color: #ff5a1f; }
+    #s4-w3 { top: 22px; font-size: 104px; line-height: 1.12; }
+    #s4-w3 .hl { background: #29c79a; padding: 0 18px; border-radius: 12px; }
+  </style>
+  <div id="root" data-composition-id="s4" data-width="1920" data-height="1080">
+    <div id="s4-bg"></div>
+    <div id="s4-cam">
+      <svg id="s4-bub" viewBox="0 0 1180 700">
+        <path transform="translate(16 16)" fill="#14110f" d="M100 20 H1080 A80 80 0 0 1 1160 100 V480 A80 80 0 0 1 1080 560 H420 L300 680 L320 560 H100 A80 80 0 0 1 20 480 V100 A80 80 0 0 1 100 20 Z" />
+        <path fill="#ffffff" stroke="#14110f" stroke-width="10" stroke-linejoin="round" d="M100 20 H1080 A80 80 0 0 1 1160 100 V480 A80 80 0 0 1 1080 560 H420 L300 680 L320 560 H100 A80 80 0 0 1 20 480 V100 A80 80 0 0 1 100 20 Z" />
+      </svg>
+      <div id="s4-title">COMUNICAREA</div>
+      <div id="s4-slot" data-layout-allow-overflow>
+        <div id="s4-w1" class="s4-word">CAUZA</div>
+        <div id="s4-w2" class="s4-word">SIMPTOMUL</div>
+        <div id="s4-w3" class="s4-word">CALEA SPRE<br /><span class="hl">REZOLVARE</span></div>
+      </div>
+      <div id="s4-stamp">ROL DECISIV</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      // arrives from the zoom slightly large and settles
+      tl.fromTo("#s4-cam", { scale: 1.14 }, { scale: 1, duration: 0.4, ease: "expo.out" }, 0);
+      tl.fromTo("#s4-title", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.16);
+      // "decisiv" (1.77)
+      tl.fromTo("#s4-stamp", { opacity: 0, scale: 1.7, rotation: -14 }, { opacity: 1, scale: 1, rotation: -5, duration: 0.3, ease: "back.out(1.6)" }, 1.72);
+      tl.to("#s4-stamp", { opacity: 0, scale: 0.9, filter: "blur(8px)", duration: 0.18, ease: "power3.in" }, 3.3);
+      // slot machine: cauza (3.57) -> simptomul (4.78) -> calea spre rezolvare (5.89)
+      tl.fromTo("#s4-w1", { y: 300, filter: "blur(10px)" }, { y: 0, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, 3.52);
+      tl.to("#s4-w1", { y: -300, filter: "blur(10px)", duration: 0.22, ease: "power3.in" }, 4.62);
+      tl.fromTo("#s4-w2", { y: 300, filter: "blur(10px)" }, { y: 0, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, 4.73);
+      tl.to("#s4-w2", { y: -300, filter: "blur(10px)", duration: 0.22, ease: "power3.in" }, 5.72);
+      tl.fromTo("#s4-w3", { y: 300, filter: "blur(10px)" }, { y: 0, filter: "blur(0px)", duration: 0.32, ease: "expo.out" }, 5.84);
+      // whip out to the left
+      tl.to("#s4-cam", { x: -900, filter: "blur(16px)", duration: 0.28, ease: "power3.in" }, 7.52);
+      window.__timelines["s4"] = tl;
+    })();
+  </script>
+</template>

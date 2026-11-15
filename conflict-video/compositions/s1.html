@@ -1,0 +1,91 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s1-bg { position: absolute; inset: 0; background: #ffd43b; }
+    #s1-cam { position: absolute; inset: 0; }
+    .s1-bub { position: absolute; top: 380px; width: 456px; height: 360px; }
+    .s1-bub svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s1-bub .flip { transform: scaleX(-1); }
+    .s1-bub .sh { fill: #14110f; }
+    .s1-bub .body { stroke: #14110f; stroke-width: 8; stroke-linejoin: round; }
+    #s1-a { left: 584px; }
+    #s1-b { left: 880px; }
+    #s1-a .body { fill: #ff5a1f; }
+    #s1-b .body { fill: #2f5bff; }
+    .s1-bub .txt {
+      position: absolute; left: 0; right: 0; top: 86px; text-align: center;
+      font-family: "Archivo Black", sans-serif; font-size: 104px; line-height: 1; color: #ffffff;
+    }
+    #s1-title {
+      position: absolute; left: 150px; top: 104px;
+      font-family: "Archivo Black", sans-serif; font-size: 156px; line-height: 1; letter-spacing: -0.01em; color: #14110f;
+    }
+    #s1-eq {
+      position: absolute; left: 1080px; top: 104px;
+      font-family: "Archivo Black", sans-serif; font-size: 156px; line-height: 1; color: #14110f;
+    }
+    #s1-strike {
+      position: absolute; left: 1060px; top: 168px; width: 640px; height: 34px;
+      background: #e5383b; border-radius: 17px; transform-origin: 0% 50%;
+    }
+    #s1-stamp {
+      position: absolute; left: 1010px; top: 262px; padding: 14px 30px 18px;
+      border: 10px solid #e5383b; border-radius: 18px; background: #ffffff;
+      font-family: "Archivo Black", sans-serif; font-size: 64px; line-height: 1; color: #e5383b;
+      box-shadow: 12px 12px 0 #14110f;
+    }
+    #s1-spark { position: absolute; left: 870px; top: 300px; width: 180px; height: 180px; overflow: visible; }
+  </style>
+  <div id="root" data-composition-id="s1" data-width="1920" data-height="1080">
+    <div id="s1-bg"></div>
+    <div id="s1-cam">
+      <div id="s1-a" class="s1-bub">
+        <svg viewBox="0 0 380 300">
+          <path class="sh" transform="translate(12 12)" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path class="body" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+        <div class="txt">#@!</div>
+      </div>
+      <div id="s1-b" class="s1-bub">
+        <svg class="flip" viewBox="0 0 380 300">
+          <path class="sh" transform="translate(-12 12)" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path class="body" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+        <div class="txt">?!</div>
+      </div>
+      <svg id="s1-spark" viewBox="0 0 180 180">
+        <polygon points="90,0 108,58 170,40 124,86 180,120 114,118 120,180 86,128 40,170 58,112 0,96 60,78 26,24 80,52" fill="#e5383b" stroke="#14110f" stroke-width="7" stroke-linejoin="round" />
+      </svg>
+      <div id="s1-title">CONFLICT</div>
+      <div id="s1-eq">= RĂU</div>
+      <div id="s1-strike" data-layout-allow-occlusion></div>
+      <div id="s1-stamp">NU ÎNTOTDEAUNA</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      // The two sides wait at the edges, then rush in and collide on "Conflictul" (0.88)
+      tl.fromTo("#s1-a", { x: -250, rotation: -6 }, { x: 0, rotation: 0, duration: 0.4, ease: "power3.in" }, 0.48);
+      tl.fromTo("#s1-b", { x: 250, rotation: 6 }, { x: 0, rotation: 0, duration: 0.4, ease: "power3.in" }, 0.48);
+      // impact: both recoil once, then hold still
+      tl.to("#s1-a", { x: -46, duration: 0.22, ease: "expo.out" }, 0.88);
+      tl.to("#s1-b", { x: 46, duration: 0.22, ease: "expo.out" }, 0.88);
+      tl.fromTo("#s1-cam", { x: 0, y: 0 }, { x: 10, y: -8, duration: 0.05, ease: "none" }, 0.88);
+      tl.to("#s1-cam", { x: -8, y: 6, duration: 0.05, ease: "none" }, 0.93);
+      tl.to("#s1-cam", { x: 0, y: 0, duration: 0.08, ease: "power2.out" }, 0.98);
+      tl.fromTo("#s1-spark", { scale: 0, rotation: -30, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.3, ease: "back.out(2.2)" }, 0.88);
+
+      // title slams in on the same word
+      tl.fromTo("#s1-title", { opacity: 0, scale: 1.25, filter: "blur(10px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.22, ease: "expo.out" }, 0.86);
+      tl.fromTo("#s1-eq", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 1.36);
+      // "nu" (2.24): the red marker strikes the equation; "întotdeauna" (2.69): the stamp lands
+      tl.fromTo("#s1-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.26, ease: "power3.out" }, 2.24);
+      tl.fromTo("#s1-stamp", { opacity: 0, scale: 1.7, rotation: -14 }, { opacity: 1, scale: 1, rotation: -6, duration: 0.3, ease: "back.out(1.6)" }, 2.66);
+
+      // exit: words blur out; the bubbles stay for the next scene
+      tl.to(["#s1-title", "#s1-eq", "#s1-strike", "#s1-stamp", "#s1-spark"], { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in", stagger: 0.03 }, 4.05);
+      window.__timelines["s1"] = tl;
+    })();
+  </script>
+</template>

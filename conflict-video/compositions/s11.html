@@ -1,0 +1,80 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; }
+    #s11-bg { position: absolute; inset: 0; background: #2f5bff; }
+    #s11-cam { position: absolute; inset: 0; }
+    .s11-t { position: absolute; left: 140px; font-family: "Archivo Black", sans-serif; line-height: 1; color: #ffffff; }
+    #s11-sec { top: 96px; font-size: 176px; }
+    #s11-rel { top: 300px; font-family: "Inter", sans-serif; font-weight: 900; font-size: 60px; }
+    #s11-abs { top: 430px; font-size: 104px; }
+    #s11-abs-x { position: absolute; left: 120px; top: 470px; width: 1660px; height: 26px; background: #ffd43b; border-radius: 13px; transform-origin: 0% 50%; }
+    #s11-pri { top: 330px; font-size: 196px; color: #14110f; }
+    #s11-rez { top: 580px; font-size: 124px; color: #14110f; }
+    #s11-rez .w { display: inline-block; padding: 8px 20px 12px; border-radius: 18px; color: #14110f; }
+    .s11-mini { position: absolute; top: 96px; width: 230px; height: 182px; }
+    .s11-mini svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .s11-mini .flip { transform: scaleX(-1); }
+    #s11-a { left: 1370px; z-index: 2; }
+    #s11-b { left: 1560px; z-index: 1; }
+    #s11-check { position: absolute; left: 1600px; top: 230px; width: 120px; height: 120px; overflow: visible; z-index: 3; }
+  </style>
+  <div id="root" data-composition-id="s11" data-width="1920" data-height="1080">
+    <div id="s11-bg"></div>
+    <div id="s11-cam">
+      <div id="s11-sec" class="s11-t">SECRETUL</div>
+      <div id="s11-rel" class="s11-t">UNEI RELAȚII DE LUCRU SĂNĂTOASE</div>
+      <div id="s11-abs" class="s11-t">ABSENȚA CONFLICTULUI</div>
+      <div id="s11-abs-x" data-layout-allow-occlusion></div>
+      <div id="s11-pri" class="s11-t">PRICEPEREA</div>
+      <div id="s11-rez" class="s11-t">DE A-L <span id="s11-rez-w" class="w">REZOLVA</span></div>
+      <div id="s11-a" class="s11-mini">
+        <svg viewBox="0 0 380 300">
+          <path transform="translate(12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path fill="#ff5a1f" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+      </div>
+      <div id="s11-b" class="s11-mini">
+        <svg class="flip" viewBox="0 0 380 300">
+          <path transform="translate(-12 12)" fill="#14110f" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+          <path fill="#2f5bff" stroke="#14110f" stroke-width="8" stroke-linejoin="round" d="M70 20 H310 A50 50 0 0 1 360 70 V170 A50 50 0 0 1 310 220 H170 L105 288 L122 220 H70 A50 50 0 0 1 20 170 V70 A50 50 0 0 1 70 20 Z" />
+        </svg>
+      </div>
+      <svg id="s11-check" viewBox="0 0 120 120">
+        <circle cx="64" cy="64" r="54" fill="#14110f" />
+        <circle cx="58" cy="58" r="54" fill="#ffffff" stroke="#14110f" stroke-width="7" />
+        <path d="M32 60 L51 79 L86 40" fill="none" stroke="#29c79a" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      var blurIn = function (sel, t) {
+        tl.fromTo(sel, { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, t);
+      };
+      // whip in from the right
+      tl.fromTo("#s11-cam", { x: 900, filter: "blur(16px)" }, { x: 0, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, 0);
+      // "Secretul" (0.16), "relații ... sănătoase" (0.89)
+      tl.fromTo("#s11-sec", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 0.14);
+      blurIn("#s11-rel", 0.87);
+      // "absența conflictului" (3.15), struck at the comma (3.72)
+      blurIn("#s11-abs", 3.13);
+      tl.fromTo("#s11-abs-x", { scaleX: 0 }, { scaleX: 1, duration: 0.24, ease: "power3.out" }, 3.72);
+      // payoff: "priceperea" (4.77) — the world floods yellow, the answer lands
+      tl.to(["#s11-rel", "#s11-abs", "#s11-abs-x"], { opacity: 0, filter: "blur(8px)", duration: 0.15, ease: "power3.in" }, 4.5);
+      tl.fromTo("#s11-bg", { backgroundColor: "#2f5bff" }, { backgroundColor: "#ffd43b", duration: 0.4, ease: "power2.inOut" }, 4.45);
+      tl.fromTo("#s11-sec", { color: "#ffffff" }, { color: "#14110f", duration: 0.4, ease: "power2.inOut" }, 4.45);
+      tl.fromTo("#s11-pri", { opacity: 0, scale: 1.3, filter: "blur(12px)", transformOrigin: "0% 50%" }, { opacity: 1, scale: 1, filter: "blur(0px)", transformOrigin: "0% 50%", duration: 0.24, ease: "expo.out" }, 4.75);
+      tl.fromTo("#s11-cam", { y: 0 }, { y: 10, duration: 0.04, ease: "none" }, 4.82);
+      tl.to("#s11-cam", { y: 0, duration: 0.14, ease: "power2.out" }, 4.86);
+      // "de a-l rezolva" (5.25 / 5.99)
+      blurIn("#s11-rez", 5.25);
+      tl.fromTo("#s11-rez-w", { backgroundColor: "rgba(255,90,31,0)", color: "#14110f", boxShadow: "0px 0px 0px #14110f" }, { backgroundColor: "rgba(255,90,31,1)", color: "#ffffff", boxShadow: "12px 12px 0px #14110f", duration: 0.2, ease: "power2.out" }, 5.96);
+      // the two sides, together, with the check
+      tl.fromTo("#s11-a", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 6.2);
+      tl.fromTo("#s11-b", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 6.3);
+      tl.fromTo("#s11-check", { opacity: 0, scale: 0.2, rotation: -30, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, rotation: 0, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(2)" }, 6.6);
+      window.__timelines["s11"] = tl;
+    })();
+  </script>
+</template>

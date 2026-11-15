@@ -1,0 +1,806 @@
+[
+ {
+  "id": "w0",
+  "text": "Conflictul",
+  "start": 0.882,
+  "end": 1.342
+ },
+ {
+  "id": "w1",
+  "text": "din",
+  "start": 1.342,
+  "end": 1.494
+ },
+ {
+  "id": "w2",
+  "text": "organizații",
+  "start": 1.494,
+  "end": 2.24
+ },
+ {
+  "id": "w3",
+  "text": "nu",
+  "start": 2.24,
+  "end": 2.389
+ },
+ {
+  "id": "w4",
+  "text": "este",
+  "start": 2.389,
+  "end": 2.686
+ },
+ {
+  "id": "w5",
+  "text": "întotdeauna",
+  "start": 2.686,
+  "end": 3.29
+ },
+ {
+  "id": "w6",
+  "text": "un",
+  "start": 3.29,
+  "end": 3.439
+ },
+ {
+  "id": "w7",
+  "text": "lucru",
+  "start": 3.439,
+  "end": 3.739
+ },
+ {
+  "id": "w8",
+  "text": "rău.",
+  "start": 3.739,
+  "end": 3.891
+ },
+ {
+  "id": "w9",
+  "text": "Gestionat",
+  "start": 4.575,
+  "end": 4.966
+ },
+ {
+  "id": "w10",
+  "text": "corect,",
+  "start": 4.966,
+  "end": 5.226
+ },
+ {
+  "id": "w11",
+  "text": "poate",
+  "start": 5.532,
+  "end": 5.813
+ },
+ {
+  "id": "w12",
+  "text": "stimula",
+  "start": 5.813,
+  "end": 6.234
+ },
+ {
+  "id": "w13",
+  "text": "inovarea",
+  "start": 6.234,
+  "end": 6.789
+ },
+ {
+  "id": "w14",
+  "text": "și",
+  "start": 6.789,
+  "end": 6.928
+ },
+ {
+  "id": "w15",
+  "text": "poate",
+  "start": 6.928,
+  "end": 7.21
+ },
+ {
+  "id": "w16",
+  "text": "duce",
+  "start": 7.21,
+  "end": 7.488
+ },
+ {
+  "id": "w17",
+  "text": "la",
+  "start": 7.488,
+  "end": 7.627
+ },
+ {
+  "id": "w18",
+  "text": "decizii",
+  "start": 7.627,
+  "end": 8.047
+ },
+ {
+  "id": "w19",
+  "text": "mai",
+  "start": 8.047,
+  "end": 8.189
+ },
+ {
+  "id": "w20",
+  "text": "bune.",
+  "start": 8.189,
+  "end": 8.467
+ },
+ {
+  "id": "w21",
+  "text": "Lăsat",
+  "start": 9.165,
+  "end": 9.461
+ },
+ {
+  "id": "w22",
+  "text": "nerezolvat,",
+  "start": 9.461,
+  "end": 10.052
+ },
+ {
+  "id": "w23",
+  "text": "scade",
+  "start": 10.052,
+  "end": 10.348
+ },
+ {
+  "id": "w24",
+  "text": "productivitatea",
+  "start": 10.348,
+  "end": 11.234
+ },
+ {
+  "id": "w25",
+  "text": "și",
+  "start": 11.234,
+  "end": 11.38
+ },
+ {
+  "id": "w26",
+  "text": "blochează",
+  "start": 11.38,
+  "end": 11.829
+ },
+ {
+  "id": "w27",
+  "text": "colaborarea.",
+  "start": 11.829,
+  "end": 12.562
+ },
+ {
+  "id": "w28",
+  "text": "Comunicarea",
+  "start": 13.231,
+  "end": 13.869
+ },
+ {
+  "id": "w29",
+  "text": "joacă",
+  "start": 14.249,
+  "end": 14.536
+ },
+ {
+  "id": "w30",
+  "text": "un",
+  "start": 14.536,
+  "end": 14.677
+ },
+ {
+  "id": "w31",
+  "text": "rol",
+  "start": 14.677,
+  "end": 14.822
+ },
+ {
+  "id": "w32",
+  "text": "decisiv:",
+  "start": 14.822,
+  "end": 15.25
+ },
+ {
+  "id": "w33",
+  "text": "ea",
+  "start": 15.972,
+  "end": 16.134
+ },
+ {
+  "id": "w34",
+  "text": "poate",
+  "start": 16.134,
+  "end": 16.463
+ },
+ {
+  "id": "w35",
+  "text": "fi",
+  "start": 16.463,
+  "end": 16.625
+ },
+ {
+  "id": "w36",
+  "text": "cauza",
+  "start": 16.625,
+  "end": 16.954
+ },
+ {
+  "id": "w37",
+  "text": "conflictului,",
+  "start": 16.954,
+  "end": 17.618
+ },
+ {
+  "id": "w38",
+  "text": "simptomul",
+  "start": 17.833,
+  "end": 18.297
+ },
+ {
+  "id": "w39",
+  "text": "lui",
+  "start": 18.297,
+  "end": 18.452
+ },
+ {
+  "id": "w40",
+  "text": "sau",
+  "start": 18.796,
+  "end": 18.939
+ },
+ {
+  "id": "w41",
+  "text": "calea",
+  "start": 18.939,
+  "end": 19.221
+ },
+ {
+  "id": "w42",
+  "text": "directă",
+  "start": 19.221,
+  "end": 19.643
+ },
+ {
+  "id": "w43",
+  "text": "spre",
+  "start": 19.643,
+  "end": 19.79
+ },
+ {
+  "id": "w44",
+  "text": "rezolvare.",
+  "start": 19.79,
+  "end": 20.351
+ },
+ {
+  "id": "w45",
+  "text": "Cauzele",
+  "start": 21.107,
+  "end": 21.596
+ },
+ {
+  "id": "w46",
+  "text": "frecvente",
+  "start": 21.596,
+  "end": 22.093
+ },
+ {
+  "id": "w47",
+  "text": "sunt",
+  "start": 22.093,
+  "end": 22.263
+ },
+ {
+  "id": "w48",
+  "text": "obiectivele",
+  "start": 22.263,
+  "end": 23.076
+ },
+ {
+  "id": "w49",
+  "text": "divergente,",
+  "start": 23.076,
+  "end": 23.731
+ },
+ {
+  "id": "w50",
+  "text": "percepțiile",
+  "start": 24.254,
+  "end": 24.922
+ },
+ {
+  "id": "w51",
+  "text": "diferite,",
+  "start": 24.922,
+  "end": 25.579
+ },
+ {
+  "id": "w52",
+  "text": "competiția",
+  "start": 25.579,
+  "end": 26.244
+ },
+ {
+  "id": "w53",
+  "text": "pe",
+  "start": 26.244,
+  "end": 26.408
+ },
+ {
+  "id": "w54",
+  "text": "resurse",
+  "start": 26.408,
+  "end": 26.904
+ },
+ {
+  "id": "w55",
+  "text": "și",
+  "start": 26.904,
+  "end": 27.068
+ },
+ {
+  "id": "w56",
+  "text": "rolurile",
+  "start": 27.396,
+  "end": 28.0
+ },
+ {
+  "id": "w57",
+  "text": "neclare.",
+  "start": 28.0,
+  "end": 28.456
+ },
+ {
+  "id": "w58",
+  "text": "Un",
+  "start": 29.175,
+  "end": 29.327
+ },
+ {
+  "id": "w59",
+  "text": "conflict",
+  "start": 29.327,
+  "end": 29.645
+ },
+ {
+  "id": "w60",
+  "text": "trece",
+  "start": 29.645,
+  "end": 29.953
+ },
+ {
+  "id": "w61",
+  "text": "prin",
+  "start": 29.953,
+  "end": 30.112
+ },
+ {
+  "id": "w62",
+  "text": "mai",
+  "start": 30.112,
+  "end": 30.268
+ },
+ {
+  "id": "w63",
+  "text": "multe",
+  "start": 30.268,
+  "end": 30.575
+ },
+ {
+  "id": "w64",
+  "text": "etape,",
+  "start": 30.575,
+  "end": 31.027
+ },
+ {
+  "id": "w65",
+  "text": "de",
+  "start": 31.027,
+  "end": 31.179
+ },
+ {
+  "id": "w66",
+  "text": "la",
+  "start": 31.179,
+  "end": 31.331
+ },
+ {
+  "id": "w67",
+  "text": "tensiunea",
+  "start": 31.331,
+  "end": 31.798
+ },
+ {
+  "id": "w68",
+  "text": "ascunsă",
+  "start": 31.798,
+  "end": 32.257
+ },
+ {
+  "id": "w69",
+  "text": "până",
+  "start": 32.257,
+  "end": 32.561
+ },
+ {
+  "id": "w70",
+  "text": "la",
+  "start": 32.561,
+  "end": 32.713
+ },
+ {
+  "id": "w71",
+  "text": "consecințele",
+  "start": 32.713,
+  "end": 33.48
+ },
+ {
+  "id": "w72",
+  "text": "finale.",
+  "start": 33.48,
+  "end": 33.935
+ },
+ {
+  "id": "w73",
+  "text": "Când",
+  "start": 34.733,
+  "end": 34.911
+ },
+ {
+  "id": "w74",
+  "text": "devine",
+  "start": 34.911,
+  "end": 35.421
+ },
+ {
+  "id": "w75",
+  "text": "deschis,",
+  "start": 35.421,
+  "end": 35.774
+ },
+ {
+  "id": "w76",
+  "text": "poate",
+  "start": 36.211,
+  "end": 36.554
+ },
+ {
+  "id": "w77",
+  "text": "fi",
+  "start": 36.554,
+  "end": 36.724
+ },
+ {
+  "id": "w78",
+  "text": "soluționat",
+  "start": 36.724,
+  "end": 37.41
+ },
+ {
+  "id": "w79",
+  "text": "prin",
+  "start": 37.41,
+  "end": 37.588
+ },
+ {
+  "id": "w80",
+  "text": "negociere,",
+  "start": 37.588,
+  "end": 38.27
+ },
+ {
+  "id": "w81",
+  "text": "mediere",
+  "start": 38.84,
+  "end": 39.574
+ },
+ {
+  "id": "w82",
+  "text": "sau",
+  "start": 39.574,
+  "end": 39.822
+ },
+ {
+  "id": "w83",
+  "text": "arbitraj.",
+  "start": 39.822,
+  "end": 40.562
+ },
+ {
+  "id": "w84",
+  "text": "Pentru",
+  "start": 40.85,
+  "end": 41.188
+ },
+ {
+  "id": "w85",
+  "text": "o",
+  "start": 41.188,
+  "end": 41.349
+ },
+ {
+  "id": "w86",
+  "text": "rezolvare",
+  "start": 41.349,
+  "end": 42.013
+ },
+ {
+  "id": "w87",
+  "text": "constructivă",
+  "start": 42.013,
+  "end": 42.688
+ },
+ {
+  "id": "w88",
+  "text": "contează",
+  "start": 42.688,
+  "end": 43.191
+ },
+ {
+  "id": "w89",
+  "text": "dialogul",
+  "start": 43.191,
+  "end": 43.694
+ },
+ {
+  "id": "w90",
+  "text": "deschis,",
+  "start": 43.694,
+  "end": 44.035
+ },
+ {
+  "id": "w91",
+  "text": "ascultarea",
+  "start": 44.406,
+  "end": 45.004
+ },
+ {
+  "id": "w92",
+  "text": "empatică,",
+  "start": 45.004,
+  "end": 45.594
+ },
+ {
+  "id": "w93",
+  "text": "transparența",
+  "start": 45.833,
+  "end": 46.425
+ },
+ {
+  "id": "w94",
+  "text": "și",
+  "start": 46.425,
+  "end": 46.57
+ },
+ {
+  "id": "w95",
+  "text": "căutarea",
+  "start": 46.57,
+  "end": 47.011
+ },
+ {
+  "id": "w96",
+  "text": "valorilor",
+  "start": 47.011,
+  "end": 47.593
+ },
+ {
+  "id": "w97",
+  "text": "comune.",
+  "start": 47.593,
+  "end": 48.027
+ },
+ {
+  "id": "w98",
+  "text": "Evitarea",
+  "start": 48.718,
+  "end": 49.212
+ },
+ {
+  "id": "w99",
+  "text": "amenințărilor",
+  "start": 49.212,
+  "end": 49.956
+ },
+ {
+  "id": "w100",
+  "text": "și",
+  "start": 49.956,
+  "end": 50.08
+ },
+ {
+  "id": "w101",
+  "text": "a",
+  "start": 50.08,
+  "end": 50.2
+ },
+ {
+  "id": "w102",
+  "text": "atacurilor",
+  "start": 50.2,
+  "end": 50.817
+ },
+ {
+  "id": "w103",
+  "text": "directe",
+  "start": 50.817,
+  "end": 51.191
+ },
+ {
+  "id": "w104",
+  "text": "face",
+  "start": 51.671,
+  "end": 51.958
+ },
+ {
+  "id": "w105",
+  "text": "diferența.",
+  "start": 51.958,
+  "end": 52.537
+ },
+ {
+  "id": "w106",
+  "text": "În",
+  "start": 53.274,
+  "end": 53.457
+ },
+ {
+  "id": "w107",
+  "text": "concluzie,",
+  "start": 53.457,
+  "end": 54.02
+ },
+ {
+  "id": "w108",
+  "text": "conflictul",
+  "start": 54.216,
+  "end": 54.685
+ },
+ {
+  "id": "w109",
+  "text": "nu",
+  "start": 54.685,
+  "end": 54.837
+ },
+ {
+  "id": "w110",
+  "text": "trebuie",
+  "start": 54.837,
+  "end": 55.151
+ },
+ {
+  "id": "w111",
+  "text": "evitat,",
+  "start": 55.151,
+  "end": 55.605
+ },
+ {
+  "id": "w112",
+  "text": "ci",
+  "start": 55.988,
+  "end": 56.208
+ },
+ {
+  "id": "w113",
+  "text": "înțeles",
+  "start": 56.208,
+  "end": 56.871
+ },
+ {
+  "id": "w114",
+  "text": "și",
+  "start": 56.871,
+  "end": 57.09
+ },
+ {
+  "id": "w115",
+  "text": "gestionat",
+  "start": 57.09,
+  "end": 57.764
+ },
+ {
+  "id": "w116",
+  "text": "cu",
+  "start": 57.764,
+  "end": 57.984
+ },
+ {
+  "id": "w117",
+  "text": "respect",
+  "start": 57.984,
+  "end": 58.438
+ },
+ {
+  "id": "w118",
+  "text": "reciproc.",
+  "start": 58.438,
+  "end": 59.106
+ },
+ {
+  "id": "w119",
+  "text": "Secretul",
+  "start": 59.709,
+  "end": 60.148
+ },
+ {
+  "id": "w120",
+  "text": "unei",
+  "start": 60.148,
+  "end": 60.437
+ },
+ {
+  "id": "w121",
+  "text": "relații",
+  "start": 60.437,
+  "end": 60.872
+ },
+ {
+  "id": "w122",
+  "text": "de",
+  "start": 60.872,
+  "end": 61.016
+ },
+ {
+  "id": "w123",
+  "text": "lucru",
+  "start": 61.016,
+  "end": 61.308
+ },
+ {
+  "id": "w124",
+  "text": "sănătoase",
+  "start": 61.308,
+  "end": 61.888
+ },
+ {
+  "id": "w125",
+  "text": "nu",
+  "start": 62.27,
+  "end": 62.412
+ },
+ {
+  "id": "w126",
+  "text": "este",
+  "start": 62.412,
+  "end": 62.696
+ },
+ {
+  "id": "w127",
+  "text": "absența",
+  "start": 62.696,
+  "end": 63.126
+ },
+ {
+  "id": "w128",
+  "text": "conflictului,",
+  "start": 63.126,
+  "end": 63.709
+ },
+ {
+  "id": "w129",
+  "text": "ci",
+  "start": 64.159,
+  "end": 64.318
+ },
+ {
+  "id": "w130",
+  "text": "priceperea",
+  "start": 64.318,
+  "end": 64.964
+ },
+ {
+  "id": "w131",
+  "text": "de",
+  "start": 65.252,
+  "end": 65.393
+ },
+ {
+  "id": "w132",
+  "text": "a-l",
+  "start": 65.393,
+  "end": 65.537
+ },
+ {
+  "id": "w133",
+  "text": "rezolva.",
+  "start": 65.537,
+  "end": 65.962
+ }
+]

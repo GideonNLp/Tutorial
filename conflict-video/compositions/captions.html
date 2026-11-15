@@ -1,0 +1,181 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    #cap-box {
+      position: absolute;
+      inset: 0;
+    }
+    .cap-group {
+      position: absolute;
+      left: 0;
+      bottom: 96px;
+      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 0 160px;
+      opacity: 0;
+      visibility: hidden;
+      overflow: visible;
+    }
+    .cap-word {
+      position: relative;
+      display: inline-block;
+      padding: 4px 16px 10px;
+      font-family: "Montserrat", sans-serif;
+      font-weight: 800;
+      font-size: 76px;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: #ffffff;
+      transform-origin: 50% 60%;
+    }
+    .cap-bg {
+      position: absolute;
+      inset: 0;
+      background: #14110f;
+      border-radius: 14px;
+      transform-origin: 0% 50%;
+      opacity: 0;
+    }
+    .cap-txt {
+      position: relative;
+      -webkit-text-stroke: 12px #14110f;
+      paint-order: stroke fill;
+      text-shadow: 6px 7px 0 #14110f;
+    }
+  </style>
+  <div id="root" data-composition-id="captions" data-width="1920" data-height="1080">
+    <div id="cap-box"></div>
+  </div>
+  <script>
+    (function () {
+      // Word timings: the script text aligned to the voiceover (assets/transcript.json).
+      var WORDS = [
+        ["Conflictul", 0.88, 1.34], ["din", 1.34, 1.49], ["organizații", 1.49, 2.24], ["nu", 2.24, 2.39], ["este", 2.39, 2.69], ["întotdeauna", 2.69, 3.29], ["un", 3.29, 3.44], ["lucru", 3.44, 3.74], ["rău.", 3.74, 3.89],
+        ["Gestionat", 4.58, 4.97], ["corect,", 4.97, 5.23], ["poate", 5.53, 5.81], ["stimula", 5.81, 6.23], ["inovarea", 6.23, 6.79], ["și", 6.79, 6.93], ["poate", 6.93, 7.21], ["duce", 7.21, 7.49], ["la", 7.49, 7.63], ["decizii", 7.63, 8.05], ["mai", 8.05, 8.19], ["bune.", 8.19, 8.47],
+        ["Lăsat", 9.16, 9.46], ["nerezolvat,", 9.46, 10.05], ["scade", 10.05, 10.35], ["productivitatea", 10.35, 11.23], ["și", 11.23, 11.38], ["blochează", 11.38, 11.83], ["colaborarea.", 11.83, 12.56],
+        ["Comunicarea", 13.23, 13.87], ["joacă", 14.25, 14.54], ["un", 14.54, 14.68], ["rol", 14.68, 14.82], ["decisiv:", 14.82, 15.25], ["ea", 15.97, 16.13], ["poate", 16.13, 16.46], ["fi", 16.46, 16.62], ["cauza", 16.62, 16.95], ["conflictului,", 16.95, 17.62], ["simptomul", 17.83, 18.3], ["lui", 18.3, 18.45], ["sau", 18.8, 18.94], ["calea", 18.94, 19.22], ["directă", 19.22, 19.64], ["spre", 19.64, 19.79], ["rezolvare.", 19.79, 20.35],
+        ["Cauzele", 21.11, 21.6], ["frecvente", 21.6, 22.09], ["sunt", 22.09, 22.26], ["obiectivele", 22.26, 23.08], ["divergente,", 23.08, 23.73], ["percepțiile", 24.25, 24.92], ["diferite,", 24.92, 25.58], ["competiția", 25.58, 26.24], ["pe", 26.24, 26.41], ["resurse", 26.41, 26.9], ["și", 26.9, 27.07], ["rolurile", 27.4, 28.0], ["neclare.", 28.0, 28.46],
+        ["Un", 29.18, 29.33], ["conflict", 29.33, 29.64], ["trece", 29.64, 29.95], ["prin", 29.95, 30.11], ["mai", 30.11, 30.27], ["multe", 30.27, 30.57], ["etape,", 30.57, 31.03], ["de", 31.03, 31.18], ["la", 31.18, 31.33], ["tensiunea", 31.33, 31.8], ["ascunsă", 31.8, 32.26], ["până", 32.26, 32.56], ["la", 32.56, 32.71], ["consecințele", 32.71, 33.48], ["finale.", 33.48, 33.94],
+        ["Când", 34.73, 34.91], ["devine", 34.91, 35.42], ["deschis,", 35.42, 35.77], ["poate", 36.21, 36.55], ["fi", 36.55, 36.72], ["soluționat", 36.72, 37.41], ["prin", 37.41, 37.59], ["negociere,", 37.59, 38.27], ["mediere", 38.84, 39.57], ["sau", 39.57, 39.82], ["arbitraj.", 39.82, 40.56],
+        ["Pentru", 40.85, 41.19], ["o", 41.19, 41.35], ["rezolvare", 41.35, 42.01], ["constructivă", 42.01, 42.69], ["contează", 42.69, 43.19], ["dialogul", 43.19, 43.69], ["deschis,", 43.69, 44.04], ["ascultarea", 44.41, 45.0], ["empatică,", 45.0, 45.59], ["transparența", 45.83, 46.42], ["și", 46.42, 46.57], ["căutarea", 46.57, 47.01], ["valorilor", 47.01, 47.59], ["comune.", 47.59, 48.03],
+        ["Evitarea", 48.72, 49.21], ["amenințărilor", 49.21, 49.96], ["și", 49.96, 50.08], ["a", 50.08, 50.2], ["atacurilor", 50.2, 50.82], ["directe", 50.82, 51.19], ["face", 51.67, 51.96], ["diferența.", 51.96, 52.54],
+        ["În", 53.27, 53.46], ["concluzie,", 53.46, 54.02], ["conflictul", 54.22, 54.69], ["nu", 54.69, 54.84], ["trebuie", 54.84, 55.15], ["evitat,", 55.15, 55.61], ["ci", 55.99, 56.21], ["înțeles", 56.21, 56.87], ["și", 56.87, 57.09], ["gestionat", 57.09, 57.76], ["cu", 57.76, 57.98], ["respect", 57.98, 58.44], ["reciproc.", 58.44, 59.11],
+        ["Secretul", 59.71, 60.15], ["unei", 60.15, 60.44], ["relații", 60.44, 60.87], ["de", 60.87, 61.02], ["lucru", 61.02, 61.31], ["sănătoase", 61.31, 61.89], ["nu", 62.27, 62.41], ["este", 62.41, 62.7], ["absența", 62.7, 63.13], ["conflictului,", 63.13, 63.71], ["ci", 64.16, 64.32], ["priceperea", 64.32, 64.96], ["de", 65.25, 65.39], ["a-l", 65.39, 65.54], ["rezolva.", 65.54, 65.96],
+      ].map(function (w) {
+        return { text: w[0], start: w[1], end: w[2] };
+      });
+
+      // Groups: break at punctuation, at a pause of 150 ms or more, or at 4 words.
+      // A group never ends on a short function word ("nu", "și", "la"...): it moves to the next group.
+      var FUNC = /^(nu|și|a|la|de|un|o|pe|prin|spre|cu|sau|ci|din|mai|unei|ea|fi|este|sunt|până|când)$/i;
+      var groups = [];
+      var cur = [];
+      WORDS.forEach(function (w, i) {
+        cur.push(i);
+        var next = WORDS[i + 1];
+        var punct = /[.,:]$/.test(w.text);
+        var pause = next ? next.start - w.end >= 0.15 : true;
+        if (punct || pause || !next) {
+          groups.push(cur);
+          cur = [];
+        } else if (cur.length >= 4) {
+          var carry = [];
+          while (cur.length > 2 && FUNC.test(WORDS[cur[cur.length - 1]].text)) carry.unshift(cur.pop());
+          groups.push(cur);
+          cur = carry;
+        }
+      });
+
+      var FONT = "Montserrat";
+      var measure = document.createElement("canvas").getContext("2d");
+      function fit(text) {
+        if (window.__hyperframes && window.__hyperframes.fitTextFontSize) {
+          return window.__hyperframes.fitTextFontSize(text, {
+            fontFamily: FONT,
+            fontWeight: 800,
+            maxWidth: 1480,
+            baseFontSize: 76,
+            minFontSize: 48,
+          }).fontSize;
+        }
+        var size = 76;
+        while (size > 48) {
+          measure.font = "800 " + size + "px " + FONT;
+          if (measure.measureText(text).width <= 1480) break;
+          size -= 2;
+        }
+        return size;
+      }
+
+      var box = document.getElementById("cap-box");
+      var tl = gsap.timeline({ paused: true });
+
+      groups.forEach(function (idx, gi) {
+        var first = WORDS[idx[0]];
+        var last = WORDS[idx[idx.length - 1]];
+        var nextGroup = groups[gi + 1];
+        var nextStart = nextGroup ? WORDS[nextGroup[0]].start : 68;
+        var gStart = Math.max(0.2, first.start - 0.06);
+        var gEnd = Math.min(last.end + 0.35, nextStart - 0.08);
+
+        var grp = document.createElement("div");
+        grp.className = "cap-group";
+        grp.id = "cap-g" + gi;
+        var label = idx
+          .map(function (i) {
+            return WORDS[i].text.replace(/[.,:]$/, "").toUpperCase();
+          })
+          .join(" ");
+        var size = fit(label);
+
+        idx.forEach(function (i) {
+          var w = WORDS[i];
+          var word = document.createElement("span");
+          word.className = "cap-word";
+          word.id = "cap-w" + i;
+          word.style.fontSize = size + "px";
+          var bg = document.createElement("span");
+          bg.className = "cap-bg";
+          bg.id = "cap-bg" + i;
+          var txt = document.createElement("span");
+          txt.className = "cap-txt";
+          txt.textContent = w.text.replace(/[.,:]$/, "").toUpperCase();
+          word.appendChild(bg);
+          word.appendChild(txt);
+          grp.appendChild(word);
+        });
+        box.appendChild(grp);
+
+        // group in: a quick squeeze-pop, CapCut style
+        tl.set(grp, { visibility: "visible" }, gStart);
+        tl.fromTo(grp, { opacity: 0, scale: 0.92, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.16, ease: "back.out(2)" }, gStart);
+
+        idx.forEach(function (i) {
+          var w = WORDS[i];
+          var bg = document.getElementById("cap-bg" + i);
+          var word = document.getElementById("cap-w" + i);
+          var len = Math.max(0.1, w.end - w.start);
+          tl.fromTo(bg, { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: Math.min(0.12, len), ease: "power3.out" }, w.start);
+          tl.fromTo(word, { scale: 1 }, { scale: 1.08, duration: 0.08, ease: "power2.out" }, w.start);
+          tl.to(word, { scale: 1, duration: 0.14, ease: "power2.out" }, w.start + 0.08);
+          var off = Math.min(w.end, gEnd - 0.12);
+          tl.to(bg, { opacity: 0, duration: 0.08, ease: "power2.in" }, off);
+        });
+
+        tl.to(grp, { opacity: 0, duration: 0.12, ease: "power2.in" }, gEnd - 0.12);
+        tl.set(grp, { opacity: 0, visibility: "hidden" }, gEnd);
+      });
+
+      window.__timelines["captions"] = tl;
+    })();
+  </script>
+</template>
