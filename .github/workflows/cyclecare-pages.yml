@@ -1,0 +1,53 @@
+# Builds the CycleCare prototype and publishes it on GitHub Pages through the `gh-pages` branch.
+# One-time setup in the repository: Settings → Pages → Build and deployment →
+#   Source: "Deploy from a branch", Branch: "gh-pages" / "(root)".
+# The site only serves static files; journal data never leaves the visitor's device.
+name: CycleCare – publicare GitHub Pages
+
+on:
+  push:
+    branches: [claude/cyclecare-mobile-app-cjl6ux]
+    paths: ['cyclecare/**', '.github/workflows/cyclecare-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cyclecare-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cyclecare
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cyclecare/package-lock.json
+
+      - name: Instalare
+        run: npm ci
+
+      - name: Teste unitare
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Publicare pe gh-pages
+        working-directory: cyclecare/dist
+        run: |
+          touch .nojekyll
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish CycleCare ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
