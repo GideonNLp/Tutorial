@@ -136,7 +136,12 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
   // --- Period patterns ------------------------------------------------------------------------
   const longPeriods = stats.periodLengths.filter((l) => l > T.longPeriodDays).length;
   if (longPeriods >= T.repeatCount) {
-    flags.push({ id: 'period_long', kind: 'period_long', severity: FLAG_SEVERITY.period_long, values: { count: longPeriods, days: T.longPeriodDays } });
+    flags.push({
+      id: 'period_long',
+      kind: 'period_long',
+      severity: FLAG_SEVERITY.period_long,
+      values: { count: longPeriods, days: T.longPeriodDays },
+    });
   }
 
   const recentCycles = cycles.slice(-MOVING_WINDOW);

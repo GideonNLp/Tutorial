@@ -39,7 +39,8 @@ const store = createStore<AppState>({
   hasPin: false,
   hasBiometric: false,
   today: todayISO(),
-  prefs: typeof localStorage === 'undefined' ? DEFAULT_PREFS : loadPrefs(),
+  // loadPrefs() never throws: in a sandboxed frame even *reading* `localStorage` raises a SecurityError.
+  prefs: loadPrefs(),
 });
 
 let vault: Vault | null = null;

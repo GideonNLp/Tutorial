@@ -254,7 +254,12 @@ export function renderLegalDoc({ legal }) {
       for (const paragraph of paragraphs.slice(1)) out(paragraph, '');
     }
   }
-  out('## 5. Întrebări pentru jurist', '', 'Punctele de mai jos nu apar în aplicație. Sunt deciziile și verificările de care depinde forma finală a textelor.', '');
+  out(
+    '## 5. Întrebări pentru jurist',
+    '',
+    'Punctele de mai jos nu apar în aplicație. Sunt deciziile și verificările de care depinde forma finală a textelor.',
+    '',
+  );
   legal.legalReviewNotes.forEach((note, i) => out(`${i + 1}. ${note}`));
   out('');
   return lines.join('\n');

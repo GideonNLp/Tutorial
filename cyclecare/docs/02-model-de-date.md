@@ -1,0 +1,314 @@
+# Modelul de date
+
+Tipurile sunt definite în `src/domain/types.ts`; stocarea este în `src/storage/`. Documentul descrie întâi modelul logic (entități și relații), apoi felul în care prototipul îl păstrează criptat pe dispozitiv și cum s-ar transpune într-o bază de date relațională pentru aplicația nativă.
+
+## 1. Principii
+
+- **Datele stau doar pe dispozitiv.** Nu există cont, server sau sincronizare. Modelul nu are niciun identificator de persoană: nici nume, nici e-mail, nici identificator de dispozitiv.
+- **Se păstrează doar ce introduce persoana.** Ciclurile, fazele, estimările, observațiile și memento-urile programate **nu sunt stocate**: se calculează din jurnal de fiecare dată. Astfel există o singură sursă de adevăr, iar o corectură în jurnal ajustează automat totul.
+- **Zilele sunt zile de calendar**, în formatul `AAAA-LL-ZZ`, niciodată momente în timp. Fusul orar și trecerea la ora de vară nu pot muta o înregistrare în altă zi.
+- **Minimizare.** Aplicația nu colectează locația, contactele, date de utilizare sau de diagnosticare.
+
+## 2. Entități și relații
+
+```mermaid
+erDiagram
+    PROFIL ||--o{ ACORD : "a dat"
+    PROFIL ||--o{ ZI_JURNAL : "notează"
+    PROFIL ||--|| SETARI_MEMENTO : "configurează"
+    ZI_JURNAL ||--o{ SIMPTOM_NOTAT : "conține"
+    ZI_JURNAL ||--o| TEMPERATURA : "are"
+    LOT_IMPORT ||--o{ TEMPERATURA : "a adus"
+    SETARI_MEMENTO ||--o{ MEMENTO_MEDICAMENT : "include"
+    PROFIL ||--o{ MEMENTO_LIVRAT : "a primit"
+    PROFIL ||--o{ OBSERVATIE_ASCUNSA : "a ascuns"
+    ZI_JURNAL }o..o| CICLU : "aparține, derivat"
+    CICLU ||..o{ SANGERARE : "conține, derivat"
+    CICLU }o..|| ESTIMARE : "alimentează, derivat"
+    ESTIMARE ||..o{ APARITIE_MEMENTO : "programează, derivat"
+    ZI_JURNAL }o..o{ OBSERVATIE : "declanșează, derivat"
+
+    PROFIL {
+        set obiective
+        int durata_ciclu "21-45, opțional"
+        int durata_menstruatie "2-10, opțional"
+        bool arata_fertilitatea
+        timestamp inregistrat_la
+        bool date_demonstrative
+        int versiune_schema
+    }
+    ACORD {
+        enum tip
+        string versiune_text
+        timestamp acordat_la
+    }
+    ZI_JURNAL {
+        date data PK
+        enum flux "opțional"
+        int dispozitie "1-5, opțional"
+        int energie "1-5, opțional"
+        enum secretie "opțional"
+        string nota "max 2000"
+        timestamp actualizat_la
+    }
+    SIMPTOM_NOTAT {
+        date data FK
+        enum simptom
+        int intensitate "1-3"
+    }
+    TEMPERATURA {
+        date data FK
+        decimal celsius "34-42"
+        enum sursa "manual sau import"
+        string dispozitiv "opțional"
+    }
+    LOT_IMPORT {
+        string id PK
+        timestamp importat_la
+        string dispozitiv
+        int numar_valori
+        date de_la
+        date pana_la
+    }
+    SETARI_MEMENTO {
+        bool text_discret
+        rule menstruatie
+        rule zile_fertile
+    }
+    MEMENTO_MEDICAMENT {
+        string id PK
+        string denumire
+        time ora
+        set zile_saptamana "gol = zilnic"
+        bool activ
+    }
+    MEMENTO_LIVRAT {
+        string id_aparitie PK
+        timestamp livrat_la
+    }
+    OBSERVATIE_ASCUNSA {
+        string id_observatie PK
+        date ascunsa_la
+    }
+```
+
+Liniile continue leagă entități stocate; liniile punctate arată ce se **derivă** din ele și nu se păstrează.
+
+## 3. Entitățile stocate
+
+### 3.1 Profil
+
+Unul singur pe instalare. Nu identifică persoana.
+
+| Câmp | Tip | Reguli | Rol |
+|---|---|---|---|
+| `goals` | listă din `contraception`, `conception`, `general`, `symptoms` | poate fi goală | Schimbă ordinea și avertismentele de pe ecranul „Azi” |
+| `typicalCycleLength` | întreg, opțional | 21–45 | Durata declarată a ciclului; punct de plecare până există trei cicluri înregistrate |
+| `typicalPeriodLength` | întreg, opțional | 2–10 | Durata declarată a menstruației |
+| `showFertility` | boolean | implicit `true` | Oprit: se afișează doar menstruația, fără faze estimate și fără fertilitate |
+| `onboardedAt` | moment | – | Când s-a încheiat prima configurare |
+| `demo` | boolean, opțional | – | Jurnalul conține date demonstrative; afișat ca anunț |
+| `schemaVersion` | întreg | acum `1` | Pentru migrări |
+
+În cod, ultimele trei câmpuri stau pe documentul-rădăcină (`AppData`), alături de profil; logic, descriu aceeași instalare.
+
+### 3.2 Acord
+
+Dovada consimțământului. Se creează la prima configurare și nu se modifică.
+
+| Câmp | Tip | Reguli |
+|---|---|---|
+| `type` | `health_data_processing` sau `age_confirmation` | un rând pentru fiecare căsuță bifată |
+| `textVersion` | text | versiunea textului acceptat (`LEGAL_VERSION`) |
+| `grantedAt` | moment | data și ora acordului |
+
+Retragerea acordului șterge toate datele, inclusiv aceste rânduri; nu rămâne nimic de marcat ca „retras”. Un acord separat pentru o partajare viitoare ar adăuga un tip nou și un câmp `withdrawnAt`.
+
+### 3.3 Zi de jurnal
+
+Cel mult una pe zi; cheia este data. O zi fără niciun câmp completat este ștearsă, deci jurnalul nu conține zile goale.
+
+| Câmp | Tip | Reguli |
+|---|---|---|
+| `date` | zi | cheie; nu poate fi în viitor |
+| `flow` | `spotting`, `light`, `medium`, `heavy`, `unspecified` | `unspecified` = zi de menstruație fără intensitate (din prima configurare sau din editarea în calendar); `spotting` nu este zi de menstruație |
+| `symptoms` | simptom → intensitate | 17 simptome în 5 grupe; intensitate 1 (ușor), 2 (moderat), 3 (sever) |
+| `mood` | 1–5 | foarte scăzută … foarte bună |
+| `energy` | 1–5 | foarte scăzută … foarte ridicată |
+| `bbt` | temperatură | `celsius` 34–42 cu două zecimale; `source` `manual` sau `import`; `device` pentru valorile importate |
+| `mucus` | `dry`, `sticky`, `creamy`, `watery`, `eggwhite` | – |
+| `note` | text | cel mult 2000 de caractere |
+| `updatedAt` | moment | ultima modificare |
+
+Simptomele: durere (`cramps`, `headache`, `backache`, `breast_tenderness`), digestie (`bloating`, `nausea`, `constipation`, `diarrhea`, `cravings`), piele (`acne`), stare generală (`fatigue`, `insomnia`, `dizziness`), emoții (`irritability`, `anxiety`, `sadness`, `mood_swings`).
+
+### 3.4 Lot de import
+
+Un rând pentru fiecare fișier importat dintr-un dispozitiv purtabil: `id`, `importedAt`, `device`, `count`, `from`, `to`. Valorile aduse sunt temperaturi cu `source = import` și același `device`.
+
+### 3.5 Memento-uri
+
+| Entitate | Câmpuri |
+|---|---|
+| Setări | `discreet` (textul notificării nu menționează ciclul sau medicamentele; implicit pornit); regulile `period` și `fertile`, fiecare cu `enabled`, `daysBefore` (0–7), `time` (`HH:MM`), `repeatDaily` |
+| Memento pentru medicament | `id`, `name`, `time`, `weekdays` (0 = luni … 6 = duminică; listă goală = în fiecare zi), `enabled` |
+| Memento livrat | identificatorul apariției → momentul livrării; previne livrarea dublă; rândurile mai vechi de 60 de zile se șterg |
+
+### 3.6 Observație ascunsă
+
+Identificatorul observației → ziua în care persoana a apăsat „Am înțeles”. Observația rămâne ascunsă 30 de zile.
+
+## 4. Ce se derivă și nu se stochează
+
+| Entitate derivată | Din ce | Unde |
+|---|---|---|
+| Sângerare (`BleedEpisode`) | zilele cu flux de menstruație, grupate | `src/domain/cycles.ts` |
+| Ciclu (`Cycle`): început, menstruația care îl deschide, sângerări între menstruații, sfârșit, durată, valid sau nu | sângerări | `src/domain/cycles.ts` |
+| Statistici (`CycleStats`): medie mobilă, variabilitate | ciclurile valide din fereastră + duratele declarate | `src/domain/prediction.ts` |
+| Estimare (`Prediction`): ciclul curent, intervalul următoarei menstruații, ovulație, zile fertile, trei cicluri viitoare, precizie | statistici + ultima menstruație + ziua de azi | `src/domain/prediction.ts` |
+| Informații despre o zi (`DayInfo`): faza, ziua ciclului, ce este estimat | cicluri + estimare | `src/domain/prediction.ts` |
+| Observație (`Flag`) și simptom recent | jurnal + cicluri + estimare | `src/domain/insights.ts` |
+| Apariție de memento (`ReminderOccurrence`) | setări + estimare | `src/domain/reminders.ts` |
+| Agregări pentru grafice și raport | jurnal + cicluri | `src/domain/stats.ts` |
+
+Toate sunt funcții pure: aceleași date de intrare dau același rezultat. Algoritmul este descris în `03-algoritm-predictie.md`.
+
+## 5. Conținutul livrat cu aplicația
+
+Nu sunt date ale persoanei și nu se modifică la folosire: sfaturile pe faze și pe simptome și mesajele observațiilor (`src/content/<limbă>/tips.ts`, cu `TIPS_VERSION`), textele juridice (`src/content/<limbă>/legal.ts`, cu `LEGAL_VERSION`) și textele interfeței (`src/i18n/<limbă>.ts`).
+
+## 6. Cum sunt păstrate datele în prototip
+
+### 6.1 Ce se află pe disc
+
+Baza de date IndexedDB `cyclecare` are un singur depozit cu trei chei:
+
+| Cheie | Conținut | Criptat |
+|---|---|---|
+| `vault` | Tot modelul din secțiunea 3, ca un singur document JSON criptat cu AES-256-GCM (nonce nou la fiecare salvare) | da |
+| `meta` | Versiunea seifului, data creării, „sloturile de chei” (cheia de date împachetată, săruri, număr de iterații), contorul de PIN-uri greșite și pauza curentă | nu conține date despre sănătate |
+| `deviceKey` | O cheie AES neexportabilă, păstrată de browser; există doar cât timp nu este setat un PIN | – |
+
+În afara seifului, în `localStorage`, sunt doar preferințele de afișare (temă, dimensiunea textului, blocarea automată, limba). Trebuie citite înainte de deblocare, ca ecranul de blocare să respecte tema și dimensiunea textului.
+
+### 6.2 Ierarhia de chei
+
+```mermaid
+flowchart LR
+    pin[PIN] -- PBKDF2-HMAC-SHA-256<br/>600 000 de iterații, sare de 16 octeți --> kekPin[cheie din PIN]
+    bio[senzor biometric<br/>WebAuthn PRF] -- HKDF-SHA-256 --> kekBio[cheie din secretul biometric]
+    dev[cheie de dispozitiv<br/>neexportabilă] --> slotDev
+    kekPin --> slotPin[slot PIN]
+    kekBio --> slotBio[slot biometric]
+    slotDev[slot dispozitiv] --> dek
+    slotPin --> dek
+    slotBio --> dek
+    dek[cheie de date AES-256<br/>doar în memorie, cât e deblocat] -- AES-256-GCM --> vault[(seif: jurnalul criptat)]
+```
+
+- Fără PIN există doar slotul de dispozitiv: datele sunt criptate pe disc, iar cheia nu poate fi exportată de scripturi, dar oricine deschide aplicația pe dispozitivul deblocat le vede.
+- La setarea unui PIN, slotul de dispozitiv și cheia de dispozitiv sunt șterse: cheia de date mai poate fi recuperată doar cu PIN-ul sau cu biometria. PIN-ul nu este stocat; un PIN greșit se recunoaște prin faptul că despachetarea eșuează.
+- Blocarea șterge din memorie cheia de date și jurnalul decriptat.
+- „Șterge toate datele” golește depozitul și `localStorage`.
+
+Limite ale variantei web, de spus deschis: un PIN din cifre are puțină entropie, iar limita de încercări este impusă de aplicație, nu de hardware. Aplicația nativă trebuie să țină cheia în Secure Enclave (iOS) sau StrongBox (Android), unde limita de încercări este impusă de cip.
+
+### 6.3 Criptarea în tranzit
+
+Prototipul nu transmite nimic: nu există server, iar politica de securitate a paginii (`connect-src 'self'`) blochează orice cerere către alt server. Dacă va exista vreodată o copie în cloud, datele trebuie criptate pe dispozitiv cu o cheie pe care serverul nu o cunoaște și transmise doar prin TLS 1.2 sau mai nou, după un acord separat.
+
+## 7. Export și restaurare
+
+| Format | Conținut | Unde se creează |
+|---|---|---|
+| PDF | Raportul pentru medic, pe 3, 6 sau 12 luni; notele doar la cerere | pe dispozitiv, `src/pdf/` |
+| JSON | `{ app: "CycleCare", format: 1, exportedAt, data }`, unde `data` este modelul din secțiunea 3 | pe dispozitiv, `src/storage/backup.ts` |
+
+Fișierul JSON nu este criptat, iar aplicația spune asta înainte de salvare. La restaurare, fișierul este tratat ca dată nesigură: fiecare câmp este validat, valorile necunoscute sau în afara limitelor sunt ignorate, iar acordurile de pe dispozitiv se păstrează (nu se importă acordul dat pe alt dispozitiv).
+
+## 8. Ciclul de viață al datelor
+
+| Moment | Ce se întâmplă |
+|---|---|
+| Consimțământ | Se creează seiful, cu profilul și cele două acorduri |
+| Folosire | Fiecare schimbare actualizează documentul criptat, la cel mult un sfert de secundă după ultima atingere și înainte ca pagina să treacă în fundal |
+| Export | Persoana salvează un fișier pe dispozitivul ei; aplicația nu păstrează o copie |
+| Ștergere sau retragerea acordului | Seiful, cheile și preferințele sunt șterse; nu există copie de rezervă |
+| Dezinstalare sau ștergerea datelor site-ului | La fel; datele nu pot fi recuperate |
+
+## 9. Transpunere într-o bază de date relațională
+
+Pentru aplicația nativă, același model se așază într-o bază SQLite criptată (de exemplu SQLCipher), cu cheia în depozitul securizat al sistemului. Schiță:
+
+```sql
+CREATE TABLE profile (
+  id                    INTEGER PRIMARY KEY CHECK (id = 1),
+  typical_cycle_length  INTEGER CHECK (typical_cycle_length BETWEEN 21 AND 45),
+  typical_period_length INTEGER CHECK (typical_period_length BETWEEN 2 AND 10),
+  show_fertility        INTEGER NOT NULL DEFAULT 1,
+  onboarded_at          TEXT,
+  is_demo               INTEGER NOT NULL DEFAULT 0,
+  schema_version        INTEGER NOT NULL
+);
+CREATE TABLE profile_goal (
+  goal TEXT PRIMARY KEY CHECK (goal IN ('contraception', 'conception', 'general', 'symptoms'))
+);
+CREATE TABLE consent (
+  id           INTEGER PRIMARY KEY,
+  type         TEXT NOT NULL,
+  text_version TEXT NOT NULL,
+  granted_at   TEXT NOT NULL,
+  withdrawn_at TEXT
+);
+CREATE TABLE day_log (
+  date       TEXT PRIMARY KEY,                 -- AAAA-LL-ZZ
+  flow       TEXT CHECK (flow IN ('spotting', 'light', 'medium', 'heavy', 'unspecified')),
+  mood       INTEGER CHECK (mood BETWEEN 1 AND 5),
+  energy     INTEGER CHECK (energy BETWEEN 1 AND 5),
+  mucus      TEXT CHECK (mucus IN ('dry', 'sticky', 'creamy', 'watery', 'eggwhite')),
+  note       TEXT CHECK (length(note) <= 2000),
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE symptom_entry (
+  date      TEXT NOT NULL REFERENCES day_log(date) ON DELETE CASCADE,
+  symptom   TEXT NOT NULL,
+  intensity INTEGER NOT NULL CHECK (intensity BETWEEN 1 AND 3),
+  PRIMARY KEY (date, symptom)
+);
+CREATE TABLE import_batch (
+  id          TEXT PRIMARY KEY,
+  imported_at TEXT NOT NULL,
+  device      TEXT NOT NULL,
+  count       INTEGER NOT NULL,
+  from_date   TEXT NOT NULL,
+  to_date     TEXT NOT NULL
+);
+CREATE TABLE bbt_reading (
+  date            TEXT PRIMARY KEY REFERENCES day_log(date) ON DELETE CASCADE,
+  celsius         REAL NOT NULL CHECK (celsius BETWEEN 34 AND 42),
+  source          TEXT NOT NULL CHECK (source IN ('manual', 'import')),
+  import_batch_id TEXT REFERENCES import_batch(id) ON DELETE SET NULL
+);
+CREATE TABLE reminder_rule (
+  kind         TEXT PRIMARY KEY CHECK (kind IN ('period', 'fertile')),
+  enabled      INTEGER NOT NULL DEFAULT 0,
+  days_before  INTEGER NOT NULL CHECK (days_before BETWEEN 0 AND 7),
+  time         TEXT NOT NULL,                  -- HH:MM
+  repeat_daily INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE medication_reminder (
+  id       TEXT PRIMARY KEY,
+  name     TEXT NOT NULL,
+  time     TEXT NOT NULL,
+  weekdays TEXT NOT NULL DEFAULT '',           -- de ex. '0,3'; gol = zilnic
+  enabled  INTEGER NOT NULL DEFAULT 1
+);
+CREATE TABLE fired_reminder (occurrence_id TEXT PRIMARY KEY, fired_at TEXT NOT NULL);
+CREATE TABLE dismissed_flag (flag_id TEXT PRIMARY KEY, dismissed_on TEXT NOT NULL);
+```
+
+Ciclurile nu au tabel: se calculează din `day_log`. Dacă volumul o cere, pot fi ținute într-un tabel de lucru reconstruit la fiecare schimbare a fluxului, dar tabelul acela nu este o sursă de adevăr și nu se exportă.
+
+## 10. Versiuni și migrări
+
+`schemaVersion` este `1`. La deschidere, documentul este completat cu valorile implicite ale câmpurilor apărute între timp. O schimbare incompatibilă crește versiunea și adaugă o funcție de migrare de la versiunea anterioară; exporturile JSON poartă propriul număr de format, verificat la restaurare.

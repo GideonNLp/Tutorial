@@ -134,6 +134,11 @@ export function Onboarding() {
           <p className="caption" style={{ textAlign: 'center' }}>
             {o.welcome.demoNote}
           </p>
+          {__SINGLE_FILE__ && (
+            <p className="caption" style={{ textAlign: 'center' }}>
+              {o.welcome.previewNote}
+            </p>
+          )}
         </footer>
       </div>
     );

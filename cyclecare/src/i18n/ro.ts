@@ -167,6 +167,7 @@ export const ro = {
       start: 'Începe',
       demo: 'Explorează cu date demonstrative',
       demoNote: 'Datele demonstrative sunt inventate și pot fi șterse oricând din Setări.',
+      previewNote: 'Versiune de previzualizare a prototipului. Ce notezi rămâne doar în acest browser și dispare dacă ștergi datele de navigare.',
     },
     lastPeriod: {
       title: 'Când a început ultima ta menstruație?',

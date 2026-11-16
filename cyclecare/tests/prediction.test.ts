@@ -214,3 +214,40 @@ describe('timeline', () => {
     expect(t.cycles[0]!.length).toBe(28);
   });
 });
+
+describe('worked examples in docs/03-algoritm-predictie.md', () => {
+  const example = (lengths: number[], declared: number) => {
+    const e = estimateLength(lengths, declared);
+    return { L: Math.round(e.mean), sd: Math.round(e.sd * 10) / 10, h: intervalHalfWidth(e), N: e.effectiveSize };
+  };
+
+  it('4.1 six recorded cycles', () => {
+    expect(example([28, 29, 26, 30, 27, 28], 28)).toEqual({ L: 28, sd: 2, h: 3, N: 6 });
+    const t = buildTimeline(periods(startsFrom('2026-05-20', [28, 29, 26, 30, 27, 28])), profile(), '2026-11-15');
+    expect(t.prediction.current).toMatchObject({ start: '2026-11-04', expectedNext: '2026-12-02', earliest: '2026-11-29', latest: '2026-12-05' });
+    expect(t.prediction.current).toMatchObject({ ovulation: '2026-11-17', fertileStart: '2026-11-12', fertileEnd: '2026-11-18' });
+    expect(t.prediction.confidence).toBe('high');
+  });
+
+  it('4.2 only the onboarding answers', () => {
+    expect(example([], 30)).toEqual({ L: 30, sd: 3, h: 4, N: 3 });
+  });
+
+  it('4.3 one recorded cycle that differs from the declared length', () => {
+    expect(example([33], 28)).toEqual({ L: 30, sd: 3, h: 4, N: 3 });
+  });
+
+  it('4.4 irregular cycles', () => {
+    expect(example([24, 36, 29, 40, 26, 34], 28)).toEqual({ L: 32, sd: 5.5, h: 8, N: 6 });
+    expect(confidenceOf(6, 8)).toBe('low');
+  });
+
+  it('phase layout quoted for a 28-day cycle with a 5-day period', () => {
+    const days = (phase: string) => Array.from({ length: 28 }, (_, d) => d + 1).filter((d) => phaseAt(d - 1, 28, 4) === phase);
+    expect(days('menstruation')).toEqual([1, 2, 3, 4, 5]);
+    expect(days('follicular')).toEqual([6, 7, 8, 9, 10, 11, 12]);
+    expect(days('ovulation')).toEqual([13, 14, 15]);
+    expect(days('luteal').at(0)).toBe(16);
+    expect(ovulationOffset(32) + 1).toBe(18); // "ziua 18 într-unul de 32"
+  });
+});
