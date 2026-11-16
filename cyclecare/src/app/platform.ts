@@ -20,6 +20,7 @@ function hostBridge(): HostBridge | undefined {
 // Asked once, early: a preview host can take several seconds to answer.
 let hostDownloads: Promise<HostDownloads | null> | undefined;
 export function warmUpHost(): void {
+  if (!__PREVIEW__) return;
   const bridge = hostBridge();
   if (bridge && !hostDownloads) hostDownloads = bridge.use('downloads').catch(() => null);
 }
@@ -36,8 +37,8 @@ export type SaveOutcome = 'saved' | 'declined' | 'failed';
 
 /** Offers a generated file to the person. Nothing is uploaded: the file goes from memory to their device. */
 export async function saveFile(filename: string, blob: Blob): Promise<SaveOutcome> {
-  warmUpHost();
-  if (hostDownloads) {
+  if (__PREVIEW__) warmUpHost();
+  if (__PREVIEW__ && hostDownloads) {
     const downloads = await hostDownloads;
     if (downloads) {
       try {
@@ -129,19 +130,4 @@ export async function showSystemNotification(title: string, body: string, tag: s
   } catch {
     return false;
   }
-}
-
-// ---- Offline support --------------------------------------------------------------------------
-
-/** Registers the service worker of the installable build. The single-file preview has none. */
-export function registerServiceWorker(): void {
-  if (__PREVIEW__ || !import.meta.env.PROD) return;
-  if (!('serviceWorker' in navigator) || framed()) return;
-  const register = () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {
-      // Offline support is optional; the app works without it.
-    });
-  };
-  if (document.readyState === 'complete') register();
-  else window.addEventListener('load', register, { once: true });
 }

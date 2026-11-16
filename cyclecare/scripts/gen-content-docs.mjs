@@ -6,9 +6,12 @@ import { createServer } from 'vite';
 import { renderLegalDoc, renderTipsDoc } from './content-docs.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
+// The documents describe the default configuration, whatever this machine's environment says.
+for (const name of Object.keys(process.env)) if (name.startsWith('VITE_')) delete process.env[name];
 const server = await createServer({
   root,
   configFile: false,
+  envDir: fileURLToPath(new URL('.', import.meta.url)), // no .env files here: defaults only
   appType: 'custom',
   logLevel: 'error',
   server: { middlewareMode: true, hmr: false, ws: false },

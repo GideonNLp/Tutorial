@@ -1,3 +1,4 @@
+import { APP_NAME } from '../app/config';
 import { randomBytes, type Bytes } from './crypto';
 
 /**
@@ -52,8 +53,8 @@ export async function registerBiometric(): Promise<BiometricRegistration> {
   const credential = (await navigator.credentials.create({
     publicKey: {
       challenge: randomBytes(32),
-      rp: { name: 'CycleCare' },
-      user: { id: randomBytes(16), name: 'cyclecare', displayName: 'CycleCare' },
+      rp: { name: APP_NAME },
+      user: { id: randomBytes(16), name: 'cyclecare', displayName: APP_NAME },
       pubKeyCredParams: [
         { type: 'public-key', alg: -7 },
         { type: 'public-key', alg: -257 },

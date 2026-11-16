@@ -1,7 +1,7 @@
 import { CalendarDays, ChartColumn, ChevronLeft, CircleDot, Lightbulb, NotebookPen, Settings, type LucideIcon } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { goBack, navigate, useRoute, type Route } from '../app/router';
-import { useToasts } from '../app/ui';
+import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
 
 // Until the person has pressed or tapped something, focus stays where the browser put it,
@@ -87,8 +87,20 @@ export function Toaster() {
   return (
     <div className="toaster" role="status" aria-live="polite">
       {toasts.map((t) => (
-        <div className="toast" key={t.id}>
-          {t.message}
+        <div className={t.leaving ? 'toast leaving' : 'toast'} key={t.id}>
+          <span>{t.message}</span>
+          {t.action && (
+            <button
+              type="button"
+              className="toast-action"
+              onClick={() => {
+                t.action!.run();
+                dismissToast(t.id);
+              }}
+            >
+              {t.action.label}
+            </button>
+          )}
         </div>
       ))}
     </div>

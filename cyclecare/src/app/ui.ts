@@ -4,9 +4,17 @@ import { createStore, useStore } from './miniStore';
 import { navigate } from './router';
 
 /** View state that is not worth a URL: the day open in the journal, the month shown, toasts. */
+export interface ToastAction {
+  label: string;
+  run: () => void;
+}
+
 export interface Toast {
   id: number;
   message: string;
+  action?: ToastAction;
+  /** Set for the last moments on screen, so the toast can animate out. */
+  leaving?: boolean;
 }
 
 interface UiState {
@@ -57,15 +65,51 @@ export function selectCalendarDay(date: ISODate): void {
 }
 
 let toastId = 0;
+const toastTimers = new Map<number, ReturnType<typeof setTimeout>>();
+const TOAST_EXIT_MS = 180;
 
-/** Short confirmation, announced politely to screen readers. */
-export function toast(message: string): void {
-  const id = ++toastId;
-  ui.set((s) => ({ ...s, toasts: [...s.toasts.slice(-2), { id, message }] }));
-  setTimeout(() => ui.set((s) => ({ ...s, toasts: s.toasts.filter((t) => t.id !== id) })), 4000);
+export function dismissToast(id: number): void {
+  clearTimeout(toastTimers.get(id));
+  if (!ui.get().toasts.some((t) => t.id === id && !t.leaving)) return;
+  ui.set((s) => ({ ...s, toasts: s.toasts.map((t) => (t.id === id ? { ...t, leaving: true } : t)) }));
+  toastTimers.set(
+    id,
+    setTimeout(() => {
+      toastTimers.delete(id);
+      ui.set((s) => ({ ...s, toasts: s.toasts.filter((t) => t.id !== id) }));
+    }, TOAST_EXIT_MS),
+  );
+}
+
+/**
+ * Short confirmation, announced politely to screen readers. With an `action` (for example "Undo")
+ * it stays a little longer. Repeating the message that is already on screen restarts its timer
+ * instead of stacking a copy.
+ */
+export function toast(message: string, options: { action?: ToastAction; duration?: number } = {}): number {
+  const duration = options.duration ?? (options.action ? 7000 : 4000);
+  const existing = ui.get().toasts.find((t) => t.message === message && !t.leaving);
+  const id = existing?.id ?? ++toastId;
+  const next: Toast = { id, message, action: options.action };
+  if (existing) {
+    ui.set((s) => ({ ...s, toasts: s.toasts.map((t) => (t.id === id ? next : t)) }));
+  } else {
+    // At most three at a time: the oldest makes room.
+    const visible = ui.get().toasts.filter((t) => !t.leaving);
+    if (visible.length >= 3) dismissToast(visible[0]!.id);
+    ui.set((s) => ({ ...s, toasts: [...s.toasts, next] }));
+  }
+  clearTimeout(toastTimers.get(id));
+  toastTimers.set(
+    id,
+    setTimeout(() => dismissToast(id), duration),
+  );
+  return id;
 }
 
 export function resetUi(): void {
+  toastTimers.forEach((timer) => clearTimeout(timer));
+  toastTimers.clear();
   const today = todayISO();
   ui.set({
     journalDate: today,

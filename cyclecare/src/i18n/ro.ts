@@ -8,6 +8,8 @@
  *  - orice estimare este numită estimare.
  */
 
+import { APP_FILE_NAME, APP_NAME } from '../app/config';
+
 const plural = new Intl.PluralRules('ro');
 
 /** „1 zi”, „5 zile”, „20 de zile”. */
@@ -24,7 +26,7 @@ export const ro = {
   meta: { name: 'Română', htmlLang: 'ro', intl: 'ro-RO' },
 
   common: {
-    appName: 'CycleCare',
+    appName: APP_NAME,
     back: 'Înapoi',
     next: 'Continuă',
     skip: 'Sari peste',
@@ -140,14 +142,13 @@ export const ro = {
 
   /** Avertismentul obligatoriu de lângă orice estimare de fertilitate. */
   contraceptionWarning: 'Zilele fertile și ovulația sunt estimări. Nu sunt un mijloc sigur de contracepție.',
-  contraceptionGoalWarning:
-    'CycleCare nu este un mijloc de contracepție. Estimările zilelor fertile pot greși cu mai multe zile și nu pot preveni o sarcină. Un medic te poate ajuta să alegi o metodă potrivită.',
+  contraceptionGoalWarning: `${APP_NAME} nu este un mijloc de contracepție. Estimările zilelor fertile pot greși cu mai multe zile și nu pot preveni o sarcină. Un medic te poate ajuta să alegi o metodă potrivită.`,
 
   onboarding: {
     progress: (step: number, total: number) => `Pasul ${step} din ${total}`,
     welcome: {
       title: 'Ciclul tău, pe înțelesul tău',
-      lead: 'Notezi în câteva atingeri cum te simți, iar CycleCare îți arată în ce fază ești și când este de așteptat următoarea menstruație.',
+      lead: `Notezi în câteva atingeri cum te simți, iar ${APP_NAME} îți arată în ce fază ești și când este de așteptat următoarea menstruație.`,
       points: [
         'Estimări cu interval, nu o singură dată promisă',
         'Jurnal zilnic pentru flux, simptome, dispoziție și energie',
@@ -177,7 +178,7 @@ export const ro = {
       skip: 'Nu știu',
     },
     goals: {
-      title: 'La ce ți-ar folosi CycleCare?',
+      title: `La ce ți-ar folosi ${APP_NAME}?`,
       hint: 'Poți alege mai multe. Răspunsul schimbă doar ce îți arătăm mai întâi.',
     },
     finish: {
@@ -192,7 +193,7 @@ export const ro = {
       pinWarning: 'Ține-l minte: PIN-ul nu poate fi recuperat, iar fără el datele nu pot fi citite.',
       reminderTitle: 'Memento înainte de menstruație',
       reminderBody: 'Cu două zile înainte de data estimată, la 9:00. Textul notificării rămâne discret.',
-      open: 'Deschide CycleCare',
+      open: `Deschide ${APP_NAME}`,
       summaryCycle: (n: number) => `Ciclu obișnuit: ${zile(n)}`,
       summaryPeriod: (n: number) => `Menstruație: ${zile(n)}`,
       summaryDefault: 'Pornim de la valorile obișnuite (28 și 5 zile) și le ajustăm după ce înregistrezi.',
@@ -200,7 +201,7 @@ export const ro = {
   },
 
   lock: {
-    title: 'CycleCare este blocată',
+    title: `${APP_NAME} este blocată`,
     prompt: 'Introdu PIN-ul',
     unlock: 'Deblochează',
     wrong: (left: number) => `PIN greșit. Mai ai ${count(left, 'încercare', 'încercări', 'de încercări')} până la o pauză.`,
@@ -517,7 +518,7 @@ export const ro = {
       saved: 'Raportul a fost salvat.',
       declined: 'Salvarea a fost anulată.',
       failed: 'Raportul nu a putut fi salvat pe acest dispozitiv.',
-      filename: (date: string) => `CycleCare-raport-${date}.pdf`,
+      filename: (date: string) => `${APP_FILE_NAME}-raport-${date}.pdf`,
     },
   },
 
@@ -529,7 +530,7 @@ export const ro = {
       privacy: { title: 'Confidențialitate și securitate', hint: 'PIN, biometrie, acorduri, ștergerea datelor' },
       data: { title: 'Datele mele', hint: 'Export, copie de siguranță, import din dispozitive' },
       appearance: { title: 'Aspect și accesibilitate', hint: 'Temă, dimensiunea textului, limbă' },
-      about: { title: 'Despre CycleCare', hint: 'Versiune, limite, licențe' },
+      about: { title: `Despre ${APP_NAME}`, hint: 'Versiune, limite, licențe' },
     },
     cycle: {
       cycleLength: 'Durata obișnuită a ciclului',
@@ -602,6 +603,8 @@ export const ro = {
         session: 'Doar în memoria acestei pagini: browserul nu permite salvarea pe dispozitiv.',
         plain: 'Doar în memoria acestei pagini, necriptate: criptarea nu este disponibilă fără HTTPS.',
       },
+      storageNotPersistent:
+        'Browserul nu a garantat păstrarea acestor date: le poate șterge dacă dispozitivul rămâne fără spațiu sau dacă nu deschizi aplicația mult timp. Instaleaz-o pe ecranul principal și păstrează din când în când un export.',
       sharingTitle: 'Partajare cu terți',
       sharing:
         'Nimic nu este partajat. Dacă o funcție viitoare ar presupune trimiterea de date către altcineva, îți vom cere un acord separat, pentru acel caz, și îl vei putea retrage oricând.',
@@ -609,8 +612,7 @@ export const ro = {
       consentGiven: (date: string, version: string) =>
         `Acord pentru prelucrarea datelor privind sănătatea, dat pe ${date} (textul versiunea ${version}).`,
       withdraw: 'Retrage acordul și șterge datele',
-      withdrawBody:
-        'Fără acord, CycleCare nu poate păstra date despre ciclul tău. Retragerea șterge tot ce ai notat și te întoarce la ecranul de început.',
+      withdrawBody: `Fără acord, ${APP_NAME} nu poate păstra date despre ciclul tău. Retragerea șterge tot ce ai notat și te întoarce la ecranul de început.`,
       policy: 'Citește declarația de confidențialitate',
       deleteTitle: 'Șterge toate datele',
       deleteBody:
@@ -631,7 +633,7 @@ export const ro = {
       export: 'Exportă datele (JSON)',
       exported: 'Fișierul a fost salvat.',
       exportFailed: 'Fișierul nu a putut fi salvat.',
-      exportFilename: (date: string) => `CycleCare-date-${date}.json`,
+      exportFilename: (date: string) => `${APP_FILE_NAME}-date-${date}.json`,
       import: 'Restaurează dintr-un fișier',
       importConfirmTitle: 'Înlocuiești datele de pe acest dispozitiv?',
       importConfirmBody: (days: number) =>
@@ -639,8 +641,8 @@ export const ro = {
       importConfirm: 'Înlocuiește',
       imported: 'Datele au fost restaurate.',
       importError: {
-        not_json: 'Fișierul nu este un export CycleCare valid.',
-        not_cyclecare: 'Fișierul nu este un export CycleCare.',
+        not_json: `Fișierul nu este un export ${APP_NAME} valid.`,
+        not_cyclecare: `Fișierul nu este un export ${APP_NAME}.`,
         unsupported_version: 'Fișierul vine dintr-o versiune mai nouă a aplicației.',
       },
       devicesTitle: 'Dispozitive purtabile',
@@ -662,17 +664,29 @@ export const ro = {
     },
     about: {
       version: (v: string) => `Versiunea ${v}`,
-      notMedical:
-        'CycleCare este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu poate fi folosit ca metodă de contracepție.',
+      notMedical: `${APP_NAME} este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu poate fi folosit ca metodă de contracepție.`,
       estimates:
         'Estimările pornesc de la datele pe care le notezi și presupun cicluri naturale. Sunt mai puțin de încredere în primele luni de folosire, la cicluri neregulate, în timpul contracepției hormonale, după naștere, în perioada de alăptare și la perimenopauză.',
       emergency: 'Pentru urgențe medicale, sună la 112.',
       licenses: 'Fonturi: Figtree și Bricolage Grotesque (SIL Open Font License 1.1). Pictograme: Lucide (ISC).',
+      install: {
+        title: 'Instalează aplicația',
+        body: `Adaugă ${APP_NAME} pe ecranul principal: se deschide ca o aplicație, pornește și fără internet, iar datele sunt mai bine ferite de curățarea automată a browserului.`,
+        action: 'Instalează',
+        ios: 'În Safari, apasă pe butonul Partajare, apoi alege „Adaugă pe ecranul principal”.',
+        installed: 'Aplicația este instalată pe acest dispozitiv.',
+        done: 'Aplicația a fost instalată.',
+      },
+      update: {
+        ready: 'Este disponibilă o versiune nouă.',
+        apply: 'Actualizează',
+        hint: 'Datele tale rămân neschimbate. Aplicația se reîncarcă o singură dată.',
+      },
     },
   },
 
   notification: {
-    discreetTitle: 'CycleCare',
+    discreetTitle: APP_NAME,
     discreetBody: 'Ai un memento.',
     periodTitle: 'Menstruație',
     period: (daysBefore: number) =>
@@ -694,7 +708,7 @@ export const ro = {
 
   pdf: {
     title: 'Raport ciclu menstrual',
-    generated: (date: string) => `Generat pe ${date} din aplicația CycleCare`,
+    generated: (date: string) => `Generat pe ${date} din aplicația ${APP_NAME}`,
     period: (from: string, to: string) => `Perioada: ${from} – ${to}`,
     summary: 'Rezumat',
     avgCycle: 'Durata medie a ciclului',
@@ -735,13 +749,14 @@ export const ro = {
     observationsNote: 'Constatări automate pe baza datelor notate. Nu reprezintă un diagnostic.',
     notes: 'Note din jurnal',
     none: 'Nimic notat în perioadă.',
-    disclaimer:
-      'Raport generat de utilizator din datele introduse în aplicația CycleCare. Fazele, ovulația și zilele fertile sunt estimări calculate din durata ciclurilor. Documentul nu reprezintă un diagnostic.',
+    disclaimer: `Raport generat de utilizator din datele introduse în aplicația ${APP_NAME}. Fazele, ovulația și zilele fertile sunt estimări calculate din durata ciclurilor. Documentul nu reprezintă un diagnostic.`,
     page: (n: number, total: number) => `Pagina ${n} din ${total}`,
   },
 
   errors: {
     generic: 'Ceva nu a mers. Încearcă din nou.',
+    unexpected: 'A apărut o eroare neașteptată. Dacă se repetă, reîncarcă aplicația.',
+    saveFailed: 'Ultimele modificări nu au putut fi salvate pe dispozitiv. Verifică spațiul liber și încearcă din nou.',
     boundaryTitle: 'Ecranul nu a putut fi afișat',
     boundaryBody: 'Datele tale sunt în siguranță. Reîncarcă pagina; dacă problema persistă, exportă datele din Setări.',
     reload: 'Reîncarcă',

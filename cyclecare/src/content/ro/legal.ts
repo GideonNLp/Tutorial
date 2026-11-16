@@ -2,21 +2,25 @@
  * Textele de consimțământ și declarația de confidențialitate, în română.
  *
  * SCHIȚĂ. Trebuie verificate de un specialist juridic înainte de orice lansare.
- * Câmpurile dintre paranteze drepte sunt de completat. Întrebările deschise pentru jurist sunt
- * în docs/05-consimtamant-si-confidentialitate.md, generat din acest fișier (`npm run docs:content`).
+ * Datele operatorului vin din configurare (`VITE_OPERATOR_NAME` etc., vezi `.env.example`); cât timp
+ * lipsesc, rămân vizibile ca spații de completat, între paranteze drepte. După verificarea juridică,
+ * `VITE_LEGAL_REVIEWED=true` scoate mențiunea de schiță și notele pentru jurist din textul afișat.
+ * Întrebările deschise pentru jurist sunt în docs/05-consimtamant-si-confidentialitate.md,
+ * generat din acest fișier (`npm run docs:content`).
  *
  * Textele descriu exact ce face aplicația: totul rămâne pe dispozitiv, criptat, fără cont și fără server.
  * Dacă produsul primește funcții online (copie în cloud, sincronizare), textele trebuie rescrise,
  * iar utilizatorii trebuie să își dea din nou acordul.
  */
 
+import { APP_NAME, LEGAL_REVIEWED, OPERATOR } from '../../app/config';
+
 export const LEGAL_VERSION = '2026-11-schita-2';
 export const LEGAL_UPDATED = '2026-11-15';
 
 export const consentText = {
   title: 'Datele tale rămân la tine',
-  intro:
-    'Ca să funcționeze, CycleCare păstrează date despre sănătatea ta: zilele de menstruație, simptomele, dispoziția, temperatura și notele pe care le scrii. Înainte să notezi ceva, iată ce se întâmplă cu ele.',
+  intro: `Ca să funcționeze, ${APP_NAME} păstrează date despre sănătatea ta: zilele de menstruație, simptomele, dispoziția, temperatura și notele pe care le scrii. Înainte să notezi ceva, iată ce se întâmplă cu ele.`,
   points: [
     {
       title: 'Unde sunt păstrate',
@@ -35,8 +39,7 @@ export const consentText = {
       body: 'Poți exporta sau șterge totul din Setări. Dacă îți retragi acordul, datele sunt șterse.',
     },
   ],
-  healthCheckbox:
-    'Sunt de acord ca CycleCare să prelucreze, pe acest dispozitiv, datele privind sănătatea pe care le introduc, în scopurile descrise mai sus.',
+  healthCheckbox: `Sunt de acord ca ${APP_NAME} să prelucreze, pe acest dispozitiv, datele privind sănătatea pe care le introduc, în scopurile descrise mai sus.`,
   ageCheckbox: 'Am cel puțin 16 ani sau am acordul unui părinte ori al unui tutore.',
   policyLink: 'Citește declarația de confidențialitate',
   accept: 'Sunt de acord și continui',
@@ -47,7 +50,7 @@ export const consentText = {
   /** Șablon pentru un acord separat, cerut punctual, dacă va exista vreodată o funcție de partajare. */
   separateConsentTemplate: {
     title: 'Acord separat pentru [funcție]',
-    body: 'Ca să [scopul funcției], CycleCare ar trimite către [destinatar] următoarele date: [lista exactă]. Datele ar fi folosite doar pentru [scop] și păstrate [durată]. Poți refuza: restul aplicației funcționează la fel. Îți poți retrage acordul oricând din Setări.',
+    body: `Ca să [scopul funcției], ${APP_NAME} ar trimite către [destinatar] următoarele date: [lista exactă]. Datele ar fi folosite doar pentru [scop] și păstrate [durată]. Poți refuza: restul aplicației funcționează la fel. Îți poți retrage acordul oricând din Setări.`,
     accept: 'Sunt de acord cu această partajare',
     decline: 'Nu acum',
   },
@@ -59,14 +62,19 @@ export interface PolicySection {
   bullets?: string[];
 }
 
-export const privacyPolicy: { title: string; draftNotice: string; sections: PolicySection[] } = {
+/** O notă pentru jurist, vizibilă în text doar cât timp acesta nu a fost verificat. */
+const reviewNote = (note: string): string => (LEGAL_REVIEWED ? '' : ` [${note}]`);
+
+export const privacyPolicy: { title: string; draftNotice: string | undefined; sections: PolicySection[] } = {
   title: 'Declarație de confidențialitate',
-  draftNotice: 'Schiță de lucru, versiunea din 15 noiembrie 2026. Textul nu a fost încă verificat de un specialist juridic.',
+  draftNotice: LEGAL_REVIEWED
+    ? undefined
+    : 'Schiță de lucru, versiunea din 15 noiembrie 2026. Textul nu a fost încă verificat de un specialist juridic.',
   sections: [
     {
       heading: '1. Pe scurt',
       bullets: [
-        'CycleCare păstrează datele tale doar pe dispozitivul tău, criptate.',
+        `${APP_NAME} păstrează datele tale doar pe dispozitivul tău, criptate.`,
         'Nu îți cerem nume, e-mail, număr de telefon sau cont.',
         'Nu avem acces la datele tale și nu le transmitem nimănui.',
         'Nu folosim reclame, instrumente de analiză sau alte servicii ale unor terți.',
@@ -76,8 +84,12 @@ export const privacyPolicy: { title: string; draftNotice: string; sections: Poli
     {
       heading: '2. Cine suntem',
       paragraphs: [
-        'Aplicația CycleCare este oferită de [denumirea operatorului], cu sediul în [adresă], înregistrată sub nr. [număr de înregistrare] („noi”).',
-        'Pentru întrebări despre datele tale ne poți scrie la [adresă de e-mail]. [Dacă este desemnat un responsabil cu protecția datelor: datele de contact ale acestuia.]',
+        `Aplicația ${APP_NAME} este oferită de ${OPERATOR.name ?? '[denumirea operatorului]'}, cu sediul în ${OPERATOR.address ?? '[adresă]'}, înregistrată sub nr. ${OPERATOR.registration ?? '[număr de înregistrare]'} („noi”).`,
+        `Pentru întrebări despre datele tale ne poți scrie la ${OPERATOR.email ?? '[adresă de e-mail]'}.${
+          OPERATOR.dpo
+            ? ` Responsabilul cu protecția datelor poate fi contactat la ${OPERATOR.dpo}.`
+            : reviewNote('Dacă este desemnat un responsabil cu protecția datelor: datele de contact ale acestuia.')
+        }`,
       ],
     },
     {
@@ -169,13 +181,13 @@ export const privacyPolicy: { title: string; draftNotice: string; sections: Poli
     {
       heading: '13. Vârsta minimă',
       paragraphs: [
-        'Îți poți da singur acordul dacă ai cel puțin 16 ani. Sub această vârstă este nevoie de acordul unui părinte sau al unui tutore. [De confirmat de jurist: mecanismul de verificare și vârsta aplicabilă.]',
+        `Îți poți da singur acordul dacă ai cel puțin 16 ani. Sub această vârstă este nevoie de acordul unui părinte sau al unui tutore.${reviewNote('De confirmat de jurist: mecanismul de verificare și vârsta aplicabilă.')}`,
       ],
     },
     {
-      heading: '14. Ce nu este CycleCare',
+      heading: `14. Ce nu este ${APP_NAME}`,
       paragraphs: [
-        'CycleCare este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu înlocuiește consultul medical. Estimările zilelor fertile nu sunt un mijloc de contracepție.',
+        `${APP_NAME} este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu înlocuiește consultul medical. Estimările zilelor fertile nu sunt un mijloc de contracepție.`,
       ],
     },
     {

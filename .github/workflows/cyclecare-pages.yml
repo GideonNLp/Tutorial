@@ -30,15 +30,6 @@ jobs:
     defaults:
       run:
         working-directory: cyclecare
-    env:
-      VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
-      VITE_PUBLIC_URL: ${{ vars.VITE_PUBLIC_URL }}
-      VITE_ALLOW_INDEXING: ${{ vars.VITE_ALLOW_INDEXING }}
-      VITE_OPERATOR_NAME: ${{ vars.VITE_OPERATOR_NAME }}
-      VITE_OPERATOR_ADDRESS: ${{ vars.VITE_OPERATOR_ADDRESS }}
-      VITE_OPERATOR_REGISTRATION: ${{ vars.VITE_OPERATOR_REGISTRATION }}
-      VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
-      VITE_LEGAL_REVIEWED: ${{ vars.VITE_LEGAL_REVIEWED }}
     steps:
       - uses: actions/checkout@v4
 
@@ -60,8 +51,23 @@ jobs:
       - name: Teste cap-coadă
         run: npx playwright install --with-deps chromium && npm run test:e2e
 
+      # The checks above describe the default configuration; the published build gets the repository's own.
       - name: Build
-        run: npm run build
+        env:
+          VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+          VITE_PUBLIC_URL: ${{ vars.VITE_PUBLIC_URL }}
+          VITE_ALLOW_INDEXING: ${{ vars.VITE_ALLOW_INDEXING }}
+          VITE_OPERATOR_NAME: ${{ vars.VITE_OPERATOR_NAME }}
+          VITE_OPERATOR_ADDRESS: ${{ vars.VITE_OPERATOR_ADDRESS }}
+          VITE_OPERATOR_REGISTRATION: ${{ vars.VITE_OPERATOR_REGISTRATION }}
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+          VITE_DPO_CONTACT: ${{ vars.VITE_DPO_CONTACT }}
+          VITE_LEGAL_REVIEWED: ${{ vars.VITE_LEGAL_REVIEWED }}
+        run: |
+          if [ -z "$VITE_PUBLIC_URL" ]; then
+            export VITE_PUBLIC_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
+          fi
+          npm run build
 
       - name: Publicare pe gh-pages
         working-directory: cyclecare/dist

@@ -22,6 +22,7 @@ import { isEmptyLog } from '../domain/journal';
  * Imported files are untrusted input, so every field is validated and anything unknown is dropped.
  */
 export const BACKUP_FORMAT = 1;
+/** Identifies the file format. It stays the same if the product is renamed, so older backups keep working. */
 const APP_ID = 'CycleCare';
 const MAX_NOTE = 2000;
 const MAX_TEXT = 60;

@@ -1,7 +1,22 @@
-import { Bell, ChevronRight, Database, FileUp, Info, Palette, ShieldCheck, Trash2, CircleDot, CircleHelp, type LucideIcon } from 'lucide-react';
+import {
+  Bell,
+  ChevronRight,
+  CircleDot,
+  CircleHelp,
+  Database,
+  Download,
+  FileUp,
+  Info,
+  Palette,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { notificationStatus, readFileAsText, requestNotifications, saveFile, type NotificationStatus } from '../app/platform';
 import type { AutoLock, TextSize, ThemePref } from '../app/prefs';
+import { applyUpdate, promptInstall, useInstallState, useStoragePersisted, useUpdateReady } from '../app/pwa';
 import { navigate, type Route } from '../app/router';
 import {
   disableBiometrics,
@@ -487,6 +502,7 @@ function PrivacySettings() {
   const hasPin = useHasPin();
   const hasBiometric = useHasBiometric();
   const storage = useStorageMode();
+  const persisted = useStoragePersisted();
   const [pinMode, setPinMode] = useState<PinMode | null>(null);
   const [canBiometric, setCanBiometric] = useState(false);
   const [confirm, setConfirm] = useState<'delete' | 'withdraw' | null>(null);
@@ -573,6 +589,7 @@ function PrivacySettings() {
 
         <Group title={p.storageTitle}>
           <p>{p.storage[storage]}</p>
+          {storage === 'encrypted' && persisted === false && <p className="small ink-2">{p.storageNotPersistent}</p>}
         </Group>
 
         <Group title={p.sharingTitle}>
@@ -775,15 +792,54 @@ function AppearanceSettings() {
 function About() {
   const s = strings();
   const a = s.settings.about;
+  const install = useInstallState();
+  const updateReady = useUpdateReady();
+
+  const installApp = async () => {
+    if ((await promptInstall()) === 'accepted') toast(a.install.done);
+  };
+
   return (
     <div className="screen">
       <ScreenHead title={s.settings.sections.about.title} subtitle={a.version(__APP_VERSION__)} back="setari" />
       <div className="stack stack-5">
+        {updateReady && (
+          <Notice icon={<RefreshCw size={20} aria-hidden="true" />}>
+            <p className="strong">{a.update.ready}</p>
+            <p>{a.update.hint}</p>
+            <div>
+              <button type="button" className="btn btn-primary btn-small" onClick={applyUpdate}>
+                {a.update.apply}
+              </button>
+            </div>
+          </Notice>
+        )}
         <Notice attention icon={<Info size={20} aria-hidden="true" />}>
           <p>{a.notMedical}</p>
         </Notice>
         <p>{a.estimates}</p>
         <p className="strong">{a.emergency}</p>
+        {install !== 'unavailable' && (
+          <Group title={a.install.title}>
+            {install === 'installed' ? (
+              <p className="ink-2">{a.install.installed}</p>
+            ) : (
+              <>
+                <p className="ink-2">{a.install.body}</p>
+                {install === 'available' ? (
+                  <div>
+                    <button type="button" className="btn btn-secondary btn-small" onClick={() => void installApp()}>
+                      <Download size={16} aria-hidden="true" />
+                      {a.install.action}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="small">{a.install.ios}</p>
+                )}
+              </>
+            )}
+          </Group>
+        )}
         <p className="small ink-2">{a.licenses}</p>
       </div>
     </div>

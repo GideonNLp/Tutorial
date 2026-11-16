@@ -1,9 +1,11 @@
-import { Component, useEffect, type ReactNode } from 'react';
-import { reportError } from './app/errors';
+import { useEffect, type ReactNode } from 'react';
+import { onUnexpectedError } from './app/errors';
 import { startLifecycle } from './app/lifecycle';
-import { registerServiceWorker, warmUpHost } from './app/platform';
+import { warmUpHost } from './app/platform';
+import { applyUpdate, registerServiceWorker, requestPersistentStorage, useUpdateReady } from './app/pwa';
 import { useRoute, type Route } from './app/router';
-import { initApp, usePrefs, useStatus } from './app/store';
+import { flush, initApp, usePrefs, useStatus, useStorageMode } from './app/store';
+import { toast } from './app/ui';
 import { strings } from './i18n';
 import { CalendarScreen } from './screens/Calendar';
 import { JournalScreen } from './screens/Journal';
@@ -13,6 +15,7 @@ import { SettingsScreen } from './screens/Settings';
 import { StatsScreen } from './screens/Stats';
 import { TipsScreen } from './screens/Tips';
 import { TodayScreen } from './screens/Today';
+import { ErrorBoundary } from './ui/ErrorBoundary';
 import { TabBar, Toaster } from './ui/Shell';
 
 let started = false;
@@ -40,14 +43,34 @@ export function App() {
   // Re-render everything when the language changes (strings are read at render time).
   const { locale } = usePrefs();
 
+  const storage = useStorageMode();
+  const updateReady = useUpdateReady();
+
   useEffect(() => {
     if (started) return;
     started = true;
-    warmUpHost();
-    registerServiceWorker();
+    // One calm message for whatever went wrong unexpectedly; screens that fail show their own.
+    onUnexpectedError((source) => {
+      if (source === 'render' || source === 'export') return;
+      const e = strings().errors;
+      toast(source === 'save' ? e.saveFailed : e.unexpected, { duration: 8000 });
+    });
+    if (__PREVIEW__) warmUpHost();
+    registerServiceWorker(flush);
     void initApp();
     startLifecycle();
   }, []);
+
+  // Once there is a journal on this device, ask the browser to keep it.
+  useEffect(() => {
+    if (status === 'ready' && storage === 'encrypted') void requestPersistentStorage();
+  }, [status, storage]);
+
+  useEffect(() => {
+    if (!updateReady) return;
+    const u = strings().settings.about.update;
+    toast(u.ready, { action: { label: u.apply, run: applyUpdate }, duration: 15000 });
+  }, [updateReady]);
 
   const s = strings();
   if (status === 'loading') {
@@ -92,30 +115,4 @@ export function App() {
       <Toaster />
     </div>
   );
-}
-
-/** Keeps one broken screen from taking the whole app (and the tab bar) down with it. */
-class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  override state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  override componentDidCatch(error: unknown) {
-    reportError('render', error);
-  }
-  override render() {
-    if (!this.state.failed) return this.props.children;
-    const e = strings().errors;
-    return (
-      <div className="screen stack">
-        <h1>{e.boundaryTitle}</h1>
-        <p>{e.boundaryBody}</p>
-        <div>
-          <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>
-            {e.reload}
-          </button>
-        </div>
-      </div>
-    );
-  }
 }

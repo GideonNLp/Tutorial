@@ -5,7 +5,7 @@ export function PolicyText() {
   const { privacyPolicy } = content().legal;
   return (
     <div className="stack stack-5 policy">
-      <p className="notice">{privacyPolicy.draftNotice}</p>
+      {privacyPolicy.draftNotice && <p className="notice">{privacyPolicy.draftNotice}</p>}
       {privacyPolicy.sections.map((section) => (
         <section key={section.heading} className="stack stack-2">
           <h3>{section.heading}</h3>

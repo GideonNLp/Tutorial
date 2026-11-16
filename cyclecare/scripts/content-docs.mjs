@@ -240,8 +240,7 @@ export function renderLegalDoc({ legal }) {
     '',
     `## 4. ${p.title}`,
     '',
-    `> ${p.draftNotice}`,
-    '',
+    ...(p.draftNotice ? [`> ${p.draftNotice}`, ''] : []),
   );
   for (const section of p.sections) {
     out(`### ${section.heading}`, '');
