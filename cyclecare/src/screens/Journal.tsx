@@ -74,10 +74,10 @@ export function JournalScreen() {
                   type="button"
                   className="weekday"
                   aria-current={d === date ? 'date' : undefined}
-                  aria-label={`${formatDate(d, 'weekdayDayMonth')}${data.logs[d] ? `, ${j.hasEntry}` : ''}`}
                   disabled={d > today}
                   onClick={() => setJournalDate(d)}
                 >
+                  <span className="sr-only">{`${formatDate(d, 'weekdayDayMonth')}${data.logs[d] ? `, ${j.hasEntry}` : ''}`}</span>
                   <span className="weekday-name" aria-hidden="true">
                     {s.calendar.weekdaysShort[i]}
                   </span>

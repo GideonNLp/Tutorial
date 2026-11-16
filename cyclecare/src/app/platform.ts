@@ -137,9 +137,11 @@ export async function showSystemNotification(title: string, body: string, tag: s
 export function registerServiceWorker(): void {
   if (__SINGLE_FILE__ || !import.meta.env.PROD) return;
   if (!('serviceWorker' in navigator) || framed()) return;
-  window.addEventListener('load', () => {
+  const register = () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {
       // Offline support is optional; the app works without it.
     });
-  });
+  };
+  if (document.readyState === 'complete') register();
+  else window.addEventListener('load', register, { once: true });
 }

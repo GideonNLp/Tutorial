@@ -566,6 +566,7 @@ main:focus {
 .segmented input {
   position: absolute;
   inset: 0;
+  z-index: 1; /* above the painted face, so the real control receives the click */
   width: 100%;
   height: 100%;
   margin: 0;
@@ -686,11 +687,14 @@ main:focus {
 }
 .switch-row input {
   position: absolute;
-  opacity: 0;
+  top: 50%;
+  right: 0;
+  z-index: 1;
   width: 3.25rem;
   height: 2rem;
-  right: 0;
   margin: 0;
+  opacity: 0;
+  transform: translateY(-50%);
   cursor: pointer;
 }
 .switch-track {

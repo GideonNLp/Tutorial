@@ -4,13 +4,24 @@ import { goBack, navigate, useRoute, type Route } from '../app/router';
 import { useToasts } from '../app/ui';
 import { strings } from '../i18n';
 
+// Until the person has pressed or tapped something, focus stays where the browser put it,
+// so the skip link is the first tab stop after a page load.
+let interacted = false;
+if (typeof window !== 'undefined') {
+  const mark = () => {
+    interacted = true;
+  };
+  window.addEventListener('pointerdown', mark, { capture: true, once: true });
+  window.addEventListener('keydown', mark, { capture: true, once: true });
+}
+
 /** Screen title. Moves focus to itself when the screen appears, so screen readers announce the new view. */
 export function ScreenHead(props: { title: string; subtitle?: string; back?: Route; settings?: boolean; actions?: ReactNode }) {
   const ref = useRef<HTMLHeadingElement>(null);
   const s = strings();
   useEffect(() => {
     window.scrollTo(0, 0);
-    ref.current?.focus({ preventScroll: true });
+    if (interacted) ref.current?.focus({ preventScroll: true });
   }, []);
   return (
     <header className="screen-head">
