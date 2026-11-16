@@ -29,10 +29,7 @@ function cspMeta(): Plugin {
     name: 'cyclecare-csp-meta',
     apply: 'build',
     transformIndexHtml(html) {
-      return html.replace(
-        '<!--csp-->',
-        `<meta http-equiv="Content-Security-Policy" content="${CSP}">`,
-      );
+      return html.replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${CSP}">`);
     },
   };
 }
@@ -58,7 +55,9 @@ function precacheList(): Plugin {
       } catch {
         return; // build without a service worker (single-file preview)
       }
-      const assets = readdirSync(join(outDir, 'assets')).sort().map((name) => `./assets/${name}`);
+      const assets = readdirSync(join(outDir, 'assets'))
+        .sort()
+        .map((name) => `./assets/${name}`);
       const files = ['./', './manifest.webmanifest', './icon.svg', './icon-192.png', ...assets];
       const version = createHash('sha256').update(files.join('|')).digest('hex').slice(0, 10);
       writeFileSync(swPath, sw.replace("'__VERSION__'", JSON.stringify(version)).replace('/*__PRECACHE__*/ []', JSON.stringify(files)));

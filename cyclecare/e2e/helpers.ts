@@ -76,7 +76,10 @@ export async function dumpStorage(page: Page): Promise<string> {
       if (value instanceof Uint8Array) return new TextDecoder('latin1').decode(value);
       if (value instanceof CryptoKey) return `[CryptoKey extractable=${value.extractable}]`;
       if (Array.isArray(value)) return value.map(text).join(' ');
-      if (value && typeof value === 'object') return Object.entries(value).map(([k, v]) => `${k}=${text(v)}`).join(' ');
+      if (value && typeof value === 'object')
+        return Object.entries(value)
+          .map(([k, v]) => `${k}=${text(v)}`)
+          .join(' ');
       return String(value);
     };
     return all.map(([key, value]) => `${String(key)}: ${text(value)}`).join('\n');

@@ -176,12 +176,23 @@ describe('backup', () => {
       {
         profile: { goals: ['conception', 'world-domination'], typicalCycleLength: 400, typicalPeriodLength: 4, showFertility: false },
         logs: {
-          '2026-11-01': { flow: 'heavy', symptoms: { cramps: 9, headache: 2, hacking: 3 }, mood: 7, energy: 3, note: 'x'.repeat(5000), __proto__: { polluted: true } },
+          '2026-11-01': {
+            flow: 'heavy',
+            symptoms: { cramps: 9, headache: 2, hacking: 3 },
+            mood: 7,
+            energy: 3,
+            note: 'x'.repeat(5000),
+            __proto__: { polluted: true },
+          },
           '2026-13-45': { flow: 'light' },
           '2026-11-02': { flow: 'tsunami', bbt: { celsius: 99 } },
           '2026-11-03': { bbt: { celsius: 36.456, source: 'import', device: 'Ring' }, mucus: 'creamy' },
         },
-        reminders: { discreet: false, period: { enabled: true, daysBefore: 99, time: '25:00' }, medications: [{ id: 'a', name: 'Pilula', time: '21:00', weekdays: [0, 0, 9] }, { name: 'fără id' }] },
+        reminders: {
+          discreet: false,
+          period: { enabled: true, daysBefore: 99, time: '25:00' },
+          medications: [{ id: 'a', name: 'Pilula', time: '21:00', weekdays: [0, 0, 9] }, { name: 'fără id' }],
+        },
         dismissedFlags: { low_mood: '2026-11-01', bad: 'yesterday' },
         extra: 'ignored',
       },

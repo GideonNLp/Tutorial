@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addDays, addMonths, daysInMonth, diffDays, eachDay, isValidISODate, monthGrid, startOfWeek, todayISO, weekdayMondayFirst,
+  addDays,
+  addMonths,
+  daysInMonth,
+  diffDays,
+  eachDay,
+  isValidISODate,
+  monthGrid,
+  startOfWeek,
+  todayISO,
+  weekdayMondayFirst,
 } from '../src/domain/dates';
 
 describe('dates', () => {

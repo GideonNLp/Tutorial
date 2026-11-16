@@ -62,6 +62,22 @@ export type FlagKind =
   | 'symptom_new'
   | 'low_mood';
 
+/** `attention` = worth discussing with a doctor; `info` = good to know. */
+export const FLAG_SEVERITY: Record<FlagKind, 'info' | 'attention'> = {
+  cycle_short: 'attention',
+  cycle_long: 'attention',
+  cycle_irregular: 'attention',
+  period_long: 'attention',
+  period_heavy: 'attention',
+  no_period: 'attention',
+  period_late: 'info',
+  bleeding_between: 'attention',
+  symptom_severe: 'attention',
+  symptom_persistent: 'attention',
+  symptom_new: 'info',
+  low_mood: 'attention',
+};
+
 export interface Flag {
   /** Stable key used for dismissing, e.g. `symptom_severe:cramps`. */
   id: string;
@@ -100,10 +116,10 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
   const short = lengths.filter((l) => l < T.shortCycleDays).length;
   const long = lengths.filter((l) => l > T.longCycleDays).length;
   if (short >= T.repeatCount) {
-    flags.push({ id: 'cycle_short', kind: 'cycle_short', severity: 'attention', values: { count: short, days: T.shortCycleDays } });
+    flags.push({ id: 'cycle_short', kind: 'cycle_short', severity: FLAG_SEVERITY.cycle_short, values: { count: short, days: T.shortCycleDays } });
   }
   if (long >= T.repeatCount) {
-    flags.push({ id: 'cycle_long', kind: 'cycle_long', severity: 'attention', values: { count: long, days: T.longCycleDays } });
+    flags.push({ id: 'cycle_long', kind: 'cycle_long', severity: FLAG_SEVERITY.cycle_long, values: { count: long, days: T.longCycleDays } });
   }
   if (lengths.length >= 3 && stats.shortest !== undefined && stats.longest !== undefined) {
     const range = stats.longest - stats.shortest;
@@ -111,7 +127,7 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
       flags.push({
         id: 'cycle_irregular',
         kind: 'cycle_irregular',
-        severity: 'attention',
+        severity: FLAG_SEVERITY.cycle_irregular,
         values: { shortest: stats.shortest, longest: stats.longest, range },
       });
     }
@@ -120,7 +136,7 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
   // --- Period patterns ------------------------------------------------------------------------
   const longPeriods = stats.periodLengths.filter((l) => l > T.longPeriodDays).length;
   if (longPeriods >= T.repeatCount) {
-    flags.push({ id: 'period_long', kind: 'period_long', severity: 'attention', values: { count: longPeriods, days: T.longPeriodDays } });
+    flags.push({ id: 'period_long', kind: 'period_long', severity: FLAG_SEVERITY.period_long, values: { count: longPeriods, days: T.longPeriodDays } });
   }
 
   const recentCycles = cycles.slice(-MOVING_WINDOW);
@@ -129,7 +145,7 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
     lastTwoPeriods.length === 2 &&
     lastTwoPeriods.every((c) => c.period.days.filter((d) => logs[d]?.flow === 'heavy').length >= T.heavyDaysPerPeriod)
   ) {
-    flags.push({ id: 'period_heavy', kind: 'period_heavy', severity: 'attention', values: { days: T.heavyDaysPerPeriod } });
+    flags.push({ id: 'period_heavy', kind: 'period_heavy', severity: FLAG_SEVERITY.period_heavy, values: { days: T.heavyDaysPerPeriod } });
   }
 
   const lastThree = recentCycles.slice(-3);
@@ -138,20 +154,20 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
     return c.intermenstrual.length > 0 || bleedingBetweenDays(c, next?.start, logs, today) > 0;
   }).length;
   if (withBleeding >= T.repeatCount) {
-    flags.push({ id: 'bleeding_between', kind: 'bleeding_between', severity: 'attention', values: { count: withBleeding } });
+    flags.push({ id: 'bleeding_between', kind: 'bleeding_between', severity: FLAG_SEVERITY.bleeding_between, values: { count: withBleeding } });
   }
 
   // --- Late or missing period -----------------------------------------------------------------
   const current = prediction.current;
   if (current) {
     if (current.cycleDay > T.noPeriodDays) {
-      flags.push({ id: 'no_period', kind: 'no_period', severity: 'attention', values: { days: current.cycleDay - 1 } });
+      flags.push({ id: 'no_period', kind: 'no_period', severity: FLAG_SEVERITY.no_period, values: { days: current.cycleDay - 1 } });
     } else if (prediction.status === 'late') {
       flags.push({
         // Tied to the cycle, so dismissing it does not hide a late period in a later cycle.
         id: `period_late:${current.start}`,
         kind: 'period_late',
-        severity: 'info',
+        severity: FLAG_SEVERITY.period_late,
         values: { days: -current.daysUntil },
       });
     }
@@ -164,12 +180,24 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
     const has = (d: ISODate) => logs[d]?.symptoms?.[symptom] !== undefined;
     const severe = countDays(logs, addDays(today, -(T.severeWindow - 1)), today, (d) => logs[d]?.symptoms?.[symptom] === 3);
     if (severe >= T.severeDays) {
-      flags.push({ id: `symptom_severe:${symptom}`, kind: 'symptom_severe', severity: 'attention', symptom, values: { days: severe, window: T.severeWindow } });
+      flags.push({
+        id: `symptom_severe:${symptom}`,
+        kind: 'symptom_severe',
+        severity: FLAG_SEVERITY.symptom_severe,
+        symptom,
+        values: { days: severe, window: T.severeWindow },
+      });
       continue;
     }
     const persistent = countDays(logs, addDays(today, -(T.persistentWindow - 1)), today, has);
     if (persistent >= T.persistentDays) {
-      flags.push({ id: `symptom_persistent:${symptom}`, kind: 'symptom_persistent', severity: 'attention', symptom, values: { days: persistent, window: T.persistentWindow } });
+      flags.push({
+        id: `symptom_persistent:${symptom}`,
+        kind: 'symptom_persistent',
+        severity: FLAG_SEVERITY.symptom_persistent,
+        symptom,
+        values: { days: persistent, window: T.persistentWindow },
+      });
       continue;
     }
     if (historyDays >= T.newSymptomMinHistory) {
@@ -178,7 +206,13 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
         const quietTo = addDays(today, -T.newSymptomWindow);
         const before = countDays(logs, addDays(quietTo, -(T.newSymptomQuietDays - 1)), quietTo, has);
         if (before === 0) {
-          flags.push({ id: `symptom_new:${symptom}`, kind: 'symptom_new', severity: 'info', symptom, values: { days: recent, window: T.newSymptomWindow } });
+          flags.push({
+            id: `symptom_new:${symptom}`,
+            kind: 'symptom_new',
+            severity: FLAG_SEVERITY.symptom_new,
+            symptom,
+            values: { days: recent, window: T.newSymptomWindow },
+          });
         }
       }
     }
@@ -186,7 +220,7 @@ export function computeFlags(timeline: Timeline, logs: DayLogs): Flag[] {
 
   const lowMood = countDays(logs, addDays(today, -(T.lowMoodWindow - 1)), today, (d) => (logs[d]?.mood ?? 5) <= 2);
   if (lowMood >= T.lowMoodDays) {
-    flags.push({ id: 'low_mood', kind: 'low_mood', severity: 'attention', values: { days: lowMood, window: T.lowMoodWindow } });
+    flags.push({ id: 'low_mood', kind: 'low_mood', severity: FLAG_SEVERITY.low_mood, values: { days: lowMood, window: T.lowMoodWindow } });
   }
 
   return flags.sort((a, b) => Number(b.severity === 'attention') - Number(a.severity === 'attention'));

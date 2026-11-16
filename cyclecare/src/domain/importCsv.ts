@@ -124,9 +124,7 @@ export function parseTemperatureCsv(text: string, today: ISODate): CsvImportResu
     byDate.set(date, Math.round(value * 100) / 100);
   }
 
-  const readings = [...byDate.entries()]
-    .map(([date, celsius]) => ({ date, celsius }))
-    .sort((a, b) => (a.date < b.date ? -1 : 1));
+  const readings = [...byDate.entries()].map(([date, celsius]) => ({ date, celsius })).sort((a, b) => (a.date < b.date ? -1 : 1));
   return {
     readings,
     skipped,

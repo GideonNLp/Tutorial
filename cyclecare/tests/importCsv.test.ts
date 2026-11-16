@@ -7,13 +7,19 @@ describe('temperature CSV import', () => {
   it('reads a comma-separated file with ISO dates', () => {
     const r = parseTemperatureCsv('date,temperature\n2026-11-01,36.42\n2026-11-02,36.51\n', today);
     expect(r.problem).toBeUndefined();
-    expect(r.readings).toEqual([{ date: '2026-11-01', celsius: 36.42 }, { date: '2026-11-02', celsius: 36.51 }]);
+    expect(r.readings).toEqual([
+      { date: '2026-11-01', celsius: 36.42 },
+      { date: '2026-11-02', celsius: 36.51 },
+    ]);
     expect(r.detected).toMatchObject({ dateColumn: 'date', temperatureColumn: 'temperature', convertedFromFahrenheit: false });
   });
 
   it('reads Romanian-style exports: semicolons, day-first dates, decimal commas', () => {
     const r = parseTemperatureCsv('﻿Data;Temperatura bazală (°C);Notă\r\n01.11.2026;36,42;\r\n2.11.2026;36,5;ok\r\n', today);
-    expect(r.readings).toEqual([{ date: '2026-11-01', celsius: 36.42 }, { date: '2026-11-02', celsius: 36.5 }]);
+    expect(r.readings).toEqual([
+      { date: '2026-11-01', celsius: 36.42 },
+      { date: '2026-11-02', celsius: 36.5 },
+    ]);
   });
 
   it('finds the columns wherever they are and ignores the others', () => {

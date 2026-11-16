@@ -1,5 +1,17 @@
 import {
-  Annoyed, Battery, BatteryFull, BatteryLow, BatteryMedium, Check, ChevronLeft, ChevronRight, Frown, Laugh, Meh, Smile, Zap,
+  Annoyed,
+  Battery,
+  BatteryFull,
+  BatteryLow,
+  BatteryMedium,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Frown,
+  Laugh,
+  Meh,
+  Smile,
+  Zap,
 } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { update, useData, useTimeline, useToday } from '../app/store';
@@ -7,7 +19,16 @@ import { setJournalDate, useJournalDate } from '../app/ui';
 import { addDays, parts, startOfWeek } from '../domain/dates';
 import { updateDay, type DayPatch } from '../domain/journal';
 import {
-  FLOWS, MUCUS_TYPES, SYMPTOM_GROUPS, SYMPTOM_IDS, type DayLog, type Intensity, type ISODate, type Scale5, type SymptomGroup, type SymptomId,
+  FLOWS,
+  MUCUS_TYPES,
+  SYMPTOM_GROUPS,
+  SYMPTOM_IDS,
+  type DayLog,
+  type Intensity,
+  type ISODate,
+  type Scale5,
+  type SymptomGroup,
+  type SymptomId,
 } from '../domain/types';
 import { formatDate, formatNumber, strings } from '../i18n';
 import { ChoiceChips, ErrorText, MultiChips, Scale, Segmented } from '../ui/controls';

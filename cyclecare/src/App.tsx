@@ -2,7 +2,7 @@ import { Component, useEffect, type ReactNode } from 'react';
 import { startLifecycle } from './app/lifecycle';
 import { registerServiceWorker, warmUpHost } from './app/platform';
 import { useRoute, type Route } from './app/router';
-import { initApp, useStatus } from './app/store';
+import { initApp, usePrefs, useStatus } from './app/store';
 import { strings } from './i18n';
 import { CalendarScreen } from './screens/Calendar';
 import { JournalScreen } from './screens/Journal';
@@ -36,6 +36,8 @@ function screenFor(route: Route): ReactNode {
 export function App() {
   const status = useStatus();
   const route = useRoute();
+  // Re-render everything when the language changes (strings are read at render time).
+  const { locale } = usePrefs();
 
   useEffect(() => {
     if (started) return;
@@ -56,18 +58,22 @@ export function App() {
   }
   if (status === 'onboarding') {
     return (
-      <div className="app no-tabbar">
+      <div className="app no-tabbar" key={locale}>
         <Onboarding />
         <Toaster />
       </div>
     );
   }
   if (status === 'locked' || status === 'broken') {
-    return <div className="app no-tabbar">{status === 'locked' ? <LockScreen /> : <BrokenVaultScreen />}</div>;
+    return (
+      <div className="app no-tabbar" key={locale}>
+        {status === 'locked' ? <LockScreen /> : <BrokenVaultScreen />}
+      </div>
+    );
   }
 
   return (
-    <div className="app with-tabbar">
+    <div className="app with-tabbar" key={locale}>
       <a
         className="skip-link"
         href="#main"

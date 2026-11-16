@@ -41,8 +41,7 @@ export const consentText = {
   policyLink: 'Citește declarația de confidențialitate',
   accept: 'Sunt de acord și continui',
   decline: 'Nu sunt de acord',
-  declineInfo:
-    'Fără acest acord, aplicația nu poate păstra nimic. Nu am salvat nicio informație; poți închide pagina.',
+  declineInfo: 'Fără acest acord, aplicația nu poate păstra nimic. Nu am salvat nicio informație; poți închide pagina.',
   missingHealth: 'Bifează acordul pentru prelucrarea datelor ca să poți continua.',
   missingAge: 'Confirmă vârsta sau acordul unui părinte ori tutore ca să poți continua.',
   /** Șablon pentru un acord separat, cerut punctual, dacă va exista vreodată o funcție de partajare. */
@@ -62,8 +61,7 @@ export interface PolicySection {
 
 export const privacyPolicy: { title: string; draftNotice: string; sections: PolicySection[] } = {
   title: 'Declarație de confidențialitate',
-  draftNotice:
-    'Schiță de lucru, versiunea din 15 noiembrie 2026. Textul nu a fost încă verificat de un specialist juridic.',
+  draftNotice: 'Schiță de lucru, versiunea din 15 noiembrie 2026. Textul nu a fost încă verificat de un specialist juridic.',
   sections: [
     {
       heading: '1. Pe scurt',

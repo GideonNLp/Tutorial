@@ -9,7 +9,9 @@ export function PolicyText() {
       {privacyPolicy.sections.map((section) => (
         <section key={section.heading} className="stack stack-2">
           <h3>{section.heading}</h3>
-          {section.paragraphs?.slice(0, section.bullets ? 1 : undefined).map((p) => <p key={p}>{p}</p>)}
+          {section.paragraphs?.slice(0, section.bullets ? 1 : undefined).map((p) => (
+            <p key={p}>{p}</p>
+          ))}
           {section.bullets && (
             <ul className="bullets">
               {section.bullets.map((b) => (

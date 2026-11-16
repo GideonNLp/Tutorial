@@ -88,7 +88,8 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
             key={span.from}
             d={arc((span.from - 1) / total + GAP / 2, span.to / total - GAP / 2, R)}
             fill="none"
-            stroke={`var(--${span.phase})`}
+            // With fertility estimates off, only menstruation keeps its colour (see visiblePhase).
+            stroke={showFertility || span.phase === 'menstruation' ? `var(--${span.phase})` : 'var(--line-strong)'}
             strokeWidth={RING}
           />
         ))}
@@ -102,8 +103,22 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
         })}
         {showFertility && (
           <>
-            <path d={arc(fertileFrom, fertileTo, OUTER)} fill="none" stroke="var(--ovulation)" strokeWidth={4} strokeLinecap="round" strokeDasharray="0.1 8" />
-            <circle cx={point((ov + 0.5) / total, OUTER)[0]} cy={point((ov + 0.5) / total, OUTER)[1]} r={5.5} fill="var(--ovulation)" stroke="var(--surface)" strokeWidth={2} />
+            <path
+              d={arc(fertileFrom, fertileTo, OUTER)}
+              fill="none"
+              stroke="var(--ovulation)"
+              strokeWidth={4}
+              strokeLinecap="round"
+              strokeDasharray="0.1 8"
+            />
+            <circle
+              cx={point((ov + 0.5) / total, OUTER)[0]}
+              cy={point((ov + 0.5) / total, OUTER)[1]}
+              r={5.5}
+              fill="var(--ovulation)"
+              stroke="var(--surface)"
+              strokeWidth={2}
+            />
           </>
         )}
         {!late && (

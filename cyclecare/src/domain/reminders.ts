@@ -85,12 +85,7 @@ export function reminderOccurrences(
 }
 
 /** Occurrences that should be shown now: already due, not older than `graceHours`, not delivered yet. */
-export function dueReminders(
-  occurrences: ReminderOccurrence[],
-  fired: Record<string, string>,
-  now: Date,
-  graceHours = 12,
-): ReminderOccurrence[] {
+export function dueReminders(occurrences: ReminderOccurrence[], fired: Record<string, string>, now: Date, graceHours = 12): ReminderOccurrence[] {
   const oldest = now.getTime() - graceHours * 3_600_000;
   return occurrences.filter((o) => o.at.getTime() <= now.getTime() && o.at.getTime() >= oldest && !fired[o.id]);
 }

@@ -52,8 +52,7 @@ export function estimateLength(lengths: number[], prior: number): LengthEstimate
   if (n >= 2) {
     const observedMean = sum / n;
     const sampleVariance = lengths.reduce((acc, x) => acc + (x - observedMean) ** 2, 0) / (n - 1);
-    const variance =
-      ((n - 1) * sampleVariance + SIGMA_PRIOR_WEIGHT * SIGMA_PRIOR ** 2) / (n - 1 + SIGMA_PRIOR_WEIGHT);
+    const variance = ((n - 1) * sampleVariance + SIGMA_PRIOR_WEIGHT * SIGMA_PRIOR ** 2) / (n - 1 + SIGMA_PRIOR_WEIGHT);
     sd = Math.sqrt(variance);
   }
   return { sampleSize: n, effectiveSize: n + k, mean, sd };
@@ -233,13 +232,7 @@ export function buildTimeline(logs: DayLogs, profile: Profile, today: ISODate): 
   const sampleSize = stats.cycle.sampleSize;
 
   const basis: PredictionBasis =
-    cycles.length === 0
-      ? 'none'
-      : sampleSize > 0
-        ? 'history'
-        : profile.typicalCycleLength !== undefined
-          ? 'declared'
-          : 'default';
+    cycles.length === 0 ? 'none' : sampleSize > 0 ? 'history' : profile.typicalCycleLength !== undefined ? 'declared' : 'default';
 
   const prediction: Prediction = {
     basis,
@@ -258,9 +251,7 @@ export function buildTimeline(logs: DayLogs, profile: Profile, today: ISODate): 
     const earliest = addDays(expectedNext, -halfWidth);
     const latest = addDays(expectedNext, halfWidth);
     const ov = ovulationOffset(cycleLength);
-    const periodLikelyOngoing =
-      diffDays(today, open.period.end) <= PERIOD_MERGE_GAP + 1 &&
-      diffDays(today, open.start) < periodLength;
+    const periodLikelyOngoing = diffDays(today, open.period.end) <= PERIOD_MERGE_GAP + 1 && diffDays(today, open.start) < periodLength;
     const predictedEnd = addDays(open.start, periodLength - 1);
     prediction.current = {
       start: open.start,

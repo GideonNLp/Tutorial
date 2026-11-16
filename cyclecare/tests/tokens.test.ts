@@ -45,7 +45,10 @@ const PAIRS: Array<[string, string, number]> = [
 ];
 
 describe('design tokens', () => {
-  for (const [mode, index] of [['light', 0], ['dark', 1]] as const) {
+  for (const [mode, index] of [
+    ['light', 0],
+    ['dark', 1],
+  ] as const) {
     it(`keeps text and controls readable in the ${mode} theme`, () => {
       const failures = PAIRS.flatMap(([fg, bg, min]) => {
         const ratio = contrast(colors[fg]![index], colors[bg]![index]);

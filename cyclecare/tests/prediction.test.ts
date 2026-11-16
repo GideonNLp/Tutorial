@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays } from '../src/domain/dates';
-import {
-  buildTimeline, confidenceOf, currentPhase, estimateLength, intervalHalfWidth, ovulationOffset, phaseAt,
-} from '../src/domain/prediction';
+import { buildTimeline, confidenceOf, currentPhase, estimateLength, intervalHalfWidth, ovulationOffset, phaseAt } from '../src/domain/prediction';
 import type { DayLogs } from '../src/domain/types';
 import { NOW, periods, profile, startsFrom } from './helpers';
 
@@ -158,7 +156,13 @@ describe('timeline', () => {
     const t = buildTimeline(periods(['2026-11-04'], 5), profile({ typicalCycleLength: 28 }), today);
     const f = t.prediction.forecasts;
     expect(f.map((c) => c.start)).toEqual(['2026-12-02', '2026-12-30', '2027-01-27']);
-    expect(f[0]).toMatchObject({ periodEnd: '2026-12-06', ovulation: '2026-12-15', fertileStart: '2026-12-10', fertileEnd: '2026-12-16', end: '2026-12-29' });
+    expect(f[0]).toMatchObject({
+      periodEnd: '2026-12-06',
+      ovulation: '2026-12-15',
+      fertileStart: '2026-12-10',
+      fertileEnd: '2026-12-16',
+      end: '2026-12-29',
+    });
     expect(t.dayInfo('2026-12-03')).toMatchObject({ periodPredicted: true, phase: 'menstruation', cycleDay: 2, forecast: true });
     expect(t.dayInfo('2027-02-23').phase).toBe('luteal');
     expect(t.dayInfo('2027-02-24').phase).toBeUndefined(); // beyond the forecast horizon

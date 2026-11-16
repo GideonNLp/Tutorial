@@ -60,7 +60,14 @@ function Tooltip({ x, y, width, children }: { x: number; y: number; width: numbe
   );
 }
 
-export function ChartFrame(props: { title: string; subtitle?: string; legend?: ReactNode; note?: ReactNode; table?: ReactNode; children: ReactNode }) {
+export function ChartFrame(props: {
+  title: string;
+  subtitle?: string;
+  legend?: ReactNode;
+  note?: ReactNode;
+  table?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <figure className="chart">
       <figcaption className="chart-head stack stack-1">
@@ -264,20 +271,31 @@ export function MoodChart({ points, periods, label }: { points: WeekPoint[]; per
               {mo.label}
             </text>
           ))}
-          {active && cursor.index !== null && <line className="chart-baseline" x1={centers[cursor.index]} x2={centers[cursor.index]} y1={m.t} y2={m.t + plotH} />}
+          {active && cursor.index !== null && (
+            <line className="chart-baseline" x1={centers[cursor.index]} x2={centers[cursor.index]} y1={m.t} y2={m.t + plotH} />
+          )}
           {SERIES.map((series) => {
             const last = lastIndex(series.key);
             return (
               <g key={series.key}>
                 <path d={path(series.key)} fill="none" stroke={series.color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
                 {points.map((p, i) =>
-                  isolated(series.key, i) && i !== last ? <circle key={p.weekStart} cx={centers[i]} cy={y(p[series.key]!)} r={3} fill={series.color} /> : null,
+                  isolated(series.key, i) && i !== last ? (
+                    <circle key={p.weekStart} cx={centers[i]} cy={y(p[series.key]!)} r={3} fill={series.color} />
+                  ) : null,
                 )}
                 {last >= 0 && (
                   <circle cx={centers[last]} cy={y(points[last]![series.key]!)} r={4.5} fill={series.color} stroke="var(--surface)" strokeWidth={2} />
                 )}
                 {active && cursor.index !== null && active[series.key] !== undefined && (
-                  <circle cx={centers[cursor.index]} cy={y(active[series.key]!)} r={4.5} fill={series.color} stroke="var(--surface)" strokeWidth={2} />
+                  <circle
+                    cx={centers[cursor.index]}
+                    cy={y(active[series.key]!)}
+                    r={4.5}
+                    fill={series.color}
+                    stroke="var(--surface)"
+                    strokeWidth={2}
+                  />
                 )}
               </g>
             );
@@ -299,7 +317,19 @@ export function MoodChart({ points, periods, label }: { points: WeekPoint[]; per
 
 // ---------------------------------------------------------------- basal temperature
 
-export function BbtChart({ points, periods, from, to, label }: { points: BbtPoint[]; periods: Array<[ISODate, ISODate]>; from: ISODate; to: ISODate; label: string }) {
+export function BbtChart({
+  points,
+  periods,
+  from,
+  to,
+  label,
+}: {
+  points: BbtPoint[];
+  periods: Array<[ISODate, ISODate]>;
+  from: ISODate;
+  to: ISODate;
+  label: string;
+}) {
   const s = strings();
   const [ref, W] = useWidth();
   const cursor = useCursor(points.length);
@@ -367,7 +397,9 @@ export function BbtChart({ points, periods, from, to, label }: { points: BbtPoin
               </text>
             ) : null,
           )}
-          {active && cursor.index !== null && <line className="chart-baseline" x1={xs[cursor.index]} x2={xs[cursor.index]} y1={m.t} y2={m.t + plotH} />}
+          {active && cursor.index !== null && (
+            <line className="chart-baseline" x1={xs[cursor.index]} x2={xs[cursor.index]} y1={m.t} y2={m.t + plotH} />
+          )}
           <path
             d={points.map((p, i) => `${i === 0 ? 'M' : 'L'}${xs[i]!.toFixed(1)} ${y(p.celsius).toFixed(1)}`).join('')}
             fill="none"

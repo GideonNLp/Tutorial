@@ -74,7 +74,9 @@ test('the journal can be exported as JSON and restored on another device', async
 test('a file that is not a CycleCare export is refused', async ({ page }) => {
   await startEmpty(page);
   await openSettings(page, 'Datele mele');
-  await page.getByLabel('Restaurează dintr-un fișier').setInputFiles({ name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('{"hello":1}') });
+  await page
+    .getByLabel('Restaurează dintr-un fișier')
+    .setInputFiles({ name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('{"hello":1}') });
   await expect(page.getByRole('alert')).toContainText('nu este un export CycleCare');
 });
 

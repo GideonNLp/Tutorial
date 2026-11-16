@@ -89,8 +89,7 @@ export const phaseTips: Record<Phase, PhaseTips> = {
     },
   },
   follicular: {
-    summary:
-      'După menstruație, estrogenul crește treptat. Multe persoane simt mai multă energie și o dispoziție mai bună.',
+    summary: 'După menstruație, estrogenul crește treptat. Multe persoane simt mai multă energie și o dispoziție mai bună.',
     tips: {
       nutrition: [
         {
@@ -292,8 +291,7 @@ export const symptomTips: Record<SymptomId, SymptomTips> = {
       'Pentru unele persoane ajută mai puțină cafea și mai puțină sare în zilele dinaintea menstruației.',
       'Comprese calde sau reci, după cum te simți mai bine.',
     ],
-    doctor:
-      'Dacă simți un nodul, observi secreții din mamelon sau schimbări ale pielii, ori dacă sensibilitatea nu trece după menstruație.',
+    doctor: 'Dacă simți un nodul, observi secreții din mamelon sau schimbări ale pielii, ori dacă sensibilitatea nu trece după menstruație.',
   },
   bloating: {
     helps: [
@@ -335,8 +333,7 @@ export const symptomTips: Record<SymptomId, SymptomTips> = {
       'Dacă ai poftă de dulce, combină-l cu ceva sățios: fructe cu iaurt, ciocolată neagră cu nuci.',
       'Poftele dinaintea menstruației sunt frecvente. Nu ai de ce să te învinovățești pentru ele.',
     ],
-    doctor:
-      'Dacă relația cu mâncarea îți provoacă suferință sau simți că pierzi controlul asupra meselor. Un medic sau un psiholog te poate ajuta.',
+    doctor: 'Dacă relația cu mâncarea îți provoacă suferință sau simți că pierzi controlul asupra meselor. Un medic sau un psiholog te poate ajuta.',
   },
   acne: {
     helps: [
@@ -344,8 +341,7 @@ export const symptomTips: Record<SymptomId, SymptomTips> = {
       'Alege produse non-comedogenice. Cele cu acid salicilic sau cu peroxid de benzoil pot ajuta, folosite conform prospectului.',
       'Schimbă des fața de pernă și demachiază-te înainte de culcare.',
     ],
-    doctor:
-      'Dacă acneea este dureroasă, lasă urme sau nu se ameliorează în câteva săptămâni. Un dermatolog poate recomanda un tratament.',
+    doctor: 'Dacă acneea este dureroasă, lasă urme sau nu se ameliorează în câteva săptămâni. Un dermatolog poate recomanda un tratament.',
   },
   fatigue: {
     helps: [
@@ -362,8 +358,7 @@ export const symptomTips: Record<SymptomId, SymptomTips> = {
       'Fără cafea după-amiaza și fără ecrane în ultima jumătate de oră dinainte de somn.',
       'O cameră răcoroasă, întunecată și liniștită.',
     ],
-    doctor:
-      'Dacă dormi prost de cel puțin trei ori pe săptămână, mai multe săptămâni la rând, sau dacă lipsa somnului îți afectează ziua.',
+    doctor: 'Dacă dormi prost de cel puțin trei ori pe săptămână, mai multe săptămâni la rând, sau dacă lipsa somnului îți afectează ziua.',
   },
   dizziness: {
     helps: [
@@ -371,8 +366,7 @@ export const symptomTips: Record<SymptomId, SymptomTips> = {
       'Bea apă și mănâncă ceva, dacă a trecut mult de la ultima masă.',
       'Notează când apare: legătura cu menstruația sau cu mesele îi este utilă medicului.',
     ],
-    doctor:
-      'Dacă amețelile se repetă ori vin cu palpitații sau cu menstruații abundente. Pentru leșin sau dureri în piept, sună la 112.',
+    doctor: 'Dacă amețelile se repetă ori vin cu palpitații sau cu menstruații abundente. Pentru leșin sau dureri în piept, sună la 112.',
   },
   irritability: {
     helps: [

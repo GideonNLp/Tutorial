@@ -50,7 +50,7 @@ export function generateDemoData(today: ISODate, nowISO: string): { logs: DayLog
     const log = entry(date);
     log.symptoms = { ...log.symptoms, [id]: intensity };
   };
-  const pick = <T,>(items: T[]): T => items[Math.floor(rand() * items.length)]!;
+  const pick = <T>(items: T[]): T => items[Math.floor(rand() * items.length)]!;
   const clamp5 = (n: number): Scale5 => Math.min(5, Math.max(1, Math.round(n))) as Scale5;
 
   // Cycle start dates, oldest first; the last one is the cycle that is running.

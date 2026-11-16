@@ -13,7 +13,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "tokens": "node scripts/gen-tokens.mjs",
-    "docs:content": "node scripts/gen-content-docs.mjs"
+    "docs:content": "node scripts/gen-content-docs.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "docs:screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
@@ -29,6 +32,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "prettier": "^3.10.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"

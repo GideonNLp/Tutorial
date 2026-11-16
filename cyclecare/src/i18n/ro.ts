@@ -238,7 +238,7 @@ export const ro = {
     title: 'Azi',
     cycleDay: (n: number) => `Ziua ${n}`,
     ofCycle: 'a ciclului',
-    dialLabel: (day: number, phase: string) => `Ziua ${day} a ciclului, ${phase}`,
+    dialLabel: (day: number, phase: string) => (phase ? `Ziua ${day} a ciclului, ${phase}` : `Ziua ${day} a ciclului`),
     dialEmpty: 'Încă nu există un ciclu înregistrat',
     late: 'Menstruația întârzie',
     legendTitle: 'Fazele acestui ciclu, estimate',
@@ -300,8 +300,7 @@ export const ro = {
     storage: {
       session:
         'Browserul nu permite salvarea pe dispozitiv (fereastră privată sau stocare blocată). Ce notezi se păstrează doar până închizi pagina.',
-      plain:
-        'Criptarea nu este disponibilă aici (pagina nu este servită prin HTTPS). Ce notezi se păstrează doar în această sesiune.',
+      plain: 'Criptarea nu este disponibilă aici (pagina nu este servită prin HTTPS). Ce notezi se păstrează doar în această sesiune.',
     },
   },
 
@@ -421,8 +420,7 @@ export const ro = {
       unreadable: 'Fișierul nu a putut fi citit.',
       none: 'Nu am găsit nicio valoare care să poată fi folosită.',
     },
-    native:
-      'În aplicația pentru telefon, importul se face direct din Apple Health sau Health Connect, după un acord separat.',
+    native: 'În aplicația pentru telefon, importul se face direct din Apple Health sau Health Connect, după un acord separat.',
   },
 
   tips: {
@@ -554,8 +552,7 @@ export const ro = {
       cycleLength: 'Durata obișnuită a ciclului',
       periodLength: 'Durata obișnuită a menstruației',
       unknown: 'Nu știu',
-      lengthsHint:
-        'Aceste valori contează mai ales la început. După trei cicluri înregistrate, estimările folosesc doar ce ai notat.',
+      lengthsHint: 'Aceste valori contează mai ales la început. După trei cicluri înregistrate, estimările folosesc doar ce ai notat.',
       goals: 'Obiective',
       fertility: 'Arată fazele ciclului și estimările de fertilitate',
       fertilityHint:
@@ -597,8 +594,7 @@ export const ro = {
       lockTitle: 'Blocarea aplicației',
       pinOn: 'PIN activ',
       pinOff: 'Fără PIN',
-      pinHint:
-        'Cu PIN, cheia de criptare este protejată de el: fără PIN datele nu pot fi citite, nici măcar copiate de pe dispozitiv.',
+      pinHint: 'Cu PIN, cheia de criptare este protejată de el: fără PIN datele nu pot fi citite, nici măcar copiate de pe dispozitiv.',
       setPin: 'Setează un PIN',
       changePin: 'Schimbă PIN-ul',
       removePin: 'Dezactivează PIN-ul',
@@ -628,7 +624,8 @@ export const ro = {
       sharing:
         'Nimic nu este partajat. Dacă o funcție viitoare ar presupune trimiterea de date către altcineva, îți vom cere un acord separat, pentru acel caz, și îl vei putea retrage oricând.',
       consentTitle: 'Acordul tău',
-      consentGiven: (date: string, version: string) => `Acord pentru prelucrarea datelor privind sănătatea, dat pe ${date} (textul versiunea ${version}).`,
+      consentGiven: (date: string, version: string) =>
+        `Acord pentru prelucrarea datelor privind sănătatea, dat pe ${date} (textul versiunea ${version}).`,
       withdraw: 'Retrage acordul și șterge datele',
       withdrawBody:
         'Fără acord, CycleCare nu poate păstra date despre ciclul tău. Retragerea șterge tot ce ai notat și te întoarce la ecranul de început.',
@@ -638,8 +635,7 @@ export const ro = {
         'Jurnalul, setările, PIN-ul și cheile de criptare sunt șterse de pe acest dispozitiv. Nu există copie din care să poată fi recuperate.',
       deleteAction: 'Șterge toate datele',
       deleteConfirmTitle: 'Ștergi definitiv toate datele?',
-      deleteConfirmBody:
-        'Acțiunea nu poate fi anulată. Dacă vrei să păstrezi ceva, fă mai întâi un export din „Datele mele”.',
+      deleteConfirmBody: 'Acțiunea nu poate fi anulată. Dacă vrei să păstrezi ceva, fă mai întâi un export din „Datele mele”.',
       deleteConfirm: 'Da, șterge tot',
       deleted: 'Toate datele au fost șterse.',
     },

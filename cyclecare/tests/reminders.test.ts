@@ -23,7 +23,11 @@ describe('reminder occurrences', () => {
     const s = base();
     s.period = { enabled: true, daysBefore: 2, time: '08:30', repeatDaily: true };
     const list = reminderOccurrences(s, prediction, true, today, '2026-12-10');
-    expect(list.map((o) => [o.date, o.daysBefore])).toEqual([['2026-11-30', 2], ['2026-12-01', 1], ['2026-12-02', 0]]);
+    expect(list.map((o) => [o.date, o.daysBefore])).toEqual([
+      ['2026-11-30', 2],
+      ['2026-12-01', 1],
+      ['2026-12-02', 0],
+    ]);
   });
 
   it('covers later cycles too, inside the requested range', () => {

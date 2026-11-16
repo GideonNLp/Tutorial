@@ -12,7 +12,9 @@ test('logging the first period day starts a cycle and a prediction', async ({ pa
   await tab(page, 'Calendar');
   await expect(page.getByRole('button', { name: /duminică, 15 noiembrie 2026, azi, ziua 1 a ciclului, menstruație notată/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /luni, 16 noiembrie 2026, ziua 2 a ciclului, menstruație estimată/ })).toBeVisible();
-  await expect(page.getByRole('button', { name: /duminică, 29 noiembrie 2026, ziua 15 a ciclului, faza de ovulație, zi fertilă estimată/ })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: /duminică, 29 noiembrie 2026, ziua 15 a ciclului, faza de ovulație, zi fertilă estimată/ }),
+  ).toBeVisible();
 });
 
 test('journal entries are saved automatically, survive a reload and are encrypted on disk', async ({ page }) => {

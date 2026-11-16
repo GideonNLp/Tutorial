@@ -222,10 +222,7 @@ export class Vault {
     const iterations = this.options.pinIterations ?? PBKDF2_ITERATIONS;
     const sealed = await wrapDataKey(dataKey, await deriveKeyFromPin(pin, salt, iterations));
     const meta = this.meta!;
-    meta.slots = [
-      ...meta.slots.filter((s) => s.type === 'biometric'),
-      { type: 'pin', salt, iterations, ...sealed },
-    ];
+    meta.slots = [...meta.slots.filter((s) => s.type === 'biometric'), { type: 'pin', salt, iterations, ...sealed }];
     meta.failedAttempts = 0;
     meta.retryAfter = 0;
     await this.persistMeta();

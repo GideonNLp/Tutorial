@@ -43,22 +43,16 @@ export function generateDeviceKey(): Promise<CryptoKey> {
 
 export async function deriveKeyFromPin(pin: string, salt: Bytes, iterations: number): Promise<CryptoKey> {
   const material = await crypto.subtle.importKey('raw', encoder.encode(pin.normalize('NFKC')), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, material, AES, false, [
-    'wrapKey',
-    'unwrapKey',
-  ]);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, material, AES, false, ['wrapKey', 'unwrapKey']);
 }
 
 /** Turns a high-entropy secret (WebAuthn PRF output) into a key-encryption key. */
 export async function deriveKeyFromSecret(secret: BufferSource, salt: Bytes): Promise<CryptoKey> {
   const material = await crypto.subtle.importKey('raw', secret, 'HKDF', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    { name: 'HKDF', hash: 'SHA-256', salt, info: encoder.encode('cyclecare/biometric-slot/v1') },
-    material,
-    AES,
-    false,
-    ['wrapKey', 'unwrapKey'],
-  );
+  return crypto.subtle.deriveKey({ name: 'HKDF', hash: 'SHA-256', salt, info: encoder.encode('cyclecare/biometric-slot/v1') }, material, AES, false, [
+    'wrapKey',
+    'unwrapKey',
+  ]);
 }
 
 export async function wrapDataKey(dataKey: CryptoKey, kek: CryptoKey): Promise<Sealed> {
@@ -69,10 +63,7 @@ export async function wrapDataKey(dataKey: CryptoKey, kek: CryptoKey): Promise<S
 
 /** Rejects (OperationError) when the key-encryption key is wrong — that is how a wrong PIN is detected. */
 export function unwrapDataKey(sealed: Sealed, kek: CryptoKey): Promise<CryptoKey> {
-  return crypto.subtle.unwrapKey('raw', sealed.ciphertext, kek, { name: 'AES-GCM', iv: sealed.iv }, AES, true, [
-    'encrypt',
-    'decrypt',
-  ]);
+  return crypto.subtle.unwrapKey('raw', sealed.ciphertext, kek, { name: 'AES-GCM', iv: sealed.iv }, AES, true, ['encrypt', 'decrypt']);
 }
 
 export async function encryptJSON(key: CryptoKey, value: unknown, context: string): Promise<Sealed> {
@@ -86,10 +77,6 @@ export async function encryptJSON(key: CryptoKey, value: unknown, context: strin
 }
 
 export async function decryptJSON<T>(key: CryptoKey, sealed: Sealed, context: string): Promise<T> {
-  const plain = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: sealed.iv, additionalData: encoder.encode(context) },
-    key,
-    sealed.ciphertext,
-  );
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: sealed.iv, additionalData: encoder.encode(context) }, key, sealed.ciphertext);
   return JSON.parse(decoder.decode(plain)) as T;
 }

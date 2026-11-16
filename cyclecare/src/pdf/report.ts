@@ -151,7 +151,13 @@ function inRange(logs: DayLogs, from: ISODate, to: ISODate): DayLogs {
 const mean = (values: number[]) => (values.length ? values.reduce((a, b) => a + b, 0) / values.length : undefined);
 
 /** Builds the PDF from already-loaded fonts. Pure and synchronous, so it can be tested without a browser. */
-export function renderReport(data: AppData, today: ISODate, options: ReportOptions, fonts: Record<FontKey, TtfFont>, created = new Date()): Uint8Array {
+export function renderReport(
+  data: AppData,
+  today: ISODate,
+  options: ReportOptions,
+  fonts: Record<FontKey, TtfFont>,
+  created = new Date(),
+): Uint8Array {
   const s = strings();
   const p = s.pdf;
   const monthKeys = lastMonths(today, options.months);
@@ -165,7 +171,10 @@ export function renderReport(data: AppData, today: ISODate, options: ReportOptio
   const days = s.common.days;
   const dash = s.stats.summary.none;
 
-  const doc = new PdfDocument({ title: p.title, subject: p.period(formatDate(from, 'long'), formatDate(today, 'long')), lang: s.meta.intl, creator: s.common.appName, created }, fonts);
+  const doc = new PdfDocument(
+    { title: p.title, subject: p.period(formatDate(from, 'long'), formatDate(today, 'long')), lang: s.meta.intl, creator: s.common.appName, created },
+    fonts,
+  );
   const flow = new Flow(doc);
 
   // ---- Title ---------------------------------------------------------------------------------
@@ -222,7 +231,11 @@ export function renderReport(data: AppData, today: ISODate, options: ReportOptio
         doc.rect(x, base - period * scale, barWidth, period * scale, BERRY);
         doc.text(String(cycle.length), x + barWidth / 2, base - cycle.length! * scale - 3, { size: 7.5, font: 'bold', color: INK, align: 'center' });
         const { day, month } = parts(cycle.start);
-        doc.text(`${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}`, x + barWidth / 2, base + 10, { size: 7, color: MUTED, align: 'center' });
+        doc.text(`${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}`, x + barWidth / 2, base + 10, {
+          size: 7,
+          color: MUTED,
+          align: 'center',
+        });
       });
       flow.y = base + 18;
       // Legend

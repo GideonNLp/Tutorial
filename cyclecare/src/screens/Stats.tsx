@@ -61,13 +61,23 @@ export function StatsScreen() {
         <div className="stack stack-6">
           <section className="stack stack-3" aria-label={st.title}>
             <dl className="tiles">
-              <Tile label={st.summary.avgCycle} value={avgCycle !== undefined ? formatNumber(avgCycle, 1) : st.summary.none} unit={avgCycle !== undefined ? st.summary.daysUnit : undefined} />
+              <Tile
+                label={st.summary.avgCycle}
+                value={avgCycle !== undefined ? formatNumber(avgCycle, 1) : st.summary.none}
+                unit={avgCycle !== undefined ? st.summary.daysUnit : undefined}
+              />
               <Tile
                 label={st.summary.variation}
-                value={stats.shortest !== undefined && stats.longest !== undefined ? st.summary.range(stats.shortest, stats.longest) : st.summary.none}
+                value={
+                  stats.shortest !== undefined && stats.longest !== undefined ? st.summary.range(stats.shortest, stats.longest) : st.summary.none
+                }
                 unit={stats.shortest !== undefined ? st.summary.daysUnit : undefined}
               />
-              <Tile label={st.summary.avgPeriod} value={avgPeriod !== undefined ? formatNumber(avgPeriod, 1) : st.summary.none} unit={avgPeriod !== undefined ? st.summary.daysUnit : undefined} />
+              <Tile
+                label={st.summary.avgPeriod}
+                value={avgPeriod !== undefined ? formatNumber(avgPeriod, 1) : st.summary.none}
+                unit={avgPeriod !== undefined ? st.summary.daysUnit : undefined}
+              />
               <Tile label={st.summary.recorded} value={String(recorded)} />
             </dl>
             {stats.lengths.length > 0 && <p className="caption">{st.summary.basis(stats.lengths.length)}</p>}
@@ -119,7 +129,10 @@ export function StatsScreen() {
             }
           >
             {view.charted.length > 0 ? (
-              <CycleLengthChart rows={view.charted} label={st.cycles.chartLabel(view.charted.length, formatNumber(mean(view.charted.map((r) => r.length!)) ?? 0, 1))} />
+              <CycleLengthChart
+                rows={view.charted}
+                label={st.cycles.chartLabel(view.charted.length, formatNumber(mean(view.charted.map((r) => r.length!)) ?? 0, 1))}
+              />
             ) : (
               <p className="ink-2">{st.cyclesEmpty}</p>
             )}
@@ -191,7 +204,11 @@ export function StatsScreen() {
                     {st.mood.energy}
                   </li>
                   <li>
-                    <span className="key-rect" style={{ background: 'var(--menstruation-tint)', boxShadow: 'inset 0 0 0 1px var(--menstruation)' }} aria-hidden="true" />
+                    <span
+                      className="key-rect"
+                      style={{ background: 'var(--menstruation-tint)', boxShadow: 'inset 0 0 0 1px var(--menstruation)' }}
+                      aria-hidden="true"
+                    />
                     {st.mood.period}
                   </li>
                 </ul>
@@ -272,7 +289,11 @@ export function StatsScreen() {
               legend={
                 <ul className="chart-legend">
                   <li>
-                    <span className="key-rect" style={{ background: 'var(--menstruation-tint)', boxShadow: 'inset 0 0 0 1px var(--menstruation)' }} aria-hidden="true" />
+                    <span
+                      className="key-rect"
+                      style={{ background: 'var(--menstruation-tint)', boxShadow: 'inset 0 0 0 1px var(--menstruation)' }}
+                      aria-hidden="true"
+                    />
                     {st.mood.period}
                   </li>
                 </ul>

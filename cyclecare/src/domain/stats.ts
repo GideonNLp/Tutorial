@@ -144,9 +144,7 @@ export interface PhaseMood {
 /** Average mood and energy by cycle phase, over the last `lookbackDays`. */
 export function moodByPhase(logs: DayLogs, timeline: Timeline, lookbackDays = 183): PhaseMood[] {
   const from = addDays(timeline.today, -lookbackDays);
-  const buckets = new Map<Phase, { moods: number[]; energies: number[]; days: number }>(
-    PHASES.map((p) => [p, { moods: [], energies: [], days: 0 }]),
-  );
+  const buckets = new Map<Phase, { moods: number[]; energies: number[]; days: number }>(PHASES.map((p) => [p, { moods: [], energies: [], days: 0 }]));
   for (const [date, log] of Object.entries(logs)) {
     if (date < from || date > timeline.today) continue;
     if (log.mood === undefined && log.energy === undefined) continue;

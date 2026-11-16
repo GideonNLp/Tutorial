@@ -4,7 +4,13 @@ import { openApp, openSettings, startWithDemoData, tab } from './helpers';
 
 async function expectNoViolations(page: Page, context: string): Promise<void> {
   const results = await new AxeBuilder({ page: page as never }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-  const summary = results.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(' ')).slice(0, 4).join(' | ')}`);
+  const summary = results.violations.map(
+    (v) =>
+      `${v.id} (${v.impact}): ${v.nodes
+        .map((n) => n.target.join(' '))
+        .slice(0, 4)
+        .join(' | ')}`,
+  );
   expect(summary, `axe violations on ${context}`).toEqual([]);
 }
 
@@ -32,7 +38,14 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await startWithDemoData(page);
       await openSettings(page);
       await expectNoViolations(page, 'settings');
-      for (const section of ['Ciclul meu', 'Memento-uri', 'Confidențialitate și securitate', 'Datele mele', 'Aspect și accesibilitate', 'Despre CycleCare']) {
+      for (const section of [
+        'Ciclul meu',
+        'Memento-uri',
+        'Confidențialitate și securitate',
+        'Datele mele',
+        'Aspect și accesibilitate',
+        'Despre CycleCare',
+      ]) {
         await page.getByRole('link', { name: new RegExp(section) }).click();
         await expect(page.getByRole('heading', { level: 1, name: section })).toBeVisible();
         await expectNoViolations(page, section);
@@ -105,7 +118,12 @@ test('the app talks to no other server', async ({ page }) => {
   const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
   expect(csp).toContain("connect-src 'self'");
   expect(csp).toContain("default-src 'self'");
-  const blocked = await page.evaluate(() => fetch('https://example.com/').then(() => 'sent', () => 'blocked'));
+  const blocked = await page.evaluate(() =>
+    fetch('https://example.com/').then(
+      () => 'sent',
+      () => 'blocked',
+    ),
+  );
   expect(blocked).toBe('blocked');
 });
 

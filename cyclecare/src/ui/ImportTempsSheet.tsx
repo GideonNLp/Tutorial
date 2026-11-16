@@ -67,14 +67,25 @@ export function ImportTempsSheet({ open, onClose }: { open: boolean; onClose: ()
     update((d) => {
       const logs: DayLogs = { ...d.logs };
       for (const r of readings) {
-        logs[r.date] = { ...(logs[r.date] ?? { date: r.date, updatedAt: now }), bbt: { celsius: r.celsius, source: 'import', device: label }, updatedAt: now };
+        logs[r.date] = {
+          ...(logs[r.date] ?? { date: r.date, updatedAt: now }),
+          bbt: { celsius: r.celsius, source: 'import', device: label },
+          updatedAt: now,
+        };
       }
       return {
         ...d,
         logs,
         importBatches: [
           ...d.importBatches.slice(-49),
-          { id: `imp-${Date.now().toString(36)}`, importedAt: now, device: label, count: readings.length, from: readings[0]!.date, to: readings[readings.length - 1]!.date },
+          {
+            id: `imp-${Date.now().toString(36)}`,
+            importedAt: now,
+            device: label,
+            count: readings.length,
+            from: readings[0]!.date,
+            to: readings[readings.length - 1]!.date,
+          },
         ],
       };
     });
@@ -92,13 +103,23 @@ export function ImportTempsSheet({ open, onClose }: { open: boolean; onClose: ()
             <FileUp size={18} aria-hidden="true" />
             {t.choose}
           </label>
-          <input id={fileId} className="sr-only" type="file" accept=".csv,.txt,text/csv,text/plain" onChange={(e) => void onFile(e.target.files?.[0])} />
+          <input
+            id={fileId}
+            className="sr-only"
+            type="file"
+            accept=".csv,.txt,text/csv,text/plain"
+            onChange={(e) => void onFile(e.target.files?.[0])}
+          />
         </div>
         {error && <ErrorText>{error}</ErrorText>}
         {result && (
           <div className="stack stack-3" role="status">
             <p className="strong">
-              {t.found(result.readings.length, formatDate(result.readings[0]!.date, 'dayMonth'), formatDate(result.readings[result.readings.length - 1]!.date, 'dayMonth'))}
+              {t.found(
+                result.readings.length,
+                formatDate(result.readings[0]!.date, 'dayMonth'),
+                formatDate(result.readings[result.readings.length - 1]!.date, 'dayMonth'),
+              )}
             </p>
             {result.skipped > 0 && <p className="small ink-2">{t.skipped(result.skipped)}</p>}
             {result.detected?.convertedFromFahrenheit && <p className="small ink-2">{t.fahrenheit}</p>}
@@ -114,7 +135,14 @@ export function ImportTempsSheet({ open, onClose }: { open: boolean; onClose: ()
               <label className="field-label" htmlFor={deviceId}>
                 {t.device}
               </label>
-              <input id={deviceId} className="input" value={device} maxLength={40} placeholder={t.devicePlaceholder} onChange={(e) => setDevice(e.target.value)} />
+              <input
+                id={deviceId}
+                className="input"
+                value={device}
+                maxLength={40}
+                placeholder={t.devicePlaceholder}
+                onChange={(e) => setDevice(e.target.value)}
+              />
             </div>
           </div>
         )}

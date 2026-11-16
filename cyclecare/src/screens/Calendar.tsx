@@ -100,7 +100,15 @@ export function CalendarScreen() {
 
   const hasEntry = (date: ISODate) => {
     const log = data.logs[date];
-    return !!log && (log.note !== undefined || log.symptoms !== undefined || log.mood !== undefined || log.energy !== undefined || log.bbt !== undefined || log.mucus !== undefined);
+    return (
+      !!log &&
+      (log.note !== undefined ||
+        log.symptoms !== undefined ||
+        log.mood !== undefined ||
+        log.energy !== undefined ||
+        log.bbt !== undefined ||
+        log.mucus !== undefined)
+    );
   };
 
   const selectedInfo = timeline.dayInfo(selected);
@@ -221,7 +229,9 @@ export function CalendarScreen() {
               ) : (
                 <p className="ink-2">{c.detail.noInfo}</p>
               )}
-              {(selectedInfo.periodPredicted || (showFertility && (selectedInfo.fertile || selectedInfo.ovulationDay)) || selectedInfo.intermenstrualBleed) && (
+              {(selectedInfo.periodPredicted ||
+                (showFertility && (selectedInfo.fertile || selectedInfo.ovulationDay)) ||
+                selectedInfo.intermenstrualBleed) && (
                 <ul className="small ink-2 stack stack-1">
                   {selectedInfo.periodPredicted && <li>{c.detail.periodPredicted}</li>}
                   {showFertility && selectedInfo.ovulationDay && <li>{c.detail.ovulation}</li>}

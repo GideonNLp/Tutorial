@@ -60,7 +60,7 @@ export function openIndexedDbStore(name = 'cyclecare'): Promise<KVStore> {
       const tx = (mode: IDBTransactionMode) => db.transaction(STORE, mode).objectStore(STORE);
       resolve({
         persistent: true,
-        get: <T,>(key: string) => request(tx('readonly').get(key)) as Promise<T | undefined>,
+        get: <T>(key: string) => request(tx('readonly').get(key)) as Promise<T | undefined>,
         set: (key, value) => request(tx('readwrite').put(value, key)).then(() => undefined),
         delete: (key) => request(tx('readwrite').delete(key)).then(() => undefined),
         clear: () => request(tx('readwrite').clear()).then(() => undefined),

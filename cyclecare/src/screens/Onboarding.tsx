@@ -351,11 +351,7 @@ export function Onboarding() {
   );
 }
 
-function ConsentStep(props: {
-  shell: (title: string, body: ReactNode, actions: ReactNode) => ReactNode;
-  busy: boolean;
-  onAccept: () => void;
-}) {
+function ConsentStep(props: { shell: (title: string, body: ReactNode, actions: ReactNode) => ReactNode; busy: boolean; onAccept: () => void }) {
   const c = content().legal.consentText;
   const [health, setHealth] = useState(false);
   const [age, setAge] = useState(false);

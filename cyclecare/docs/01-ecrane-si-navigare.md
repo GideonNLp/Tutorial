@@ -1,0 +1,259 @@
+# Structura ecranelor și fluxul de navigare
+
+Documentul descrie prototipul web așa cum este construit în `src/screens/`. Capturile sunt făcute din aplicație, cu datele demonstrative, la lățimea unui telefon (390 px); se regenerează cu `npm run docs:screenshots`.
+
+## 1. Principii de structură
+
+- **Un singur lucru pe ecran.** Fiecare filă răspunde la o întrebare: „unde sunt în ciclu?” (Azi), „cum arată luna?” (Calendar), „ce notez azi?” (Jurnal), „ce pot face?” (Sfaturi), „ce tipare apar?” (Statistici).
+- **Cinci file, mereu vizibile.** Bara de navigare stă jos pe telefon și devine o coloană în stânga de la 896 px lățime în sus. Setările se deschid din rotița din antetul fiecărui ecran.
+- **Culoarea înseamnă mereu o fază.** Butoanele și selecțiile folosesc culoarea textului; singurele culori saturate sunt cele patru faze ale ciclului, aceleași peste tot (cadran, calendar, legendă, sfaturi).
+- **Orice estimare este numită estimare** și este însoțită, acolo unde privește fertilitatea, de avertismentul că nu este un mijloc de contracepție.
+- **Nimic nu se pierde în tăcere.** Jurnalul se salvează la fiecare atingere; acțiunile care nu pot fi anulate cer o confirmare într-o fereastră a aplicației.
+
+## 2. Harta de navigare
+
+```mermaid
+flowchart TD
+    start([Deschiderea aplicației]) --> exista{Există un jurnal<br/>pe dispozitiv?}
+    exista -- nu --> welcome[Bun venit]
+    exista -- da, cu PIN --> lock[Blocare]
+    exista -- da, fără PIN --> today
+
+    welcome -- Începe --> consent[Consimțământ]
+    welcome -- Date demonstrative --> consentDemo[Consimțământ]
+    consentDemo --> today
+    consent --> q1[Ultima menstruație]
+    q1 --> q2[Durata ciclului]
+    q2 --> q3[Durata menstruației]
+    q3 --> q4[Obiective]
+    q4 --> fin[PIN și memento, opționale]
+    fin --> today
+    lock -- PIN sau biometrie --> back[Ecranul pe care era]
+    lock -- Am uitat PIN-ul, șterge tot --> welcome
+
+    subgraph tabs [Bara de navigare]
+        today[Azi]
+        cal[Calendar]
+        jur[Jurnal]
+        tips[Sfaturi]
+        stats[Statistici]
+    end
+
+    today -- Deschide jurnalul --> jur
+    today -- Observații și sfaturi --> tips
+    cal -- Deschide în jurnal --> jur
+    jur -- Importă din fișier --> imp[[Import temperaturi]]
+    stats -- Creează raportul PDF --> pdf[[Raport pentru medic]]
+
+    tabs -- rotița din antet --> set[Setări]
+    set --> s1[Ciclul meu]
+    set --> s2[Memento-uri]
+    set --> s3[Confidențialitate și securitate]
+    set --> s4[Datele mele]
+    set --> s5[Aspect și accesibilitate]
+    set --> s6[Despre CycleCare]
+    s3 --> pol[Declarația de confidențialitate]
+    s3 -- Șterge toate datele sau retrage acordul --> welcome
+    s4 -- Raport PDF --> stats
+```
+
+Dreptunghiurile duble sunt ferestre deschise peste ecran (foaie de jos pe telefon, dialog centrat pe ecrane late).
+
+## 3. Prima deschidere
+
+Șapte ecrane, dintre care doar consimțământul este obligatoriu. Un indicator „Pasul n din 6” și butonul „Înapoi” sunt prezente de la consimțământ încolo.
+
+| Pas | Ecran | Ce cere | Poate fi sărit | Validare |
+|---|---|---|---|---|
+| – | Bun venit | Alegerea între „Începe” și „Explorează cu date demonstrative” | – | – |
+| 1 | Consimțământ | Două căsuțe nebifate: prelucrarea datelor privind sănătatea; vârsta de cel puțin 16 ani sau acordul unui părinte. Legătură către declarația de confidențialitate | nu | Fără ambele bife apare o eroare lângă căsuțe. „Nu sunt de acord” explică faptul că nu s-a salvat nimic |
+| 2 | Ultima menstruație | Data primei zile (selector nativ de dată, cel mult azi) | da: „Nu-mi amintesc” | Data din viitor este refuzată; o dată mai veche de 90 de zile primește o notă că estimările vor fi nesigure |
+| 3 | Durata ciclului | 21–45 de zile, pornind de la 28 | da: „Nu știu” | Valoarea este ținută în interval |
+| 4 | Durata menstruației | 2–10 zile, pornind de la 5 | da: „Nu știu” | Valoarea este ținută în interval |
+| 5 | Obiective | Contracepție, planificarea unei sarcini, urmărire generală, înțelegerea simptomelor (alegere multiplă) | da: „Sari peste” | La „Contracepție” apare imediat avertismentul că aplicația nu este un mijloc de contracepție |
+| 6 | Aproape gata | Opțional: PIN (de două ori) și un memento cu două zile înainte de menstruație | da: „Deschide CycleCare” | PIN de 4–8 cifre, identic în ambele câmpuri |
+
+Varianta cu date demonstrative trece prin consimțământ și apoi direct în aplicație, cu un jurnal inventat de șapte luni, marcat vizibil ca demonstrativ.
+
+<p>
+<img src="screenshots/01-bun-venit.png" width="230" alt="Ecranul de bun venit">
+<img src="screenshots/02-consimtamant.png" width="230" alt="Ecranul de consimțământ, cu două căsuțe nebifate">
+<img src="screenshots/05-obiective.png" width="230" alt="Alegerea obiectivelor, cu avertismentul pentru contracepție">
+<img src="screenshots/06-pin-si-memento.png" width="230" alt="Ultimul pas: PIN și memento, opționale">
+</p>
+
+Ce se întâmplă cu răspunsurile:
+
+- data ultimei menstruații devine intrări în jurnal, fără intensitate a fluxului, pentru câte zile durează de obicei menstruația (cel mult până azi);
+- duratele declarate sunt punctul de plecare al estimărilor până când există trei cicluri înregistrate (vezi `03-algoritm-predictie.md`);
+- obiectivele schimbă doar ordinea: cu „planificarea unei sarcini” fertilitatea apare înaintea următoarei menstruații; cu „înțelegerea simptomelor” observațiile urcă deasupra jurnalului rapid; cu „contracepție” avertismentul scurt este înlocuit de cel explicit.
+
+## 4. Ecranele principale
+
+### 4.1 Azi
+
+Răspunde la „unde sunt în ciclu și ce urmează?”.
+
+1. Antet: titlu, data de azi, rotița pentru setări.
+2. Anunțuri, doar dacă este cazul: date demonstrative (cu buton de ștergere); stocare indisponibilă.
+3. **Cadranul ciclului.** Ziua 1 este sus, sensul este cel al acelor de ceas. Arcele sunt cele patru faze estimate, bila marchează ziua de azi, arcul întrerupt de sus este intervalul în care este așteptată următoarea menstruație, iar arcul punctat din exterior marchează zilele fertile estimate. În centru: „Ziua 12” și faza. Dedesubt, legenda cu zilele fiecărei faze.
+4. **Următoarea menstruație**: intervalul („Probabil între 29 noiembrie și 5 decembrie”), data cea mai probabilă, peste câte zile, precizia estimării și pe ce se bazează.
+5. **Fertilitate**: zilele fertile și ovulația estimate, cu avertismentul de contracepție. Lipsește dacă estimările de fertilitate sunt oprite.
+6. **Cum e azi?**: fluxul de azi dintr-o atingere, rezumatul a ceea ce s-a notat, buton către jurnal.
+7. **Memento-uri azi**, dacă există.
+8. **De urmărit**: cel mult două observații, cu legătură către toate.
+9. **Un sfat pentru azi**: unul pe zi, pentru faza curentă.
+
+Stări: fără nicio menstruație notată (cadran gol și invitația de a nota prima zi); menstruație așteptată („poate începe în orice zi”); menstruație întârziată (numărul de zile și trimitere către sfaturi).
+
+<p>
+<img src="screenshots/07-azi.png" width="230" alt="Ecranul Azi: cadranul ciclului cu ziua 12, faza foliculară">
+<img src="screenshots/16-azi-intunecat.png" width="230" alt="Ecranul Azi în modul întunecat">
+</p>
+
+### 4.2 Calendar
+
+1. Navigare pe luni (săgeți, „Înapoi la azi”).
+2. **Grila lunii**, cu săptămâna începând lunea. Fiecare fază este o bandă colorată, cu o linie în culoarea fazei dedesubt. Semne: cerc plin pentru menstruație notată, cerc întrerupt pentru menstruație estimată, inel dublu pentru ovulația estimată, punct pentru zi fertilă estimată, romb pentru spotting sau sângerare între menstruații, pătrat pentru o zi cu notițe; ziua de azi este subliniată.
+3. **Detaliile zilei selectate**: ziua ciclului, faza, ce este estimat, ce s-a notat, buton către jurnal. Zilele viitoare arată doar estimări.
+4. **Editarea zilelor de menstruație**: un mod în care atingerea unei zile trecute o marchează sau o demarchează, pentru completarea rapidă a istoricului.
+5. Legenda și avertismentul de contracepție.
+
+Estimările apar pentru ciclul curent și pentru următoarele trei; dincolo de ele grila rămâne neutră.
+
+<p>
+<img src="screenshots/08-calendar.png" width="230" alt="Calendarul lunii, cu benzi colorate pe faze">
+<img src="screenshots/17-calendar-intunecat.png" width="230" alt="Calendarul în modul întunecat">
+</p>
+
+### 4.3 Jurnal
+
+O zi pe ecran, aleasă dintr-o bandă cu zilele săptămânii. Zilele viitoare nu pot fi alese.
+
+| Secțiune | Control | Valori |
+|---|---|---|
+| Flux | alegere unică, care se poate goli | spotting, ușor, mediu, abundent |
+| Simptome | alegere multiplă, pe cinci grupe; apoi intensitatea fiecărui simptom ales | 17 simptome; ușor, moderat, sever |
+| Dispoziție | scală cu cinci trepte | foarte scăzută … foarte bună |
+| Energie | scală cu cinci trepte | foarte scăzută … foarte ridicată |
+| Temperatură bazală | câmp numeric și „Importă din fișier” | 34–42 °C, cu două zecimale |
+| Secreție cervicală | alegere unică | uscat, lipicios, cremos, apos, albuș de ou |
+| Notă | text liber | până la 2000 de caractere |
+
+Nu există buton de salvare: fiecare schimbare se salvează pe loc, iar sub dată apare „Salvat”.
+
+<p>
+<img src="screenshots/09-jurnal.png" width="230" alt="Jurnalul zilei: flux și simptome">
+</p>
+
+### 4.4 Sfaturi
+
+1. **De urmărit**: observațiile active, fiecare cu „Am înțeles” (o ascunde 30 de zile).
+2. **Pentru faza în care ești**: faza curentă este preselectată și marcată „acum”; celelalte pot fi răsfoite. Patru teme: alimentație, mișcare, somn, piele.
+3. **Pentru ce ai notat recent**: câte o fișă pentru fiecare simptom notat de curând, cu „Ce poate ajuta” și „Când merită să ceri sfatul unui medic”.
+4. Mențiunea că sfaturile sunt informații generale.
+
+Conținutul și regulile de declanșare sunt în `04-sablon-continut-sfaturi.md`.
+
+<p>
+<img src="screenshots/10-sfaturi.png" width="230" alt="Ecranul Sfaturi: o observație și sfaturile pentru faza curentă">
+</p>
+
+### 4.5 Statistici
+
+1. Patru cifre: ciclul mediu, variația, durata medie a menstruației, cicluri înregistrate.
+2. **Durata ciclurilor**: coloane pentru ultimele cicluri încheiate, cu zilele de menstruație la bază.
+3. **Simptome pe luni**: un tabel în care nuanța celulei urmează numărul de zile.
+4. **Dispoziție și energie**: medii săptămânale pe șase luni, cu menstruațiile ca benzi în fundal; apoi mediile pe faze.
+5. **Temperatură bazală**: ultimele 45 de zile, dacă există măsurători.
+6. **Raport pentru medic**: deschide fereastra de export PDF.
+
+Fiecare grafic are și varianta „Vezi datele ca tabel”, iar valorile pot fi parcurse cu săgețile de la tastatură.
+
+<p>
+<img src="screenshots/11-statistici.png" width="230" alt="Statistici: cifrele rezumat și durata ciclurilor">
+<img src="screenshots/12-statistici-grafice.png" width="230" alt="Statistici: simptome pe luni, dispoziție și energie">
+<img src="screenshots/19-raport-pdf.png" width="230" alt="Prima pagină a raportului PDF">
+</p>
+
+## 5. Setări
+
+| Ecran | Conținut |
+|---|---|
+| Ciclul meu | Duratele obișnuite (sau „Nu știu”), obiectivele, comutatorul „Arată fazele ciclului și estimările de fertilitate” |
+| Memento-uri | Starea permisiunii de notificare; text discret; începutul menstruației estimate și zilele fertile (cu câte zile înainte, ora, repetare zilnică); pilulă și alte medicamente (denumire, oră, în fiecare zi sau în anumite zile) |
+| Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; unde sunt datele; partajarea cu terți; acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
+| Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor; date demonstrative |
+| Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba |
+| Despre CycleCare | Versiunea, limitele aplicației, licențe |
+
+<p>
+<img src="screenshots/13-setari.png" width="230" alt="Lista de setări">
+<img src="screenshots/14-memento.png" width="230" alt="Setările pentru memento-uri">
+<img src="screenshots/15-confidentialitate.png" width="230" alt="Confidențialitate și securitate">
+<img src="screenshots/18-blocare.png" width="230" alt="Ecranul de blocare cu PIN">
+</p>
+
+## 6. Blocare
+
+Apare la deschidere dacă există un PIN și atunci când aplicația a stat în fundal mai mult decât durata aleasă. Conține câmpul pentru PIN, butonul de deblocare biometrică (dacă este activă) și „Am uitat PIN-ul”, care explică de ce PIN-ul nu poate fi recuperat și oferă ștergerea tuturor datelor. După cinci încercări greșite, introducerea se oprește pentru 30 de secunde, apoi tot mai mult. După deblocare, persoana revine pe ecranul pe care era.
+
+## 7. Ferestre
+
+| Fereastră | De unde se deschide | Ce face |
+|---|---|---|
+| Declarația de confidențialitate | Consimțământ | Textul complet, fără a părăsi pasul |
+| Import temperaturi | Jurnal, Datele mele | Alege fișierul CSV, arată câte valori a găsit, cere confirmarea |
+| Raport pentru medic | Statistici | Perioada (3, 6 sau 12 luni), includerea notelor, generarea PDF-ului |
+| PIN | Confidențialitate și securitate | Setează, schimbă sau dezactivează PIN-ul |
+| Confirmări | Ștergere totală, retragerea acordului, restaurare, date demonstrative | Un pas explicit înaintea unei acțiuni care nu poate fi anulată |
+
+## 8. Stări speciale
+
+| Situație | Ce se schimbă |
+|---|---|
+| Nicio menstruație notată | „Azi” invită la prima notare; „Statistici” explică ce va apărea; „Sfaturi” lasă fazele de răsfoit fără una marcată „acum” |
+| Menstruație întârziată | Cadranul arată „Menstruația întârzie”; apare o observație informativă; calendarul desenează menstruația estimată începând de azi |
+| Estimări de fertilitate oprite | Dispar ovulația, zilele fertile și fazele în afara menstruației, în cadran, calendar, jurnal și raport; rămân zilele de menstruație și estimarea următoarei menstruații |
+| Stocare indisponibilă (fereastră privată, fără HTTPS) | Un anunț pe „Azi” spune că datele se păstrează doar până la închiderea paginii; PIN-ul nu poate fi setat fără criptare |
+| Date demonstrative | Un anunț permanent pe „Azi”, cu ștergere dintr-o atingere |
+| Seif care nu mai poate fi deschis | Un ecran care explică situația și oferă doar ștergerea datelor |
+
+## 9. Adrese
+
+Fiecare ecran are o adresă simplă, astfel încât butonul „înapoi” al telefonului funcționează, iar un ecran poate fi redeschis direct.
+
+| Adresă | Ecran |
+|---|---|
+| `#azi` | Azi |
+| `#calendar` | Calendar |
+| `#jurnal` | Jurnal |
+| `#sfaturi` | Sfaturi |
+| `#statistici` | Statistici |
+| `#setari` | Setări |
+| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
+| `#politica` | Declarația de confidențialitate |
+
+Ziua deschisă în jurnal și luna din calendar nu apar în adresă.
+
+## 10. Accesibilitate și adaptare la ecran
+
+- La fiecare schimbare de ecran, focusul trece pe titlu, astfel încât cititorul de ecran anunță noul ecran. La încărcarea paginii, primul element la care ajunge tasta Tab este „Sari la conținut”.
+- Toate controalele sunt elemente native (butoane radio, căsuțe, câmpuri), cu etichete; fiecare zi din calendar are o descriere completă, de exemplu „duminică, 15 noiembrie 2026, azi, ziua 12 a ciclului, faza foliculară, zi fertilă estimată, are notițe în jurnal”.
+- Calendarul se parcurge cu săgețile; Home și End merg la capetele săptămânii, Page Up și Page Down schimbă luna.
+- Fazele nu depind doar de culoare: au nume în legendă, forme diferite pentru semne și poziție în ciclu. Paleta a fost verificată pentru deuteranopie și protanopie.
+- Textul are patru trepte și se adaugă peste dimensiunea aleasă în sistem; la treapta cea mai mare, pe un ecran de 320 px, niciun ecran nu derulează lateral.
+- Tema întunecată urmează sistemul sau alegerea din setări; animațiile respectă „Reducere mișcare”.
+- Verificările automate WCAG 2.2 AA (axe) trec pe toate ecranele, în ambele teme; vezi `e2e/quality.spec.ts`.
+
+## 11. Ce se schimbă într-o aplicație nativă
+
+Structura și fluxul rămân aceleași. Diferă doar ce oferă platforma:
+
+| Aici (web) | Nativ (iOS, Android) |
+|---|---|
+| Memento-urile apar cât timp aplicația este deschisă și pe ecranul „Azi” | Notificări locale programate în sistem, fără server |
+| Import de temperaturi din fișier CSV | Citire din Apple Health sau Health Connect, după permisiunea sistemului |
+| PIN verificat de aplicație, cheie păstrată de browser | Cheie în Secure Enclave sau StrongBox, cu limită de încercări impusă de hardware |
+| Biometrie prin WebAuthn | Face ID, Touch ID sau biometria Android, direct |
+| Raport salvat prin descărcare sau prin foaia de partajare | Foaia de partajare a sistemului |

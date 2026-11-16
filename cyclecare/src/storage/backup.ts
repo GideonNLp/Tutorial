@@ -1,7 +1,18 @@
 import { isValidISODate } from '../domain/dates';
 import {
-  CONSENT_TYPES, FLOWS, GOALS, MUCUS_TYPES, SYMPTOM_IDS, emptyAppData,
-  type AppData, type ConsentRecord, type DayLog, type Goal, type ImportBatch, type MedicationReminder, type SymptomId,
+  CONSENT_TYPES,
+  FLOWS,
+  GOALS,
+  MUCUS_TYPES,
+  SYMPTOM_IDS,
+  emptyAppData,
+  type AppData,
+  type ConsentRecord,
+  type DayLog,
+  type Goal,
+  type ImportBatch,
+  type MedicationReminder,
+  type SymptomId,
 } from '../domain/types';
 import { isEmptyLog } from '../domain/journal';
 
@@ -32,8 +43,7 @@ export type BackupResult = { ok: true; data: AppData } | { ok: false; error: Bac
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const isTime = (v: unknown): v is string => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
-const text = (v: unknown, max: number): string | undefined =>
-  typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : undefined;
+const text = (v: unknown, max: number): string | undefined => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : undefined);
 const intIn = (v: unknown, min: number, max: number): number | undefined =>
   typeof v === 'number' && Number.isInteger(v) && v >= min && v <= max ? v : undefined;
 
@@ -123,9 +133,7 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
         const id = text(m.id, 40);
         const name = text(m.name, MAX_TEXT);
         if (!id || !name || !isTime(m.time)) return [];
-        const weekdays = Array.isArray(m.weekdays)
-          ? [...new Set(m.weekdays.filter((d): d is number => intIn(d, 0, 6) !== undefined))].sort()
-          : [];
+        const weekdays = Array.isArray(m.weekdays) ? [...new Set(m.weekdays.filter((d): d is number => intIn(d, 0, 6) !== undefined))].sort() : [];
         return [{ id, name, time: m.time, weekdays, enabled: m.enabled !== false }];
       });
     }

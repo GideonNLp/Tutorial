@@ -25,7 +25,11 @@ function Legend({ legend, hideLegend, hint }: GroupProps) {
   return (
     <>
       <legend className={hideLegend ? 'sr-only' : 'field-label'}>{legend}</legend>
-      {hint && <p className="field-hint" style={{ marginBottom: 'var(--s2)' }}>{hint}</p>}
+      {hint && (
+        <p className="field-hint" style={{ marginBottom: 'var(--s2)' }}>
+          {hint}
+        </p>
+      )}
     </>
   );
 }
@@ -155,13 +159,7 @@ function ClearButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-export function Switch(props: {
-  label: string;
-  hint?: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
-}) {
+export function Switch(props: { label: string; hint?: string; checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean }) {
   const hintId = useId();
   return (
     <label className="switch-row">
@@ -211,7 +209,13 @@ export function Stepper(props: {
         </p>
       )}
       <div className="stepper">
-        <button type="button" className="icon-btn outlined" aria-label={s.decrease} disabled={value <= min} onClick={() => onChange(clamp(value - 1))}>
+        <button
+          type="button"
+          className="icon-btn outlined"
+          aria-label={s.decrease}
+          disabled={value <= min}
+          onClick={() => onChange(clamp(value - 1))}
+        >
           <Minus size={20} aria-hidden="true" />
         </button>
         <input
@@ -233,7 +237,13 @@ export function Stepper(props: {
             if (Number.isFinite(n) && e.target.value !== '') onChange(clamp(n));
           }}
         />
-        <button type="button" className="icon-btn outlined" aria-label={s.increase} disabled={value >= max} onClick={() => onChange(clamp(value + 1))}>
+        <button
+          type="button"
+          className="icon-btn outlined"
+          aria-label={s.increase}
+          disabled={value >= max}
+          onClick={() => onChange(clamp(value + 1))}
+        >
           <Plus size={20} aria-hidden="true" />
         </button>
       </div>

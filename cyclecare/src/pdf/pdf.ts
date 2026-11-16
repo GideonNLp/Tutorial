@@ -109,7 +109,12 @@ export class PdfDocument {
   }
 
   /** Draws one line of text; `y` is the baseline. */
-  text(text: string, x: number, y: number, options: { font?: FontKey; size: number; color?: Rgb; align?: 'left' | 'right' | 'center'; page?: number }): void {
+  text(
+    text: string,
+    x: number,
+    y: number,
+    options: { font?: FontKey; size: number; color?: Rgb; align?: 'left' | 'right' | 'center'; page?: number },
+  ): void {
     if (!text) return;
     const key = options.font ?? 'regular';
     const font = this.fonts[key];
@@ -195,7 +200,10 @@ export class PdfDocument {
       const glyphs = [...font.used.keys()].sort((a, b) => a - b);
       const widths = glyphs.map((g) => `${g} [${Math.round(ttf.advanceOf(g) * scale)}]`).join(' ');
 
-      object(base, `<< /Type /Font /Subtype /Type0 /BaseFont /${name} /Encoding /Identity-H /DescendantFonts [${base + 1} 0 R] /ToUnicode ${base + 4} 0 R >>`);
+      object(
+        base,
+        `<< /Type /Font /Subtype /Type0 /BaseFont /${name} /Encoding /Identity-H /DescendantFonts [${base + 1} 0 R] /ToUnicode ${base + 4} 0 R >>`,
+      );
       object(
         base + 1,
         `<< /Type /Font /Subtype /CIDFontType2 /BaseFont /${name} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> ` +

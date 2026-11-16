@@ -717,7 +717,9 @@ main:focus {
   border-radius: 50%;
   background: var(--line-strong);
   transform: translateY(-50%);
-  transition: transform 0.15s, background-color 0.15s;
+  transition:
+    transform 0.15s,
+    background-color 0.15s;
 }
 .switch-row input:checked + .switch-track {
   background: var(--ink);
@@ -949,6 +951,19 @@ dialog.sheet::backdrop {
   .card,
   .list {
     border: 1px solid CanvasText;
+  }
+  /* Phase colours are data, not decoration: keep them when the system forces its own palette. */
+  .swatch,
+  .dial path,
+  .dial circle,
+  .cal-cell[data-phase]::after,
+  .cal-num,
+  .mark,
+  .legend-band,
+  .key-rect,
+  .heat td,
+  .chart-plot svg {
+    forced-color-adjust: none;
   }
 }
 

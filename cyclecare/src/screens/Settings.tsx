@@ -1,13 +1,27 @@
-import {
-  Bell, ChevronRight, Database, FileUp, Info, Palette, ShieldCheck, Trash2, CircleDot, CircleHelp, type LucideIcon,
-} from 'lucide-react';
+import { Bell, ChevronRight, Database, FileUp, Info, Palette, ShieldCheck, Trash2, CircleDot, CircleHelp, type LucideIcon } from 'lucide-react';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { notificationStatus, readFileAsText, requestNotifications, saveFile, type NotificationStatus } from '../app/platform';
 import type { AutoLock, TextSize, ThemePref } from '../app/prefs';
 import { navigate, type Route } from '../app/router';
 import {
-  disableBiometrics, enableBiometrics, loadDemoData, lock, removeDemoData, removePin, replaceJournal, setPin, setPrefs, update,
-  useData, useHasBiometric, useHasPin, usePrefs, useStorageMode, useToday, verifyPin, wipeEverything,
+  disableBiometrics,
+  enableBiometrics,
+  loadDemoData,
+  lock,
+  removeDemoData,
+  removePin,
+  replaceJournal,
+  setPin,
+  setPrefs,
+  update,
+  useData,
+  useHasBiometric,
+  useHasPin,
+  usePrefs,
+  useStorageMode,
+  useToday,
+  verifyPin,
+  wipeEverything,
 } from '../app/store';
 import { toast } from '../app/ui';
 import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/prediction';
@@ -204,7 +218,12 @@ function ReminderSettingsScreen() {
                 <label className="field-label" htmlFor={`${key}-days`}>
                   {r.daysBefore}
                 </label>
-                <select id={`${key}-days`} className="select" value={value.daysBefore} onChange={(e) => change({ daysBefore: Number(e.target.value) })}>
+                <select
+                  id={`${key}-days`}
+                  className="select"
+                  value={value.daysBefore}
+                  onChange={(e) => change({ daysBefore: Number(e.target.value) })}
+                >
                   {[0, 1, 2, 3, 5, 7].map((n) => (
                     <option key={n} value={n}>
                       {r.daysBeforeValue(n)}
@@ -216,7 +235,13 @@ function ReminderSettingsScreen() {
                 <label className="field-label" htmlFor={`${key}-time`}>
                   {r.time}
                 </label>
-                <input id={`${key}-time`} className="input" type="time" value={value.time} onChange={(e) => e.target.value && change({ time: e.target.value })} />
+                <input
+                  id={`${key}-time`}
+                  className="input"
+                  type="time"
+                  value={value.time}
+                  onChange={(e) => e.target.value && change({ time: e.target.value })}
+                />
               </div>
             </div>
             <Switch label={repeatLabel} checked={value.repeatDaily} onChange={(on) => change({ repeatDaily: on })} />
@@ -271,7 +296,13 @@ function ReminderSettingsScreen() {
                   <label className="field-label" htmlFor={`${med.id}-time`}>
                     {r.time}
                   </label>
-                  <input id={`${med.id}-time`} className="input" type="time" value={med.time} onChange={(e) => e.target.value && setMed(med.id, { time: e.target.value })} />
+                  <input
+                    id={`${med.id}-time`}
+                    className="input"
+                    type="time"
+                    value={med.time}
+                    onChange={(e) => e.target.value && setMed(med.id, { time: e.target.value })}
+                  />
                 </div>
               </div>
               <Switch
