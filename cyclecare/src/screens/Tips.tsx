@@ -1,0 +1,130 @@
+import { CircleAlert, Stethoscope } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { update, useData, useTimeline, useToday } from '../app/store';
+import { toast } from '../app/ui';
+import { content, TIP_CATEGORIES, type TipCategory } from '../content';
+import { computeFlags, recentSymptoms, visibleFlags } from '../domain/insights';
+import { currentPhase } from '../domain/prediction';
+import { PHASES, type Phase } from '../domain/types';
+import { strings } from '../i18n';
+import { ChoiceChips, Segmented } from '../ui/controls';
+import { Notice, ScreenHead } from '../ui/Shell';
+import { flagText, visiblePhase } from '../ui/summaries';
+
+export function TipsScreen() {
+  const s = strings();
+  const t = s.tips;
+  const data = useData();
+  const today = useToday();
+  const timeline = useTimeline();
+  const tips = content().tips;
+  const nowPhase = visiblePhase(currentPhase(timeline), data.profile.showFertility);
+  const [phase, setPhase] = useState<Phase>(nowPhase ?? 'menstruation');
+  const [category, setCategory] = useState<TipCategory>('nutrition');
+
+  const flags = useMemo(
+    () => visibleFlags(computeFlags(timeline, data.logs), data.dismissedFlags, today),
+    [timeline, data.logs, data.dismissedFlags, today],
+  );
+  const recent = useMemo(() => recentSymptoms(data.logs, today), [data.logs, today]);
+
+  const dismiss = (id: string) => {
+    update((d) => ({ ...d, dismissedFlags: { ...d.dismissedFlags, [id]: today } }));
+    toast(t.flags.dismissed);
+  };
+
+  return (
+    <div className="screen">
+      <ScreenHead title={t.title} settings />
+      <div className="stack stack-6">
+        {flags.length > 0 && (
+          <section className="stack stack-3" aria-labelledby="tips-flags">
+            <div className="stack stack-1">
+              <h2 id="tips-flags">{t.flags.title}</h2>
+              <p className="small ink-2">{t.flags.intro}</p>
+            </div>
+            {flags.map((flag) => {
+              const text = flagText(flag);
+              return (
+                <Notice key={flag.id} attention={flag.severity === 'attention'} icon={<CircleAlert size={20} aria-hidden="true" />}>
+                  <h3>{text.title}</h3>
+                  <p>{text.body}</p>
+                  <div>
+                    <button type="button" className="btn btn-quiet" onClick={() => dismiss(flag.id)}>
+                      {t.flags.dismiss}
+                    </button>
+                  </div>
+                </Notice>
+              );
+            })}
+          </section>
+        )}
+
+        <section className="stack" aria-labelledby="tips-phase">
+          <div className="stack stack-1">
+            <h2 id="tips-phase">{t.phase.title}</h2>
+            {!nowPhase && <p className="small ink-2">{t.phase.none}</p>}
+          </div>
+          <ChoiceChips
+            legend={t.phase.choose}
+            hideLegend
+            options={PHASES.map((p) => ({ value: p, label: s.phase[p], hint: p === nowPhase ? t.phase.current : undefined }))}
+            value={phase}
+            onChange={(p) => p && setPhase(p)}
+          />
+          <p className="ink-2" data-phase={phase}>
+            {tips.phaseTips[phase].summary}
+          </p>
+          <Segmented
+            legend={t.categoryLabel}
+            hideLegend
+            options={TIP_CATEGORIES.map((c) => ({ value: c, label: t.category[c] }))}
+            value={category}
+            onChange={setCategory}
+          />
+          <ul className="tip-list" aria-live="polite">
+            {tips.phaseTips[phase].tips[category].map((tip) => (
+              <li key={tip.id} className="stack stack-1">
+                <h3>{tip.title}</h3>
+                <p className="ink-2">{tip.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="stack" aria-labelledby="tips-symptoms">
+          <h2 id="tips-symptoms">{t.symptoms.title}</h2>
+          {recent.length === 0 ? (
+            <p className="ink-2">{t.symptoms.empty}</p>
+          ) : (
+            recent.map((item) => {
+              const advice = tips.symptomTips[item.symptom];
+              return (
+                <article key={item.symptom} className="card tight stack stack-3 symptom-card">
+                  <div className="stack stack-1">
+                    <h3>{s.symptom[item.symptom]}</h3>
+                    <p className="caption">{t.symptoms.logged(item.days)}</p>
+                  </div>
+                  <div className="stack stack-2">
+                    <h4>{t.symptoms.helps}</h4>
+                    <ul className="bullets small">
+                      {advice.helps.map((line) => (
+                        <li key={line}>{line}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <Notice icon={<Stethoscope size={18} aria-hidden="true" />}>
+                    <h4>{t.symptoms.doctor}</h4>
+                    <p>{advice.doctor}</p>
+                  </Notice>
+                </article>
+              );
+            })
+          )}
+        </section>
+
+        <p className="caption">{t.disclaimer}</p>
+      </div>
+    </div>
+  );
+}

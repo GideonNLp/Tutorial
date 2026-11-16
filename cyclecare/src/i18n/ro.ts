@@ -43,6 +43,12 @@ export const ro = {
     cycles: cicluri,
     months: luni,
     notAvailable: 'Indisponibil',
+    decrease: 'Scade cu unu',
+    increase: 'Crește cu unu',
+    clearChoice: 'Golește alegerea',
+    openSettings: 'Setări',
+    required: 'obligatoriu',
+    draft: 'Schiță',
     on: 'Pornit',
     off: 'Oprit',
   },
@@ -234,6 +240,9 @@ export const ro = {
     ofCycle: 'a ciclului',
     dialLabel: (day: number, phase: string) => `Ziua ${day} a ciclului, ${phase}`,
     dialEmpty: 'Încă nu există un ciclu înregistrat',
+    late: 'Menstruația întârzie',
+    legendTitle: 'Fazele acestui ciclu, estimate',
+    legendDays: (from: number, to: number) => (from === to ? `ziua ${from}` : `zilele ${from}–${to}`),
     periodDay: (n: number) => `Ziua ${n} de menstruație`,
     next: {
       heading: 'Următoarea menstruație',
@@ -311,7 +320,7 @@ export const ro = {
       fertile: 'Zi fertilă estimată',
       ovulation: 'Ovulație estimată',
       entry: 'Zi cu notițe',
-      bleed: 'Sângerare între menstruații',
+      bleed: 'Spotting sau sângerare între menstruații',
     },
     aria: {
       today: 'azi',
@@ -354,11 +363,13 @@ export const ro = {
     hasEntry: 'are notițe',
     cycleInfo: (day: number, phase: string) => `Ziua ${day} a ciclului, ${phase}`,
     autosave: 'Tot ce notezi se salvează pe loc.',
+    savedNow: 'Salvat',
+    goToday: 'Mergi la azi',
     flow: {
       title: 'Flux',
       hint: 'Spottingul nu se numără ca zi de menstruație.',
       unspecified: 'Zi marcată ca menstruație. Alege intensitatea, dacă o știi.',
-      none: 'Fără sângerare',
+      clear: 'Șterge marcajul de menstruație',
     },
     symptoms: {
       title: 'Simptome',
@@ -461,6 +472,10 @@ export const ro = {
       excluded: 'nu intră în medie',
       tooltip: (start: string, n: number) => `Început pe ${start}: ${zile(n)}`,
       period: (n: number) => `menstruație ${zile(n)}`,
+      legendPeriod: 'Zile de menstruație',
+      legendRest: 'Restul ciclului',
+      chartLabel: (n: number, mean: string) => `Grafic cu durata ultimelor ${cicluri(n)}. Media: ${mean} zile.`,
+      excludedNote: (n: number) => `${count(n, 'ciclu mai lung', 'cicluri mai lungi', 'de cicluri mai lungi')} de 90 de zile nu apar în grafic.`,
       colStart: 'Început',
       colLength: 'Durata ciclului',
       colPeriod: 'Durata menstruației',
@@ -472,6 +487,9 @@ export const ro = {
       tooltip: (name: string, month: string, n: number, severe: number) =>
         `${name}, ${month}: ${zile(n)}${severe > 0 ? `, dintre care ${severe} cu intensitate severă` : ''}`,
       empty: 'Niciun simptom notat în ultimele șase luni.',
+      scaleLow: 'mai puține zile',
+      scaleHigh: 'mai multe zile',
+      more: (n: number) => `Și alte ${count(n, 'simptom', 'simptome', 'de simptome')}, mai rare, în raportul PDF.`,
     },
     mood: {
       title: 'Dispoziție și energie',
@@ -480,6 +498,8 @@ export const ro = {
       energy: 'Energie',
       period: 'Menstruație',
       weekOf: (date: string) => `Săptămâna din ${date}`,
+      chartLabel: 'Grafic cu mediile săptămânale ale dispoziției și energiei din ultimele șase luni.',
+      noValue: 'nenotat',
       colWeek: 'Săptămâna',
       empty: 'Notează dispoziția și energia în jurnal ca să vezi cum se schimbă de la o săptămână la alta.',
     },
@@ -495,8 +515,10 @@ export const ro = {
       colDate: 'Data',
       colValue: 'Temperatura',
       tooltip: (date: string, value: string) => `${date}: ${value} °C`,
+      chartLabel: 'Grafic cu temperatura bazală din ultimele 45 de zile.',
     },
     table: 'Vezi datele ca tabel',
+    cyclesEmpty: 'Durata ciclurilor apare aici după a doua menstruație înregistrată.',
     empty: {
       title: 'Încă nu sunt destule date',
       body: 'Graficele apar pe măsură ce notezi în jurnal. Durata ciclurilor se vede după a doua menstruație înregistrată.',
@@ -535,9 +557,9 @@ export const ro = {
       lengthsHint:
         'Aceste valori contează mai ales la început. După trei cicluri înregistrate, estimările folosesc doar ce ai notat.',
       goals: 'Obiective',
-      fertility: 'Arată estimările de fertilitate',
+      fertility: 'Arată fazele ciclului și estimările de fertilitate',
       fertilityHint:
-        'Ascunde ovulația și zilele fertile dacă nu ți se potrivesc, de exemplu dacă folosești contracepție hormonală: aceasta schimbă ciclul natural, iar estimările nu se mai aplică.',
+        'Oprește opțiunea dacă estimările nu ți se potrivesc, de exemplu dacă folosești contracepție hormonală: aceasta schimbă ciclul natural. Rămân vizibile zilele de menstruație și estimarea următoarei menstruații.',
     },
     reminders: {
       status: {
@@ -553,7 +575,7 @@ export const ro = {
       discreetHint: 'Notificarea spune doar „Ai un memento”, fără cuvinte despre ciclu sau medicamente.',
       period: 'Începutul menstruației estimate',
       fertile: 'Zilele fertile estimate',
-      fertileHidden: 'Estimările de fertilitate sunt ascunse din „Ciclul meu”.',
+      fertileHidden: 'Estimările de fertilitate sunt oprite din „Ciclul meu”.',
       daysBefore: 'Cu câte zile înainte',
       daysBeforeValue: (n: number) => (n === 0 ? 'În ziua respectivă' : `Cu ${zile(n)} înainte`),
       time: 'Ora',

@@ -114,6 +114,8 @@ export interface ImportBatch {
 export interface AppData {
   schemaVersion: 1;
   onboardedAt?: ISOTimestamp;
+  /** The journal holds the generated example data, not real entries. Shown as a banner. */
+  demo?: boolean;
   consents: ConsentRecord[];
   profile: Profile;
   logs: DayLogs;

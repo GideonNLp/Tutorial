@@ -1,0 +1,250 @@
+import { CircleAlert, FlaskConical, Info, NotebookPen, ShieldAlert } from 'lucide-react';
+import { useMemo } from 'react';
+import { reminderText } from '../app/lifecycle';
+import { navigate } from '../app/router';
+import { removeDemoData, update, useData, useStorageMode, useTimeline, useToday } from '../app/store';
+import { openJournal, toast } from '../app/ui';
+import { content, TIP_CATEGORIES } from '../content';
+import { toDayNumber } from '../domain/dates';
+import { computeFlags, visibleFlags } from '../domain/insights';
+import { updateDay } from '../domain/journal';
+import { currentPhase } from '../domain/prediction';
+import { reminderOccurrences } from '../domain/reminders';
+import { FLOWS, type Flow } from '../domain/types';
+import { formatDate, formatRange, strings } from '../i18n';
+import { ChoiceChips } from '../ui/controls';
+import { CycleDial, phaseSpans } from '../ui/CycleDial';
+import { Notice, ScreenHead } from '../ui/Shell';
+import { flagText, summarizeLog } from '../ui/summaries';
+
+export function TodayScreen() {
+  const s = strings();
+  const data = useData();
+  const today = useToday();
+  const timeline = useTimeline();
+  const storage = useStorageMode();
+  const { prediction } = timeline;
+  const current = prediction.current;
+  const phase = currentPhase(timeline);
+  const todayInfo = timeline.dayInfo(today);
+  const todayLog = data.logs[today];
+  const showFertility = data.profile.showFertility;
+  const late = prediction.status === 'late';
+
+  const flags = useMemo(
+    () => visibleFlags(computeFlags(timeline, data.logs), data.dismissedFlags, today),
+    [timeline, data.logs, data.dismissedFlags, today],
+  );
+  const reminders = useMemo(
+    () => reminderOccurrences(data.reminders, prediction, showFertility, today, today),
+    [data.reminders, prediction, showFertility, today],
+  );
+
+  // One tip a day, rotating through the four themes for the current phase.
+  const tip = useMemo(() => {
+    if (!phase) return undefined;
+    const n = toDayNumber(today);
+    const category = TIP_CATEGORIES[n % TIP_CATEGORIES.length]!;
+    const tips = content().tips.phaseTips[phase].tips[category];
+    return { category, tip: tips[Math.floor(n / TIP_CATEGORIES.length) % tips.length]! };
+  }, [phase, today]);
+
+  const phaseLabel = late
+    ? s.today.late
+    : todayInfo.periodLogged && current
+      ? s.phase.menstruation
+      : phase
+        ? s.phase[phase]
+        : '';
+  const { spans } = phaseSpans(timeline);
+  const forecast = prediction.forecasts[0];
+  const summary = summarizeLog(todayLog);
+
+  const setFlow = (flow: Flow | undefined) => {
+    update((d) => ({ ...d, logs: updateDay(d.logs, today, { flow }, new Date().toISOString()) }));
+    toast(s.common.saved);
+  };
+
+  return (
+    <div className="screen">
+      <ScreenHead title={s.today.title} subtitle={formatDate(today, 'weekdayDayMonth')} settings />
+      <div className="stack stack-5">
+        {data.demo && (
+          <Notice icon={<FlaskConical size={20} aria-hidden="true" />}>
+            <p>{s.today.demo.text}</p>
+            <div>
+              <button
+                type="button"
+                className="btn btn-quiet"
+                onClick={() => {
+                  removeDemoData();
+                  toast(s.settings.data.demoRemoved);
+                }}
+              >
+                {s.today.demo.remove}
+              </button>
+            </div>
+          </Notice>
+        )}
+        {storage !== 'encrypted' && (
+          <Notice attention icon={<ShieldAlert size={20} aria-hidden="true" />}>
+            <p>{storage === 'plain' ? s.today.storage.plain : s.today.storage.session}</p>
+          </Notice>
+        )}
+
+        <div className="today-grid">
+          <section className="card today-cycle" aria-labelledby="cycle-heading">
+            <h2 id="cycle-heading" className="sr-only">
+              {s.today.legendTitle}
+            </h2>
+            <CycleDial timeline={timeline} showFertility={showFertility} phaseLabel={phaseLabel} />
+            {current ? (
+              <ul className="phase-legend" aria-label={s.today.legendTitle}>
+                {spans.map((span) => (
+                  <li key={span.from} data-phase={span.phase}>
+                    <span className="swatch" aria-hidden="true" />
+                    <span>
+                      <span className="strong">{s.phase[span.phase]}</span>
+                      <span className="caption"> {s.today.legendDays(span.from, span.to)}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="stack stack-3" style={{ textAlign: 'center' }}>
+                <h3>{s.today.noData.title}</h3>
+                <p className="ink-2">{s.today.noData.body}</p>
+                <button type="button" className="btn btn-primary" onClick={() => openJournal(today)}>
+                  <NotebookPen size={18} aria-hidden="true" />
+                  {s.today.noData.action}
+                </button>
+              </div>
+            )}
+          </section>
+
+          <div className="stack stack-5">
+            {current && forecast && (
+              <section aria-labelledby="next-heading" className="stack stack-2">
+                <h2 id="next-heading">{s.today.next.heading}</h2>
+                {late ? (
+                  <>
+                    <p className="lead strong">{s.today.next.late(-current.daysUntil)}</p>
+                    <p className="ink-2">{s.today.next.lateHint}</p>
+                  </>
+                ) : prediction.status === 'due' ? (
+                  <p className="lead strong">{s.today.next.due(formatDate(forecast.latest, 'dayMonthLong'))}</p>
+                ) : (
+                  <>
+                    <p className="lead strong">
+                      {s.today.next.between(formatDate(forecast.earliest, 'dayMonthLong'), formatDate(forecast.latest, 'dayMonthLong'))}
+                    </p>
+                    <p className="ink-2">{s.today.next.likely(formatDate(forecast.start, 'dayMonthLong'), current.daysUntil)}</p>
+                  </>
+                )}
+                <p className="caption">
+                  {s.today.confidence[prediction.confidence]}.{' '}
+                  {prediction.basis === 'history'
+                    ? s.today.basis.history(prediction.sampleSize)
+                    : prediction.basis === 'declared'
+                      ? s.today.basis.declared
+                      : s.today.basis.default}
+                </p>
+              </section>
+            )}
+
+            {current && showFertility && (
+              <section aria-labelledby="fertility-heading" className="stack stack-2">
+                <h2 id="fertility-heading">{s.today.fertility.heading}</h2>
+                {todayInfo.ovulationDay ? (
+                  <p className="strong">{s.today.fertility.todayOvulation}</p>
+                ) : (
+                  todayInfo.fertile && !late && <p className="strong">{s.today.fertility.todayFertile}</p>
+                )}
+                {(() => {
+                  const next = current.fertileEnd >= today ? current : forecast;
+                  return next ? (
+                    <>
+                      <p>{s.today.fertility.window(formatRange(next.fertileStart, next.fertileEnd))}</p>
+                      <p className="ink-2">{s.today.fertility.ovulation(formatDate(next.ovulation, 'dayMonth'))}</p>
+                    </>
+                  ) : null;
+                })()}
+                <Notice icon={<Info size={18} aria-hidden="true" />}>
+                  <p>{data.profile.goals.includes('contraception') ? s.contraceptionGoalWarning : s.contraceptionWarning}</p>
+                </Notice>
+              </section>
+            )}
+          </div>
+        </div>
+
+        <section className="card stack stack-3" aria-labelledby="quick-heading">
+          <h2 id="quick-heading">{s.today.quick.title}</h2>
+          <ChoiceChips
+            legend={s.today.quick.flow}
+            options={FLOWS.map((f) => ({ value: f, label: s.flow[f] }))}
+            value={todayLog?.flow === 'unspecified' ? undefined : todayLog?.flow}
+            onChange={setFlow}
+            clearable
+          />
+          <p className="small ink-2">{summary.length ? `${s.today.quick.logged} ${summary.join(', ')}.` : s.today.quick.nothing}</p>
+          <button type="button" className="btn btn-secondary btn-block" onClick={() => openJournal(today)}>
+            <NotebookPen size={18} aria-hidden="true" />
+            {s.today.quick.open}
+          </button>
+        </section>
+
+        {reminders.length > 0 && (
+          <section aria-labelledby="reminders-heading">
+            <h2 id="reminders-heading" className="section-title">
+              {s.today.reminders.title}
+            </h2>
+            <ul className="list">
+              {reminders.map((o) => (
+                <li key={o.id} className="list-row">
+                  <span className="strong num">{o.time}</span>
+                  <span className="grow">{reminderText(o).body}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {flags.length > 0 && (
+          <section aria-labelledby="flags-heading" className="stack stack-3">
+            <h2 id="flags-heading">{s.today.flags.title}</h2>
+            {flags.slice(0, 2).map((flag) => {
+              const text = flagText(flag);
+              return (
+                <Notice key={flag.id} attention={flag.severity === 'attention'} icon={<CircleAlert size={20} aria-hidden="true" />}>
+                  <h3>{text.title}</h3>
+                  <p>{text.body}</p>
+                </Notice>
+              );
+            })}
+            <div>
+              <button type="button" className="btn btn-quiet" onClick={() => navigate('sfaturi')}>
+                {s.today.flags.seeAll}
+              </button>
+            </div>
+          </section>
+        )}
+
+        {tip && phase && (
+          <section aria-labelledby="tip-heading" className="stack stack-2">
+            <h2 id="tip-heading">{s.today.tip.title}</h2>
+            <p className="caption">
+              {s.phase[phase]}, {s.tips.category[tip.category].toLowerCase()}
+            </p>
+            <h3>{tip.tip.title}</h3>
+            <p className="ink-2">{tip.tip.body}</p>
+            <div>
+              <button type="button" className="btn btn-quiet" onClick={() => navigate('sfaturi')}>
+                {s.today.tip.more}
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}
