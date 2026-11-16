@@ -5,7 +5,7 @@ import type { ISODate, ReminderSettings } from './types';
 /**
  * Reminders are computed, not stored: from the settings and the current prediction we derive
  * the list of occurrences in a time range. A native build hands the same list to the OS scheduler
- * (UNUserNotificationCenter / AlarmManager); the web prototype shows them while the app is open.
+ * (UNUserNotificationCenter / AlarmManager); the web app shows them while it is open.
  */
 
 export type ReminderKind = 'period' | 'fertile' | 'medication';

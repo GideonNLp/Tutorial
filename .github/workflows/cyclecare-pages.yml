@@ -1,12 +1,19 @@
-# Builds the CycleCare prototype and publishes it on GitHub Pages through the `gh-pages` branch.
+# Checks, builds and publishes CycleCare on GitHub Pages (branch `gh-pages`).
+#
+# It runs on pushes to `main` and when started by hand (Actions → this workflow → "Run workflow",
+# choosing the branch to publish). Work-in-progress pushes to other branches publish nothing.
+#
 # One-time setup in the repository: Settings → Pages → Build and deployment →
 #   Source: "Deploy from a branch", Branch: "gh-pages" / "(root)".
+# Optional repository variables (Settings → Secrets and variables → Actions → Variables) are
+# passed to the build as configuration; see cyclecare/.env.example for what each one does.
+#
 # The site only serves static files; journal data never leaves the visitor's device.
-name: CycleCare – publicare GitHub Pages
+name: CycleCare – verificare și publicare
 
 on:
   push:
-    branches: [claude/cyclecare-mobile-app-cjl6ux]
+    branches: [main]
     paths: ['cyclecare/**', '.github/workflows/cyclecare-pages.yml']
   workflow_dispatch:
 
@@ -23,6 +30,15 @@ jobs:
     defaults:
       run:
         working-directory: cyclecare
+    env:
+      VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+      VITE_PUBLIC_URL: ${{ vars.VITE_PUBLIC_URL }}
+      VITE_ALLOW_INDEXING: ${{ vars.VITE_ALLOW_INDEXING }}
+      VITE_OPERATOR_NAME: ${{ vars.VITE_OPERATOR_NAME }}
+      VITE_OPERATOR_ADDRESS: ${{ vars.VITE_OPERATOR_ADDRESS }}
+      VITE_OPERATOR_REGISTRATION: ${{ vars.VITE_OPERATOR_REGISTRATION }}
+      VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+      VITE_LEGAL_REVIEWED: ${{ vars.VITE_LEGAL_REVIEWED }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,8 +51,14 @@ jobs:
       - name: Instalare
         run: npm ci
 
+      - name: Tipuri și formatare
+        run: npm run typecheck && npm run format:check
+
       - name: Teste unitare
         run: npm test
+
+      - name: Teste cap-coadă
+        run: npx playwright install --with-deps chromium && npm run test:e2e
 
       - name: Build
         run: npm run build

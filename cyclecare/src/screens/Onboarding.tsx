@@ -22,7 +22,6 @@ export function Onboarding() {
   const today = useToday();
   const storage = useStorageMode();
   const [step, setStep] = useState<Step>('welcome');
-  const [demo, setDemo] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const [lastPeriod, setLastPeriod] = useState<ISODate | ''>('');
@@ -47,8 +46,8 @@ export function Onboarding() {
   const back = () => setStep(index <= 0 ? 'welcome' : QUESTION_STEPS[index - 1]!);
   const go = (next: Step) => setStep(next);
 
-  const finish = async (asDemo: boolean) => {
-    if (!asDemo && (pin || pinRepeat)) {
+  const finish = async () => {
+    if (pin || pinRepeat) {
       if (!PIN_PATTERN.test(pin)) return setPinError(o.finish.pinInvalid);
       if (pin !== pinRepeat) return setPinError(o.finish.pinMismatch);
     }
@@ -59,9 +58,8 @@ export function Onboarding() {
         cycleLength,
         periodLength,
         goals,
-        pin: !asDemo && pin ? pin : undefined,
+        pin: pin || undefined,
         periodReminder: reminder,
-        demo: asDemo,
       });
     } finally {
       setBusy(false);
@@ -111,30 +109,10 @@ export function Onboarding() {
           </ul>
         </main>
         <footer className="onb-actions">
-          <button
-            type="button"
-            className="btn btn-primary btn-block"
-            onClick={() => {
-              setDemo(false);
-              go('consent');
-            }}
-          >
+          <button type="button" className="btn btn-primary btn-block" onClick={() => go('consent')}>
             {o.welcome.start}
           </button>
-          <button
-            type="button"
-            className="btn btn-secondary btn-block"
-            onClick={() => {
-              setDemo(true);
-              go('consent');
-            }}
-          >
-            {o.welcome.demo}
-          </button>
-          <p className="caption" style={{ textAlign: 'center' }}>
-            {o.welcome.demoNote}
-          </p>
-          {__SINGLE_FILE__ && (
+          {__PREVIEW__ && (
             <p className="caption" style={{ textAlign: 'center' }}>
               {o.welcome.previewNote}
             </p>
@@ -145,7 +123,7 @@ export function Onboarding() {
   }
 
   if (step === 'consent') {
-    return <ConsentStep shell={shell} busy={busy} onAccept={() => (demo ? void finish(true) : go('lastPeriod'))} />;
+    return <ConsentStep shell={shell} busy={busy} onAccept={() => go('lastPeriod')} />;
   }
 
   if (step === 'lastPeriod') {
@@ -350,7 +328,7 @@ export function Onboarding() {
         />
       </section>
     </>,
-    <button type="button" className="btn btn-primary btn-block" disabled={busy} onClick={() => void finish(false)}>
+    <button type="button" className="btn btn-primary btn-block" disabled={busy} onClick={() => void finish()}>
       {busy ? s.common.loading : o.finish.open}
     </button>,
   );

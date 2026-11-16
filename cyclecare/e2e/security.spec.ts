@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { dumpStorage, openSettings, startWithDemoData, tab } from './helpers';
+import { dumpStorage, openSettings, startWithJournal, tab } from './helpers';
 
 async function setPin(page: Page, pin: string): Promise<void> {
   await openSettings(page, 'Confidențialitate și securitate');
@@ -12,7 +12,7 @@ async function setPin(page: Page, pin: string): Promise<void> {
 }
 
 test('a PIN locks the app, protects the key and survives a restart', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await setPin(page, '271828');
 
   // With a PIN there is no device key left on disk: only the PIN can unwrap the data key.
@@ -39,7 +39,7 @@ test('a PIN locks the app, protects the key and survives a restart', async ({ pa
 });
 
 test('PIN entry pauses after five wrong attempts', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await setPin(page, '1234');
   await page.getByRole('button', { name: 'Blochează acum' }).click();
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -57,7 +57,7 @@ test('PIN entry pauses after five wrong attempts', async ({ page }) => {
 });
 
 test('the PIN can be changed and removed, with the current PIN', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await setPin(page, '1234');
 
   await page.getByRole('button', { name: 'Dezactivează PIN-ul' }).click();
@@ -91,7 +91,7 @@ test('biometric unlock works through a platform authenticator (WebAuthn PRF)', a
     },
   });
 
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await setPin(page, '1234');
   await page.getByRole('switch', { name: 'Deblocare cu amprenta sau fața' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Deblocarea biometrică este activă.' })).toBeVisible();
@@ -104,7 +104,7 @@ test('biometric unlock works through a platform authenticator (WebAuthn PRF)', a
 });
 
 test('"delete all data" removes everything and goes back to the first screen', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await setPin(page, '1234');
   await page.getByRole('button', { name: 'Șterge toate datele' }).click();
   const dialog = page.getByRole('dialog', { name: 'Ștergi definitiv toate datele?' });
@@ -118,7 +118,7 @@ test('"delete all data" removes everything and goes back to the first screen', a
 });
 
 test('a forgotten PIN can only be answered by wiping the data', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await setPin(page, '1234');
   await page.getByRole('button', { name: 'Blochează acum' }).click();
   await page.getByRole('button', { name: 'Am uitat PIN-ul' }).click();
@@ -129,7 +129,7 @@ test('a forgotten PIN can only be answered by wiping the data', async ({ page })
 });
 
 test('withdrawing consent deletes the journal', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await openSettings(page, 'Confidențialitate și securitate');
   await expect(page.getByText(/Acord pentru prelucrarea datelor privind sănătatea, dat pe 15 noiembrie 2026/)).toBeVisible();
   await page.getByRole('button', { name: 'Retrage acordul și șterge datele' }).click();

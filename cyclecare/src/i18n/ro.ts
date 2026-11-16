@@ -28,29 +28,18 @@ export const ro = {
     back: 'Înapoi',
     next: 'Continuă',
     skip: 'Sari peste',
-    done: 'Gata',
-    save: 'Salvează',
     cancel: 'Renunță',
     close: 'Închide',
-    delete: 'Șterge',
     add: 'Adaugă',
-    today: 'Azi',
     saved: 'Salvat',
     loading: 'Se încarcă…',
     estimate: 'estimare',
     skipToContent: 'Sari la conținut',
     days: zile,
-    cycles: cicluri,
-    months: luni,
-    notAvailable: 'Indisponibil',
     decrease: 'Scade cu unu',
     increase: 'Crește cu unu',
     clearChoice: 'Golește alegerea',
     openSettings: 'Setări',
-    required: 'obligatoriu',
-    draft: 'Schiță',
-    on: 'Pornit',
-    off: 'Oprit',
   },
 
   nav: {
@@ -165,9 +154,7 @@ export const ro = {
         'Fără cont și fără server: datele rămân criptate pe acest dispozitiv',
       ],
       start: 'Începe',
-      demo: 'Explorează cu date demonstrative',
-      demoNote: 'Datele demonstrative sunt inventate și pot fi șterse oricând din Setări.',
-      previewNote: 'Versiune de previzualizare a prototipului. Ce notezi rămâne doar în acest browser și dispare dacă ștergi datele de navigare.',
+      previewNote: 'Versiune de previzualizare. Ce notezi rămâne doar în acest browser și dispare dacă ștergi datele de navigare.',
     },
     lastPeriod: {
       title: 'Când a început ultima ta menstruație?',
@@ -215,9 +202,7 @@ export const ro = {
   lock: {
     title: 'CycleCare este blocată',
     prompt: 'Introdu PIN-ul',
-    entered: (n: number) => `${count(n, 'cifră introdusă', 'cifre introduse', 'de cifre introduse')}`,
     unlock: 'Deblochează',
-    deleteDigit: 'Șterge ultima cifră',
     wrong: (left: number) => `PIN greșit. Mai ai ${count(left, 'încercare', 'încercări', 'de încercări')} până la o pauză.`,
     paused: (seconds: number) =>
       seconds >= 90
@@ -238,7 +223,6 @@ export const ro = {
   today: {
     title: 'Azi',
     cycleDay: (n: number) => `Ziua ${n}`,
-    ofCycle: 'a ciclului',
     dialLabel: (day: number, phase: string) => (phase ? `Ziua ${day} a ciclului, ${phase}` : `Ziua ${day} a ciclului`),
     dialEmpty: 'Încă nu există un ciclu înregistrat',
     late: 'Menstruația întârzie',
@@ -246,7 +230,6 @@ export const ro = {
     restOfCycle: 'Restul ciclului',
     legendTitle: 'Fazele acestui ciclu, estimate',
     legendDays: (from: number, to: number) => (from === to ? `ziua ${from}` : `zilele ${from}–${to}`),
-    periodDay: (n: number) => `Ziua ${n} de menstruație`,
     next: {
       heading: 'Următoarea menstruație',
       between: (from: string, to: string) => `Probabil între ${from} și ${to}`,
@@ -298,10 +281,6 @@ export const ro = {
       seeAll: 'Vezi toate observațiile',
     },
     tip: { title: 'Un sfat pentru azi', more: 'Toate sfaturile' },
-    demo: {
-      text: 'Acestea sunt date demonstrative, inventate. Nu sunt datele tale.',
-      remove: 'Șterge datele demonstrative',
-    },
     storage: {
       session:
         'Browserul nu permite salvarea pe dispozitiv (fereastră privată sau stocare blocată). Ce notezi se păstrează doar până închizi pagina.',
@@ -337,11 +316,9 @@ export const ro = {
       bleed: 'sângerare între menstruații',
       spotting: 'spotting',
       overdue: 'după data estimată a menstruației',
-      selected: 'selectată',
     },
     detail: {
       cycleDay: (n: number) => `Ziua ${n} a ciclului`,
-      estimated: 'Estimare',
       noInfo: 'Pentru această zi nu există încă date sau estimări.',
       open: 'Deschide în jurnal',
       future: 'Zi din viitor: aici vezi doar estimări.',
@@ -427,7 +404,6 @@ export const ro = {
       unreadable: 'Fișierul nu a putut fi citit.',
       none: 'Nu am găsit nicio valoare care să poată fi folosită.',
     },
-    native: 'În aplicația pentru telefon, importul se face direct din Apple Health sau Health Connect, după un acord separat.',
   },
 
   tips: {
@@ -573,8 +549,7 @@ export const ro = {
         unsupported: 'Acest browser nu poate afișa notificări de sistem. Memento-urile apar doar în aplicație.',
       },
       allow: 'Permite notificările',
-      webNote:
-        'În prototipul web, memento-urile apar cât timp aplicația este deschisă și, la deschidere, pe ecranul „Azi”. Aplicația pentru telefon le programează în sistem, fără server.',
+      webNote: 'Memento-urile apar cât timp aplicația este deschisă, iar la deschidere le găsești pe ecranul „Azi”.',
       discreet: 'Text discret în notificări',
       discreetHint: 'Notificarea spune doar „Ai un memento”, fără cuvinte despre ciclu sau medicamente.',
       period: 'Începutul menstruației estimate',
@@ -673,15 +648,6 @@ export const ro = {
       importTemps: 'Importă temperaturi',
       batches: 'Importuri făcute',
       batch: (device: string, n: number, date: string) => `${device}: ${count(n, 'valoare', 'valori', 'de valori')}, importate pe ${date}`,
-      demoTitle: 'Date demonstrative',
-      demoHint: 'Încarcă șapte luni de date inventate ca să vezi cum arată graficele și sfaturile. Înlocuiesc jurnalul actual.',
-      demoLoad: 'Încarcă date demonstrative',
-      demoConfirmTitle: 'Înlocuiești jurnalul cu date demonstrative?',
-      demoConfirmBody: 'Ce ai notat până acum va fi șters de pe acest dispozitiv.',
-      demoConfirm: 'Încarcă',
-      demoLoaded: 'Datele demonstrative au fost încărcate.',
-      demoRemove: 'Șterge datele demonstrative',
-      demoRemoved: 'Datele demonstrative au fost șterse.',
     },
     appearance: {
       theme: 'Temă',
@@ -695,14 +661,13 @@ export const ro = {
       motion: 'Animațiile respectă setarea „Reducere mișcare” a dispozitivului.',
     },
     about: {
-      version: (v: string) => `Versiunea ${v}, prototip`,
+      version: (v: string) => `Versiunea ${v}`,
       notMedical:
         'CycleCare este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu poate fi folosit ca metodă de contracepție.',
       estimates:
         'Estimările pornesc de la datele pe care le notezi și presupun cicluri naturale. Sunt mai puțin de încredere în primele luni de folosire, la cicluri neregulate, în timpul contracepției hormonale, după naștere, în perioada de alăptare și la perimenopauză.',
       emergency: 'Pentru urgențe medicale, sună la 112.',
       licenses: 'Fonturi: Figtree și Bricolage Grotesque (SIL Open Font License 1.1). Pictograme: Lucide (ISC).',
-      docs: 'Documentația prototipului (ecrane, model de date, algoritm, conținut, texte juridice) se află în dosarul docs al proiectului.',
     },
   },
 
@@ -765,8 +730,6 @@ export const ro = {
     colPhase: 'Faza',
     bbt: 'Temperatură bazală',
     bbtNote: (n: number) => `${count(n, 'măsurătoare', 'măsurători', 'de măsurători')} în perioadă. Valori în °C.`,
-    colCycleDay: 'Ziua ciclului',
-    colTemp: '°C',
     colDate: 'Data',
     observations: 'Observații generate de aplicație',
     observationsNote: 'Constatări automate pe baza datelor notate. Nu reprezintă un diagnostic.',

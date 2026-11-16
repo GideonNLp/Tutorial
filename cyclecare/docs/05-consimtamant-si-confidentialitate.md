@@ -1,13 +1,13 @@
 # Texte pentru consimțământ și declarația de confidențialitate
 
 > **Statut: schiță. De verificat de un specialist juridic înainte de orice lansare.**
-> Versiunea textelor: `2026-11-schita-1`, actualizată la 2026-11-15.
+> Versiunea textelor: `2026-11-schita-2`, actualizată la 2026-11-15.
 >
 > Document generat din `src/content/ro/legal.ts` cu `npm run docs:content`. Aplicația afișează exact aceste texte: ecranul de consimțământ din onboarding și „Setări → Confidențialitate și securitate → Citește declarația de confidențialitate”.
 
 ## 1. Ce presupun textele
 
-Textele descriu prototipul așa cum este construit:
+Textele descriu aplicația așa cum este construită:
 
 - toate datele rămân pe dispozitiv, criptate (AES-256-GCM); nu există cont, server, instrumente de analiză sau SDK-uri ale unor terți;
 - versiunea web este configurată (Content-Security-Policy) să nu poată comunica cu alte servere;
@@ -48,7 +48,7 @@ Căsuțe de bifat (ambele obligatorii, nebifate din oficiu):
 
 ## 3. Șablon pentru un acord separat
 
-Nicio partajare cu terți nu are loc fără un acord explicit și separat. Prototipul nu partajează nimic, deci acest ecran nu este folosit încă; șablonul fixează forma pe care o va avea orice cerere viitoare. Fiecare acord se cere punctual, pentru o singură funcție, nu poate fi bifat din oficiu și nu condiționează restul aplicației.
+Nicio partajare cu terți nu are loc fără un acord explicit și separat. Aplicația nu partajează nimic, deci acest ecran nu este folosit încă; șablonul fixează forma pe care o va avea orice cerere viitoare. Fiecare acord se cere punctual, pentru o singură funcție, nu poate fi bifat din oficiu și nu condiționează restul aplicației.
 
 **Acord separat pentru [funcție]**
 
@@ -96,7 +96,7 @@ Cele mai multe dintre aceste informații sunt date privind sănătatea, pe care 
 - Sunt criptate în repaus cu AES-256-GCM. Cheia de criptare este păstrată de sistemul dispozitivului și nu poate fi exportată.
 - Dacă setezi un PIN, cheia de criptare este protejată suplimentar cu o cheie derivată din PIN (PBKDF2-HMAC-SHA-256, 600 000 de iterații). PIN-ul nu este stocat nicăieri și nu poate fi recuperat.
 - Deblocarea biometrică folosește senzorul dispozitivului. Amprenta sau imaginea feței nu ajung la aplicație.
-- Aplicația nu transmite datele tale prin internet. Versiunea web este livrată prin HTTPS și este configurată să nu poată comunica cu alte servere.
+- Aplicația nu transmite datele tale prin internet. Aplicația este livrată prin HTTPS și este configurată să nu poată comunica cu alte servere.
 - Dacă pe viitor apare o funcție care presupune transmiterea de date (de exemplu, o copie de siguranță în cloud), aceasta va fi opțională, criptată integral pe dispozitiv înainte de transmitere, transmisă numai prin conexiuni criptate (TLS) și activată doar cu acordul tău separat.
 
 ### 6. La ce folosim datele
@@ -123,8 +123,6 @@ Memento-urile sunt generate pe dispozitiv. În mod implicit, textul notificării
 ### 9. Date importate din dispozitive purtabile
 
 Dacă alegi să imporți temperatura bazală dintr-un fișier exportat de o brățară, un inel sau un termometru, fișierul este citit pe dispozitivul tău și nu este trimis nicăieri.
-
-În aplicația pentru telefon, importul din Apple Health sau Health Connect se face numai după ce îți dai acordul în fereastra de permisiuni a sistemului și doar pentru tipurile de date pe care le alegi. Poți revoca permisiunea din setările telefonului.
 
 ### 10. Cât timp păstrăm datele
 

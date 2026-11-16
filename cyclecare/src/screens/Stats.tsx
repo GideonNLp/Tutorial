@@ -1,5 +1,6 @@
 import { FileText } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { reportError } from '../app/errors';
 import { saveFile } from '../app/platform';
 import { useData, useTimeline, useToday } from '../app/store';
 import { toast } from '../app/ui';
@@ -367,7 +368,7 @@ function ExportSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
       toast(outcome === 'saved' ? e.saved : outcome === 'declined' ? e.declined : e.failed);
       if (outcome === 'saved') onClose();
     } catch (error) {
-      console.error('CycleCare: PDF export failed', error);
+      reportError('export', error);
       toast(e.failed);
     } finally {
       setBusy(false);

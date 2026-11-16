@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { addDays } from '../src/domain/dates';
-import { generateDemoData } from '../src/domain/demoData';
+import { sampleJournal } from './fixtures/sampleJournal';
 import { computeFlags, recentSymptoms } from '../src/domain/insights';
 import { buildTimeline, currentPhase } from '../src/domain/prediction';
 import { bbtSeries, cycleRows, lastMonths, moodByPhase, moodSeries, monthlyMood, periodRuns, symptomMatrix } from '../src/domain/stats';
@@ -76,11 +76,11 @@ describe('statistics', () => {
 });
 
 describe('demo data', () => {
-  const { logs, profile: demoProfile } = generateDemoData(today, NOW);
+  const { logs, profile: demoProfile } = sampleJournal(today, NOW);
   const t = buildTimeline(logs, demoProfile, today);
 
   it('is deterministic and never dated in the future', () => {
-    expect(generateDemoData(today, NOW).logs).toEqual(logs);
+    expect(sampleJournal(today, NOW).logs).toEqual(logs);
     expect(Object.keys(logs).every((d) => d <= today)).toBe(true);
   });
 

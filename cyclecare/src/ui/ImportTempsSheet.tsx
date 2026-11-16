@@ -146,7 +146,6 @@ export function ImportTempsSheet({ open, onClose }: { open: boolean; onClose: ()
             </div>
           </div>
         )}
-        <p className="caption">{t.native}</p>
         <div className="sheet-actions">
           <button type="button" className="btn btn-secondary" onClick={close}>
             {s.common.cancel}

@@ -135,7 +135,7 @@ export async function showSystemNotification(title: string, body: string, tag: s
 
 /** Registers the service worker of the installable build. The single-file preview has none. */
 export function registerServiceWorker(): void {
-  if (__SINGLE_FILE__ || !import.meta.env.PROD) return;
+  if (__PREVIEW__ || !import.meta.env.PROD) return;
   if (!('serviceWorker' in navigator) || framed()) return;
   const register = () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {

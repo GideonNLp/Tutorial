@@ -1,4 +1,7 @@
 import { expect, type Page } from '@playwright/test';
+import { emptyAppData } from '../src/domain/types';
+import { exportBackup } from '../src/storage/backup';
+import { sampleJournal } from '../tests/fixtures/sampleJournal';
 
 /** Sunday 15 November 2026, 09:00 in Bucharest. Every test starts from this moment. */
 export const NOW = new Date('2026-11-15T09:00:00+02:00');
@@ -16,14 +19,6 @@ export async function acceptConsent(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Sunt de acord și continui' }).click();
 }
 
-/** Onboards with the generated example journal (seven completed cycles, day 12 of the eighth). */
-export async function startWithDemoData(page: Page): Promise<void> {
-  await openApp(page);
-  await page.getByRole('button', { name: 'Explorează cu date demonstrative' }).click();
-  await acceptConsent(page);
-  await expect(page.getByRole('navigation', { name: 'Navigare principală' })).toBeVisible();
-}
-
 /** Onboards skipping every optional question: an empty journal. */
 export async function startEmpty(page: Page): Promise<void> {
   await openApp(page);
@@ -35,6 +30,25 @@ export async function startEmpty(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Sari peste' }).click();
   await page.getByRole('button', { name: 'Deschide CycleCare' }).click();
   await expect(page.getByRole('navigation', { name: 'Navigare principală' })).toBeVisible();
+}
+
+/** A backup file with seven completed cycles and day 12 of the eighth, as the app itself would export it. */
+export const SAMPLE_BACKUP = (() => {
+  const { logs, profile } = sampleJournal('2026-11-15', NOW.toISOString());
+  return exportBackup({ ...emptyAppData(), logs, profile }, NOW);
+})();
+
+/** Starts with a filled journal: onboards, then restores the sample backup the way a person would. */
+export async function startWithJournal(page: Page): Promise<void> {
+  await startEmpty(page);
+  await openSettings(page, 'Datele mele');
+  await page
+    .getByLabel('Restaurează dintr-un fișier')
+    .setInputFiles({ name: 'jurnal.json', mimeType: 'application/json', buffer: Buffer.from(SAMPLE_BACKUP) });
+  await page.getByRole('dialog').getByRole('button', { name: 'Înlocuiește' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Datele au fost restaurate.' })).toBeVisible();
+  await tab(page, 'Azi');
+  await expect(page.getByRole('img', { name: /Ziua 12 a ciclului/ })).toBeVisible();
 }
 
 export async function tab(page: Page, name: 'Azi' | 'Calendar' | 'Jurnal' | 'Sfaturi' | 'Statistici'): Promise<void> {

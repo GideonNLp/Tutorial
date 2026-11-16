@@ -6,9 +6,7 @@ import { navigate, type Route } from '../app/router';
 import {
   disableBiometrics,
   enableBiometrics,
-  loadDemoData,
   lock,
-  removeDemoData,
   removePin,
   replaceJournal,
   setPin,
@@ -632,7 +630,6 @@ function DataSettings() {
   const [importing, setImporting] = useState(false);
   const [pending, setPending] = useState<AppData | null>(null);
   const [error, setError] = useState<string | undefined>(undefined);
-  const [confirmDemo, setConfirmDemo] = useState(false);
 
   const exportJson = async () => {
     const blob = new Blob([exportBackup(data, new Date())], { type: 'application/json' });
@@ -707,27 +704,6 @@ function DataSettings() {
             </div>
           )}
         </Group>
-
-        <Group title={d.demoTitle}>
-          <p className="ink-2">{d.demoHint}</p>
-          <div className="row">
-            <button type="button" className="btn btn-secondary btn-small" onClick={() => setConfirmDemo(true)}>
-              {d.demoLoad}
-            </button>
-            {data.demo && (
-              <button
-                type="button"
-                className="btn btn-quiet btn-small"
-                onClick={() => {
-                  removeDemoData();
-                  toast(d.demoRemoved);
-                }}
-              >
-                {d.demoRemove}
-              </button>
-            )}
-          </div>
-        </Group>
       </div>
 
       <ImportTempsSheet open={importing} onClose={() => setImporting(false)} />
@@ -741,18 +717,6 @@ function DataSettings() {
           if (pending) replaceJournal(pending);
           setPending(null);
           toast(d.imported);
-        }}
-      />
-      <ConfirmSheet
-        open={confirmDemo}
-        title={d.demoConfirmTitle}
-        body={d.demoConfirmBody}
-        confirmLabel={d.demoConfirm}
-        onCancel={() => setConfirmDemo(false)}
-        onConfirm={() => {
-          loadDemoData();
-          setConfirmDemo(false);
-          toast(d.demoLoaded);
         }}
       />
     </div>
@@ -821,7 +785,6 @@ function About() {
         <p>{a.estimates}</p>
         <p className="strong">{a.emergency}</p>
         <p className="small ink-2">{a.licenses}</p>
-        <p className="small ink-2">{a.docs}</p>
       </div>
     </div>
   );

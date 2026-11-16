@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { dumpStorage, startEmpty, startWithDemoData, tab } from './helpers';
+import { dumpStorage, startEmpty, startWithJournal, tab } from './helpers';
 
 test('logging the first period day starts a cycle and a prediction', async ({ page }) => {
   await startEmpty(page);
@@ -56,13 +56,13 @@ test('an invalid temperature is explained and not saved', async ({ page }) => {
 });
 
 test('future days cannot be journalled', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await tab(page, 'Jurnal');
   // Sunday is the last day of the week shown, so there is no later week to go to.
   await expect(page.getByRole('button', { name: 'Săptămâna următoare' })).toBeDisabled();
   await page.getByRole('button', { name: 'Săptămâna anterioară' }).click();
   await expect(page.getByRole('heading', { level: 2, name: 'Duminică, 8 noiembrie' })).toBeVisible();
-  await expect(page.getByRole('radio', { name: 'Ușor', exact: true })).toBeChecked(); // demo: last period day, light flow
+  await expect(page.getByRole('radio', { name: 'Ușor', exact: true })).toBeChecked(); // sample journal: last period day, light flow
 });
 
 test('calendar: edit mode marks period days and predictions follow', async ({ page }) => {
@@ -80,7 +80,7 @@ test('calendar: edit mode marks period days and predictions follow', async ({ pa
 });
 
 test('calendar: arrow keys move through days and across months', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await tab(page, 'Calendar');
   const today = page.getByRole('button', { name: /duminică, 15 noiembrie 2026/ });
   await today.focus();
@@ -94,7 +94,7 @@ test('calendar: arrow keys move through days and across months', async ({ page }
 });
 
 test('tips follow the phase and the recently logged symptoms; a flag can be dismissed', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await tab(page, 'Sfaturi');
   await expect(page.getByRole('radio', { name: /Faza foliculară/ })).toBeChecked();
   await expect(page.getByRole('heading', { name: 'Farfurie variată' })).toBeVisible();

@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { openSettings, startEmpty, startWithDemoData, tab } from './helpers';
+import { openSettings, startEmpty, startWithJournal, tab } from './helpers';
 
 test('the doctor report is generated on the device as a real PDF', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await tab(page, 'Statistici');
   await page.getByRole('button', { name: 'Creează raportul PDF' }).click();
   const dialog = page.getByRole('dialog', { name: 'Raport pentru medic' });
@@ -21,7 +21,7 @@ test('the doctor report is generated on the device as a real PDF', async ({ page
 });
 
 test('statistics show charts with a table alternative', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await tab(page, 'Statistici');
   await expect(page.getByText('28,0 zile')).toBeVisible(); // average cycle
   await expect(page.getByText('26–30 zile')).toBeVisible(); // variation
@@ -46,7 +46,7 @@ test('an empty journal explains what will appear', async ({ page }) => {
 });
 
 test('the journal can be exported as JSON and restored on another device', async ({ page, browser }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await openSettings(page, 'Datele mele');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Exportă datele (JSON)' }).click();
@@ -107,7 +107,7 @@ test('basal temperatures are imported from a wearable CSV file', async ({ page }
 });
 
 test('reminders are configurable and fire while the app is open', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await openSettings(page, 'Memento-uri');
   await page.getByRole('button', { name: 'Adaugă pilula' }).click();
   await page.getByLabel('Ora').fill('09:02');
@@ -125,7 +125,7 @@ test('reminders are configurable and fire while the app is open', async ({ page 
 });
 
 test('fertility estimates can be switched off everywhere', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await expect(page.getByRole('heading', { name: 'Fertilitate' })).toBeVisible();
   await openSettings(page, 'Ciclul meu');
   await page.getByRole('switch', { name: 'Arată fazele ciclului și estimările de fertilitate' }).uncheck();

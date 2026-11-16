@@ -5,12 +5,12 @@
  * Câmpurile dintre paranteze drepte sunt de completat. Întrebările deschise pentru jurist sunt
  * în docs/05-consimtamant-si-confidentialitate.md, generat din acest fișier (`npm run docs:content`).
  *
- * Textele descriu exact ce face prototipul: totul rămâne pe dispozitiv, criptat, fără cont și fără server.
+ * Textele descriu exact ce face aplicația: totul rămâne pe dispozitiv, criptat, fără cont și fără server.
  * Dacă produsul primește funcții online (copie în cloud, sincronizare), textele trebuie rescrise,
  * iar utilizatorii trebuie să își dea din nou acordul.
  */
 
-export const LEGAL_VERSION = '2026-11-schita-1';
+export const LEGAL_VERSION = '2026-11-schita-2';
 export const LEGAL_UPDATED = '2026-11-15';
 
 export const consentText = {
@@ -105,7 +105,7 @@ export const privacyPolicy: { title: string; draftNotice: string; sections: Poli
         'Sunt criptate în repaus cu AES-256-GCM. Cheia de criptare este păstrată de sistemul dispozitivului și nu poate fi exportată.',
         'Dacă setezi un PIN, cheia de criptare este protejată suplimentar cu o cheie derivată din PIN (PBKDF2-HMAC-SHA-256, 600 000 de iterații). PIN-ul nu este stocat nicăieri și nu poate fi recuperat.',
         'Deblocarea biometrică folosește senzorul dispozitivului. Amprenta sau imaginea feței nu ajung la aplicație.',
-        'Aplicația nu transmite datele tale prin internet. Versiunea web este livrată prin HTTPS și este configurată să nu poată comunica cu alte servere.',
+        'Aplicația nu transmite datele tale prin internet. Aplicația este livrată prin HTTPS și este configurată să nu poată comunica cu alte servere.',
         'Dacă pe viitor apare o funcție care presupune transmiterea de date (de exemplu, o copie de siguranță în cloud), aceasta va fi opțională, criptată integral pe dispozitiv înainte de transmitere, transmisă numai prin conexiuni criptate (TLS) și activată doar cu acordul tău separat.',
       ],
     },
@@ -139,7 +139,6 @@ export const privacyPolicy: { title: string; draftNotice: string; sections: Poli
       heading: '9. Date importate din dispozitive purtabile',
       paragraphs: [
         'Dacă alegi să imporți temperatura bazală dintr-un fișier exportat de o brățară, un inel sau un termometru, fișierul este citit pe dispozitivul tău și nu este trimis nicăieri.',
-        'În aplicația pentru telefon, importul din Apple Health sau Health Connect se face numai după ce îți dai acordul în fereastra de permisiuni a sistemului și doar pentru tipurile de date pe care le alegi. Poți revoca permisiunea din setările telefonului.',
       ],
     },
     {

@@ -1,4 +1,4 @@
-// Builds the prototype as ONE self-contained HTML file: scripts, styles and fonts inlined,
+// Builds the preview as ONE self-contained HTML file: scripts, styles and fonts inlined,
 // no service worker, no other requests. Two outputs in dist-single/:
 //   cyclecare.html  — a complete document; open it or host it anywhere
 //   artifact.html   — the same page as a body fragment (title, style, markup, script),

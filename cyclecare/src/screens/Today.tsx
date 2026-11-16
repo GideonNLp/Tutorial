@@ -1,8 +1,8 @@
-import { CircleAlert, FlaskConical, Info, NotebookPen, ShieldAlert } from 'lucide-react';
+import { CircleAlert, Info, NotebookPen, ShieldAlert } from 'lucide-react';
 import { useMemo } from 'react';
 import { reminderText } from '../app/lifecycle';
 import { navigate } from '../app/router';
-import { removeDemoData, update, useData, useStorageMode, useTimeline, useToday } from '../app/store';
+import { update, useData, useStorageMode, useTimeline, useToday } from '../app/store';
 import { openJournal, toast } from '../app/ui';
 import { content, TIP_CATEGORIES } from '../content';
 import { toDayNumber } from '../domain/dates';
@@ -192,23 +192,6 @@ export function TodayScreen() {
     <div className="screen">
       <ScreenHead title={s.today.title} subtitle={formatDate(today, 'weekdayDayMonth')} settings />
       <div className="stack stack-5">
-        {data.demo && (
-          <Notice icon={<FlaskConical size={20} aria-hidden="true" />}>
-            <p>{s.today.demo.text}</p>
-            <div>
-              <button
-                type="button"
-                className="btn btn-quiet"
-                onClick={() => {
-                  removeDemoData();
-                  toast(s.settings.data.demoRemoved);
-                }}
-              >
-                {s.today.demo.remove}
-              </button>
-            </div>
-          </Notice>
-        )}
         {storage !== 'encrypted' && (
           <Notice attention icon={<ShieldAlert size={20} aria-hidden="true" />}>
             <p>{storage === 'plain' ? s.today.storage.plain : s.today.storage.session}</p>

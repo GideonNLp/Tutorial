@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { generateDemoData } from '../src/domain/demoData';
+import { sampleJournal } from './fixtures/sampleJournal';
 import { emptyAppData } from '../src/domain/types';
 import { PdfDocument } from '../src/pdf/pdf';
 import { renderReport } from '../src/pdf/report';
@@ -71,7 +71,7 @@ describe('PDF writer', () => {
 
 describe('doctor report', () => {
   const today = '2026-11-15';
-  const demo = generateDemoData(today, NOW);
+  const demo = sampleJournal(today, NOW);
   const data = { ...emptyAppData(), logs: demo.logs, profile: demo.profile };
 
   it('renders the demo journal into a multi-page PDF', () => {

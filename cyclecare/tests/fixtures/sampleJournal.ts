@@ -1,11 +1,12 @@
-import { addDays, diffDays } from './dates';
-import { ovulationOffset } from './prediction';
-import type { CervicalMucus, DayLog, DayLogs, Flow, Intensity, ISODate, Profile, Scale5, SymptomId } from './types';
+import { addDays, diffDays } from '../../src/domain/dates';
+import { ovulationOffset } from '../../src/domain/prediction';
+import type { CervicalMucus, DayLog, DayLogs, Flow, Intensity, ISODate, Profile, Scale5, SymptomId } from '../../src/domain/types';
 
 /**
- * Example journal for trying the prototype: about seven months of plausible entries ending today.
- * Clearly labelled as demo data in the UI; never mixed silently with real entries.
- * Deterministic for a given `today`, so screenshots and tests are reproducible.
+ * Test fixture: about seven months of plausible journal entries ending on `today`.
+ * Used by the unit tests, the end-to-end tests and the documentation screenshots.
+ * It is not part of the app: the shipped build contains no sample data.
+ * Deterministic for a given `today`, so screenshots and assertions are reproducible.
  */
 
 function mulberry32(seed: number): () => number {
@@ -39,9 +40,9 @@ const NOTES = [
   'Durere de cap spre seară, probabil de la ecran.',
 ];
 
-export const DEMO_DEVICE = 'Brățară demo';
+export const SAMPLE_DEVICE = 'Inel';
 
-export function generateDemoData(today: ISODate, nowISO: string): { logs: DayLogs; profile: Profile } {
+export function sampleJournal(today: ISODate, nowISO: string): { logs: DayLogs; profile: Profile } {
   const rand = mulberry32(20261115);
   const logs: DayLogs = {};
   const entry = (date: ISODate): DayLog => (logs[date] ??= { date, updatedAt: nowISO });
@@ -125,7 +126,7 @@ export function generateDemoData(today: ISODate, nowISO: string): { logs: DayLog
         if (rand() > 0.85) continue;
         const base = d > ov ? 36.76 : 36.38;
         const celsius = Math.round((base + (rand() - 0.5) * 0.24) * 100) / 100;
-        entry(date).bbt = cycle.current ? { celsius, source: 'manual' } : { celsius, source: 'import', device: DEMO_DEVICE };
+        entry(date).bbt = cycle.current ? { celsius, source: 'manual' } : { celsius, source: 'import', device: SAMPLE_DEVICE };
       }
       for (let d = cycle.period; d <= Math.min(lastOffset, ov + 3); d++) {
         let mucus: CervicalMucus = 'dry';

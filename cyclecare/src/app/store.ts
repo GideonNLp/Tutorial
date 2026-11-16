@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { content } from '../content';
 import { addDays, diffDays, todayISO } from '../domain/dates';
-import { generateDemoData } from '../domain/demoData';
 import { buildTimeline, DEFAULT_PERIOD_LENGTH, type Timeline } from '../domain/prediction';
 import { emptyAppData, type AppData, type Goal, type ISODate } from '../domain/types';
 import { cryptoAvailable } from '../storage/crypto';
 import { openBestStore } from '../storage/kv';
 import { Vault, type UnlockResult } from '../storage/vault';
 import { biometricSecret, registerBiometric } from '../storage/webauthn';
+import { reportError } from './errors';
 import { createStore, useStore } from './miniStore';
 import { applyPrefs, clearPrefs, DEFAULT_PREFS, loadPrefs, savePrefs, type Prefs } from './prefs';
 import { resetRoute } from './router';
@@ -80,9 +80,7 @@ export async function initApp(): Promise<void> {
 function persist(data: AppData): void {
   if (!vault) return;
   const target = vault;
-  saveQueue = saveQueue
-    .then(() => (target.unlocked ? target.save(data) : undefined))
-    .catch((error) => console.error('CycleCare: saving failed', error));
+  saveQueue = saveQueue.then(() => (target.unlocked ? target.save(data) : undefined)).catch((error) => reportError('save', error));
 }
 
 /** Writes pending changes now. Called before locking and when the page goes to the background. */
@@ -119,7 +117,6 @@ export interface OnboardingAnswers {
   goals: Goal[];
   pin?: string;
   periodReminder: boolean;
-  demo?: boolean;
 }
 
 export async function completeOnboarding(answers: OnboardingAnswers): Promise<void> {
@@ -134,26 +131,19 @@ export async function completeOnboarding(answers: OnboardingAnswers): Promise<vo
     { type: 'age_confirmation', textVersion: legalVersion, grantedAt: nowISO },
   ];
 
-  if (answers.demo) {
-    const demo = generateDemoData(today, nowISO);
-    data.logs = demo.logs;
-    data.profile = demo.profile;
-    data.demo = true;
-  } else {
-    data.profile = {
-      goals: answers.goals,
-      typicalCycleLength: answers.cycleLength,
-      typicalPeriodLength: answers.periodLength,
-      showFertility: true,
-    };
-    if (answers.lastPeriodStart) {
-      // The declared period becomes journal entries without an intensity, up to today at most.
-      const length = answers.periodLength ?? DEFAULT_PERIOD_LENGTH;
-      const last = Math.min(length - 1, diffDays(today, answers.lastPeriodStart));
-      for (let d = 0; d <= last; d++) {
-        const date = addDays(answers.lastPeriodStart, d);
-        data.logs[date] = { date, flow: 'unspecified', updatedAt: nowISO };
-      }
+  data.profile = {
+    goals: answers.goals,
+    typicalCycleLength: answers.cycleLength,
+    typicalPeriodLength: answers.periodLength,
+    showFertility: true,
+  };
+  if (answers.lastPeriodStart) {
+    // The declared period becomes journal entries without an intensity, up to today at most.
+    const length = answers.periodLength ?? DEFAULT_PERIOD_LENGTH;
+    const last = Math.min(length - 1, diffDays(today, answers.lastPeriodStart));
+    for (let d = 0; d <= last; d++) {
+      const date = addDays(answers.lastPeriodStart, d);
+      data.logs[date] = { date, flow: 'unspecified', updatedAt: nowISO };
     }
   }
   if (answers.periodReminder) data.reminders.period.enabled = true;
@@ -250,32 +240,9 @@ export async function wipeEverything(): Promise<void> {
   patch({ status: 'onboarding', data: null, hasPin: false, hasBiometric: false, prefs: DEFAULT_PREFS, today: todayISO() });
 }
 
-/** Replaces the journal (restore from backup, demo data) but keeps this device's consent records. */
+/** Replaces the journal (restore from a backup) but keeps this device's consent records. */
 export function replaceJournal(incoming: AppData): void {
   update((current) => ({ ...incoming, consents: current.consents, onboardedAt: current.onboardedAt }));
-}
-
-export function loadDemoData(): void {
-  const nowISO = new Date().toISOString();
-  const demo = generateDemoData(store.get().today, nowISO);
-  update((current) => ({
-    ...emptyAppData(),
-    consents: current.consents,
-    onboardedAt: current.onboardedAt,
-    reminders: current.reminders,
-    logs: demo.logs,
-    profile: demo.profile,
-    demo: true,
-  }));
-}
-
-export function removeDemoData(): void {
-  update((current) => ({
-    ...emptyAppData(),
-    consents: current.consents,
-    onboardedAt: current.onboardedAt,
-    reminders: current.reminders,
-  }));
 }
 
 // ---- Preferences and clock --------------------------------------------------------------------

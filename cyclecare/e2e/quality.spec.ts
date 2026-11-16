@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { openApp, openSettings, startWithDemoData, tab } from './helpers';
+import { openApp, openSettings, startWithJournal, tab } from './helpers';
 
 async function expectNoViolations(page: Page, context: string): Promise<void> {
   const results = await new AxeBuilder({ page: page as never }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
@@ -26,7 +26,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     });
 
     test('main screens pass automated WCAG checks', async ({ page }) => {
-      await startWithDemoData(page);
+      await startWithJournal(page);
       await expectNoViolations(page, 'today');
       for (const name of ['Calendar', 'Jurnal', 'Sfaturi', 'Statistici'] as const) {
         await tab(page, name);
@@ -35,7 +35,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     });
 
     test('settings screens pass automated WCAG checks', async ({ page }) => {
-      await startWithDemoData(page);
+      await startWithJournal(page);
       await openSettings(page);
       await expectNoViolations(page, 'settings');
       for (const section of [
@@ -56,7 +56,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 }
 
 test('text size and theme can be changed and are remembered', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await openSettings(page, 'Aspect și accesibilitate');
   const rootSize = () => page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
   expect(await rootSize()).toBe(16);
@@ -73,7 +73,7 @@ test('text size and theme can be changed and are remembered', async ({ page }) =
 
 test('at the largest text size on a small phone nothing scrolls sideways', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await openSettings(page, 'Aspect și accesibilitate');
   await page.getByRole('radio', { name: 'Foarte mare' }).check();
   await page.getByRole('button', { name: 'Înapoi' }).click();
@@ -86,7 +86,7 @@ test('at the largest text size on a small phone nothing scrolls sideways', async
 });
 
 test('each screen moves focus to its heading and the skip link works', async ({ page }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await tab(page, 'Calendar');
   await expect(page.getByRole('heading', { level: 1, name: 'Calendar' })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -106,7 +106,7 @@ test('the app talks to no other server', async ({ page }) => {
     const url = new URL(request.url());
     if (url.protocol === 'http:' || url.protocol === 'https:') origins.add(url.origin);
   });
-  await startWithDemoData(page);
+  await startWithJournal(page);
   for (const name of ['Calendar', 'Jurnal', 'Sfaturi', 'Statistici'] as const) await tab(page, name);
   await page.getByRole('button', { name: 'Creează raportul PDF' }).click();
   const download = page.waitForEvent('download');
@@ -128,7 +128,7 @@ test('the app talks to no other server', async ({ page }) => {
 });
 
 test('the installed app starts offline', async ({ page, context }) => {
-  await startWithDemoData(page);
+  await startWithJournal(page);
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
   await page.waitForTimeout(800); // precaching finishes just after "ready"
   await context.setOffline(true);

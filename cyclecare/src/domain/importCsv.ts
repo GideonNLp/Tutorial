@@ -3,7 +3,7 @@ import type { ISODate } from './types';
 
 /**
  * Basal-temperature import from a file exported by a wearable or its companion app.
- * The web prototype reads CSV; a native build would read the same values from
+ * The web app reads CSV; a native build would read the same values from
  * Apple HealthKit / Android Health Connect after a separate permission prompt.
  */
 

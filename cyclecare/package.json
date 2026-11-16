@@ -1,8 +1,8 @@
 {
   "name": "cyclecare",
   "private": true,
-  "version": "0.1.0",
-  "description": "CycleCare – prototip web responsive (PWA) pentru urmărirea ciclului menstrual",
+  "version": "1.0.0",
+  "description": "CycleCare – aplicație web instalabilă (PWA) pentru urmărirea ciclului menstrual",
   "type": "module",
   "scripts": {
     "dev": "vite",

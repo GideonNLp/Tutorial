@@ -67,14 +67,14 @@ function precacheList(): Plugin {
 
 export default defineConfig(({ mode }) => {
   // `--mode single` produces one self-contained HTML file (fonts + JS + CSS inlined),
-  // used for the shareable prototype page. See scripts/build-single.mjs.
+  // used for the shareable preview page. See scripts/build-single.mjs.
   const single = mode === 'single';
   return {
     base: './',
     plugins: [react(), ...(single ? [] : [cspMeta(), precacheList()])],
     define: {
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version ?? '0.1.0'),
-      __SINGLE_FILE__: JSON.stringify(single),
+      __PREVIEW__: JSON.stringify(single),
     },
     build: {
       target: 'es2022',

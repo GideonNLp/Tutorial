@@ -1,4 +1,5 @@
 import { Component, useEffect, type ReactNode } from 'react';
+import { reportError } from './app/errors';
 import { startLifecycle } from './app/lifecycle';
 import { registerServiceWorker, warmUpHost } from './app/platform';
 import { useRoute, type Route } from './app/router';
@@ -100,7 +101,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean
     return { failed: true };
   }
   override componentDidCatch(error: unknown) {
-    console.error('CycleCare: screen failed to render', error);
+    reportError('render', error);
   }
   override render() {
     if (!this.state.failed) return this.props.children;
