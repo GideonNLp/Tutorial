@@ -24,6 +24,7 @@ import {
   wipeEverything,
 } from '../app/store';
 import { toast } from '../app/ui';
+import { todayISO } from '../domain/dates';
 import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/prediction';
 import { GOALS, type AppData, type Goal, type MedicationReminder, type ReminderSettings } from '../domain/types';
 import { dictionaries, formatDate, strings, type Locale } from '../i18n';
@@ -581,7 +582,7 @@ function PrivacySettings() {
         </Group>
 
         <Group title={p.consentTitle}>
-          {consent && <p>{p.consentGiven(formatDate(consent.grantedAt.slice(0, 10), 'long'), consent.textVersion)}</p>}
+          {consent && <p>{p.consentGiven(formatDate(todayISO(new Date(consent.grantedAt)), 'long'), consent.textVersion)}</p>}
           <div className="row">
             <button type="button" className="btn btn-secondary btn-small" onClick={() => navigate('politica')}>
               {p.policy}
@@ -700,7 +701,7 @@ function DataSettings() {
               <h3>{d.batches}</h3>
               <ul className="bullets small">
                 {data.importBatches.map((batch) => (
-                  <li key={batch.id}>{d.batch(batch.device, batch.count, formatDate(batch.importedAt.slice(0, 10), 'long'))}</li>
+                  <li key={batch.id}>{d.batch(batch.device, batch.count, formatDate(todayISO(new Date(batch.importedAt)), 'long'))}</li>
                 ))}
               </ul>
             </div>

@@ -78,6 +78,8 @@ Varianta cu date demonstrative trece prin consimțământ și apoi direct în ap
 <p>
 <img src="screenshots/01-bun-venit.png" width="230" alt="Ecranul de bun venit">
 <img src="screenshots/02-consimtamant.png" width="230" alt="Ecranul de consimțământ, cu două căsuțe nebifate">
+<img src="screenshots/03-ultima-menstruatie.png" width="230" alt="Întrebarea despre prima zi a ultimei menstruații">
+<img src="screenshots/04-durata-ciclului.png" width="230" alt="Întrebarea despre durata ciclului">
 <img src="screenshots/05-obiective.png" width="230" alt="Alegerea obiectivelor, cu avertismentul pentru contracepție">
 <img src="screenshots/06-pin-si-memento.png" width="230" alt="Ultimul pas: PIN și memento, opționale">
 </p>

@@ -74,7 +74,6 @@ for (const scheme of ['light', 'dark']) {
     continue;
   }
   await shot('07-azi');
-  await shot('07-azi-complet', { fullPage: true });
   await tab(page, 'Calendar');
   await shot('08-calendar');
   await tab(page, 'Jurnal');

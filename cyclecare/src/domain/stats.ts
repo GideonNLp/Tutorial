@@ -1,4 +1,4 @@
-import { addDays, addMonths, diffDays, eachDay, makeISO, monthKey, parts, startOfWeek } from './dates';
+import { addDays, addMonths, eachDay, makeISO, monthKey, parts, startOfWeek } from './dates';
 import type { Timeline } from './prediction';
 import { PHASES, SYMPTOM_IDS, type DayLogs, type ISODate, type Phase, type SymptomId } from './types';
 
@@ -185,9 +185,4 @@ export function periodRuns(timeline: Timeline, from: ISODate, to: ISODate): Arra
     runs.push([c.period.start < from ? from : c.period.start, c.period.end > to ? to : c.period.end]);
   }
   return runs;
-}
-
-export function journalSpanDays(logs: DayLogs, today: ISODate): number {
-  const first = Object.keys(logs).sort()[0];
-  return first ? diffDays(today, first) + 1 : 0;
 }

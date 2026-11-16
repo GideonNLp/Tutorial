@@ -27,7 +27,6 @@ const MUTED = rgb('#66617F');
 const LINE = rgb('#DCD9EA');
 const BERRY = rgb('#B3264F');
 const BERRY_TINT = rgb('#F9E3EA');
-const WHITE: Rgb = [255, 255, 255];
 
 const MARGIN = 48;
 const WIDTH = A4.width - 2 * MARGIN;
@@ -412,8 +411,6 @@ export function renderReport(
     footer.forEach((line, i) => doc.text(line, MARGIN, top + 11 + i * 9.5, { size: 7.5, color: MUTED, page }));
     doc.text(p.page(page + 1, doc.pageCount), MARGIN + WIDTH, top + 11, { size: 7.5, color: MUTED, align: 'right', page });
   }
-  // Keep white available for future use of knocked-out labels; referenced so the constant is not dropped.
-  void WHITE;
   return doc.finish();
 }
 

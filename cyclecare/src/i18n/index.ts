@@ -87,7 +87,3 @@ export function formatNumber(value: number, fractionDigits = 0): string {
     maximumFractionDigits: fractionDigits,
   }).format(value);
 }
-
-export function formatTime(date: Date): string {
-  return new Intl.DateTimeFormat(dictionaries[active].meta.intl, { hour: '2-digit', minute: '2-digit' }).format(date);
-}

@@ -79,10 +79,6 @@ export function buildCycles(logs: DayLogs): Cycle[] {
   return cycles;
 }
 
-export function completedCycles(cycles: Cycle[]): Cycle[] {
-  return cycles.filter((c) => c.length !== undefined);
-}
-
 /** The cycle that contains `date`, if any (the open cycle contains every later day). */
 export function cycleAt(cycles: Cycle[], date: ISODate): Cycle | undefined {
   let lo = 0;

@@ -93,10 +93,6 @@ export function eachDay(from: ISODate, to: ISODate): ISODate[] {
   return out;
 }
 
-export function clampDate(iso: ISODate, min: ISODate, max: ISODate): ISODate {
-  return iso < min ? min : iso > max ? max : iso;
-}
-
 /** A `Date` at UTC midnight for the given day; format it with `timeZone: 'UTC'`. */
 export function toUTCDate(iso: ISODate): Date {
   return new Date(toDayNumber(iso) * MS_PER_DAY);

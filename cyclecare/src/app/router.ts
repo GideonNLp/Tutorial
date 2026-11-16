@@ -46,10 +46,6 @@ export function useRoute(): Route {
   return useStore(route, (r) => r);
 }
 
-export function currentRoute(): Route {
-  return route.get();
-}
-
 export function navigate(to: Route, options: { replace?: boolean } = {}): void {
   if (to === route.get()) return;
   try {

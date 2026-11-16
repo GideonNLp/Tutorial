@@ -26,10 +26,6 @@ export function flagText(flag: Flag): { title: string; body: string } {
   return { title: text.title(name), body: text.body(flag.values, name, s.common.days) };
 }
 
-export function phaseName(phase: Phase | undefined): string {
-  return phase ? strings().phase[phase] : '';
-}
-
 /**
  * With fertility estimates switched off (e.g. on hormonal contraception) only menstruation is shown:
  * the other phases assume a natural cycle and would be misleading.
