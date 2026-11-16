@@ -77,9 +77,10 @@ export function settleNav(state: NavState): NavState {
 
 /** Pure navigation step: where things stand after going to `to`. */
 export function nextNav(current: NavState, to: Route, id: number, forced?: TransitionKind): NavState {
+  // Already there (for example the hashchange event that echoes our own navigation): leave a running transition alone.
+  if (to === current.route) return current;
   const state = settleNav(current);
   const from = state.route;
-  if (to === from) return state;
 
   let stack: Route[];
   let kind: TransitionKind;

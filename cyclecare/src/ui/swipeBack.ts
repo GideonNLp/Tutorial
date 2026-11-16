@@ -22,8 +22,8 @@ interface Drag {
   x0: number;
   y0: number;
   lastX: number;
-  lastT: number;
-  velocity: number;
+  /** Recent positions, to tell a flick from a finger that came to rest. */
+  trail: Array<{ x: number; t: number }>;
   width: number;
   from: Route;
   to: Route;
@@ -117,8 +117,7 @@ export function attachSwipeBack(stage: HTMLElement): () => void {
       x0: e.clientX,
       y0: e.clientY,
       lastX: e.clientX,
-      lastT: e.timeStamp,
-      velocity: 0,
+      trail: [{ x: e.clientX, t: e.timeStamp }],
       width: stage.clientWidth || 1,
       from: getNav().route,
       to,
@@ -145,10 +144,9 @@ export function attachSwipeBack(stage: HTMLElement): () => void {
         // capture is a convenience, not a requirement
       }
     }
-    const dt = e.timeStamp - drag.lastT;
-    if (dt > 0) drag.velocity = 0.7 * ((e.clientX - drag.lastX) / dt) + 0.3 * drag.velocity;
     drag.lastX = e.clientX;
-    drag.lastT = e.timeStamp;
+    drag.trail.push({ x: e.clientX, t: e.timeStamp });
+    if (drag.trail.length > 8) drag.trail.shift();
     place(Math.min(drag.width, Math.max(0, dx)));
   };
 
@@ -159,8 +157,13 @@ export function attachSwipeBack(stage: HTMLElement): () => void {
       return;
     }
     const progress = (drag.lastX - drag.x0) / drag.width;
+    // Speed over the last 100 ms before letting go; a finger that rested first has none.
+    const recent = drag.trail.filter((p) => e.timeStamp - p.t <= 100);
+    const first = recent[0];
+    const last = recent[recent.length - 1];
+    const velocity = first && last && last.t > first.t ? (last.x - first.x) / (last.t - first.t) : 0;
     // A flick completes it; a finger that was moving back towards the edge cancels it.
-    release(drag.velocity > -0.1 && (progress > COMPLETE_AT || drag.velocity > FLICK));
+    release(velocity > -0.1 && (progress > COMPLETE_AT || velocity > FLICK));
   };
 
   const onCancel = (e: PointerEvent) => {
