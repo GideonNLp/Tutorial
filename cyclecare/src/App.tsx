@@ -3,19 +3,19 @@ import { onUnexpectedError } from './app/errors';
 import { startLifecycle } from './app/lifecycle';
 import { warmUpHost } from './app/platform';
 import { applyUpdate, registerServiceWorker, requestPersistentStorage, useUpdateReady } from './app/pwa';
-import { useRoute, type Route } from './app/router';
+import type { Route } from './app/router';
 import { flush, initApp, usePrefs, useStatus, useStorageMode } from './app/store';
 import { toast } from './app/ui';
 import { strings } from './i18n';
 import { CalendarScreen } from './screens/Calendar';
 import { JournalScreen } from './screens/Journal';
 import { BrokenVaultScreen, LockScreen } from './screens/Lock';
-import { Onboarding } from './screens/Onboarding';
+import { BrandMark, Onboarding } from './screens/Onboarding';
 import { SettingsScreen } from './screens/Settings';
 import { StatsScreen } from './screens/Stats';
 import { TipsScreen } from './screens/Tips';
 import { TodayScreen } from './screens/Today';
-import { ErrorBoundary } from './ui/ErrorBoundary';
+import { Navigator } from './ui/Navigator';
 import { TabBar, Toaster } from './ui/Shell';
 
 let started = false;
@@ -39,12 +39,10 @@ function screenFor(route: Route): ReactNode {
 
 export function App() {
   const status = useStatus();
-  const route = useRoute();
-  // Re-render everything when the language changes (strings are read at render time).
-  const { locale } = usePrefs();
-
   const storage = useStorageMode();
   const updateReady = useUpdateReady();
+  // Re-render everything when the language changes (strings are read at render time).
+  const { locale } = usePrefs();
 
   useEffect(() => {
     if (started) return;
@@ -73,16 +71,19 @@ export function App() {
   }, [updateReady]);
 
   const s = strings();
+
+  // Each state of the app is its own view; the key makes it fade in when it replaces another.
   if (status === 'loading') {
     return (
-      <div className="splash" role="status">
+      <div className="app splash" role="status" key="loading">
+        <BrandMark size={64} />
         <span className="sr-only">{s.common.loading}</span>
       </div>
     );
   }
   if (status === 'onboarding') {
     return (
-      <div className="app no-tabbar" key={locale}>
+      <div className="app no-tabbar view-enter" key={`onboarding-${locale}`}>
         <Onboarding />
         <Toaster />
       </div>
@@ -90,14 +91,19 @@ export function App() {
   }
   if (status === 'locked' || status === 'broken') {
     return (
-      <div className="app no-tabbar" key={locale}>
-        {status === 'locked' ? <LockScreen /> : <BrokenVaultScreen />}
+      <div className="app no-tabbar view-enter" key={`${status}-${locale}`}>
+        <div className="stage">
+          <div className="page" data-active="">
+            {status === 'locked' ? <LockScreen /> : <BrokenVaultScreen />}
+          </div>
+        </div>
+        <Toaster />
       </div>
     );
   }
 
   return (
-    <div className="app with-tabbar" key={locale}>
+    <div className="app with-tabbar view-enter" key={`ready-${locale}`}>
       <a
         className="skip-link"
         href="#main"
@@ -108,9 +114,7 @@ export function App() {
       >
         {s.common.skipToContent}
       </a>
-      <main id="main" tabIndex={-1}>
-        <ErrorBoundary key={route}>{screenFor(route)}</ErrorBoundary>
-      </main>
+      <Navigator render={screenFor} />
       <TabBar />
       <Toaster />
     </div>

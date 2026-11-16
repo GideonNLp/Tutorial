@@ -8,7 +8,7 @@ import { currentPhase } from '../domain/prediction';
 import { PHASES, type Phase } from '../domain/types';
 import { strings } from '../i18n';
 import { ChoiceChips, Segmented } from '../ui/controls';
-import { Notice, ScreenHead } from '../ui/Shell';
+import { Notice, Screen } from '../ui/Shell';
 import { flagText, visiblePhase } from '../ui/summaries';
 
 export function TipsScreen() {
@@ -34,8 +34,7 @@ export function TipsScreen() {
   };
 
   return (
-    <div className="screen">
-      <ScreenHead title={t.title} settings />
+    <Screen title={t.title} settings>
       <div className="stack stack-6">
         {flags.length > 0 && (
           <section className="stack stack-3" aria-labelledby="tips-flags">
@@ -125,6 +124,6 @@ export function TipsScreen() {
 
         <p className="caption">{t.disclaimer}</p>
       </div>
-    </div>
+    </Screen>
   );
 }

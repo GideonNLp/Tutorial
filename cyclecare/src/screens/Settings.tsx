@@ -48,7 +48,7 @@ import { ImportTempsSheet } from '../ui/ImportTempsSheet';
 import { PIN_PATTERN, PinFields } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
-import { Notice, ScreenHead } from '../ui/Shell';
+import { Notice, Screen } from '../ui/Shell';
 import { content } from '../content';
 
 export function SettingsScreen({ route }: { route: Route }) {
@@ -95,8 +95,7 @@ function SettingsIndex() {
     { route: 'setari-despre', icon: CircleHelp, text: s.sections.about },
   ];
   return (
-    <div className="screen">
-      <ScreenHead title={s.title} back="azi" />
+    <Screen title={s.title} back>
       <ul className="list">
         {rows.map(({ route, icon: Icon, text }) => (
           <li key={route}>
@@ -118,7 +117,7 @@ function SettingsIndex() {
           </li>
         ))}
       </ul>
-    </div>
+    </Screen>
   );
 }
 
@@ -164,8 +163,7 @@ function CycleSettings() {
   );
 
   return (
-    <div className="screen">
-      <ScreenHead title={s.settings.sections.cycle.title} back="setari" />
+    <Screen title={s.settings.sections.cycle.title} back>
       <div className="stack stack-5">
         <div className="stack stack-3">
           {length(c.cycleLength, profile.typicalCycleLength, DEFAULT_CYCLE_LENGTH, 21, 45, 'typicalCycleLength')}
@@ -190,7 +188,7 @@ function CycleSettings() {
           <Switch label={c.fertility} hint={c.fertilityHint} checked={profile.showFertility} onChange={(on) => setProfile({ showFertility: on })} />
         </div>
       </div>
-    </div>
+    </Screen>
   );
 }
 
@@ -266,8 +264,7 @@ function ReminderSettingsScreen() {
   };
 
   return (
-    <div className="screen">
-      <ScreenHead title={s.settings.sections.reminders.title} back="setari" />
+    <Screen title={s.settings.sections.reminders.title} back>
       <div className="stack stack-5">
         <Notice icon={<Bell size={20} aria-hidden="true" />}>
           <p>{r.status[status]}</p>
@@ -384,7 +381,7 @@ function ReminderSettingsScreen() {
           </div>
         </Group>
       </div>
-    </div>
+    </Screen>
   );
 }
 
@@ -524,8 +521,7 @@ function PrivacySettings() {
   const autoLockValue = String(prefs.autoLock);
 
   return (
-    <div className="screen">
-      <ScreenHead title={s.settings.sections.privacy.title} back="setari" />
+    <Screen title={s.settings.sections.privacy.title} back>
       <div className="stack stack-6">
         <Group title={p.lockTitle}>
           {storage === 'plain' ? (
@@ -632,7 +628,7 @@ function PrivacySettings() {
           void wipeEverything().then(() => toast(p.deleted));
         }}
       />
-    </div>
+    </Screen>
   );
 }
 
@@ -667,8 +663,7 @@ function DataSettings() {
   };
 
   return (
-    <div className="screen">
-      <ScreenHead title={s.settings.sections.data.title} back="setari" />
+    <Screen title={s.settings.sections.data.title} back>
       <div className="stack stack-6">
         <Group title={d.pdfTitle}>
           <p className="ink-2">{d.pdfHint}</p>
@@ -736,7 +731,7 @@ function DataSettings() {
           toast(d.imported);
         }}
       />
-    </div>
+    </Screen>
   );
 }
 
@@ -747,8 +742,7 @@ function AppearanceSettings() {
   const a = s.settings.appearance;
   const prefs = usePrefs();
   return (
-    <div className="screen">
-      <ScreenHead title={s.settings.sections.appearance.title} back="setari" />
+    <Screen title={s.settings.sections.appearance.title} back>
       <div className="stack stack-6">
         <Segmented
           legend={a.theme}
@@ -783,7 +777,7 @@ function AppearanceSettings() {
         </div>
         <p className="small ink-2">{a.motion}</p>
       </div>
-    </div>
+    </Screen>
   );
 }
 
@@ -800,8 +794,7 @@ function About() {
   };
 
   return (
-    <div className="screen">
-      <ScreenHead title={s.settings.sections.about.title} subtitle={a.version(__APP_VERSION__)} back="setari" />
+    <Screen title={s.settings.sections.about.title} subtitle={a.version(__APP_VERSION__)} back>
       <div className="stack stack-5">
         {updateReady && (
           <Notice icon={<RefreshCw size={20} aria-hidden="true" />}>
@@ -842,16 +835,15 @@ function About() {
         )}
         <p className="small ink-2">{a.licenses}</p>
       </div>
-    </div>
+    </Screen>
   );
 }
 
 function Policy() {
   const policy = content().legal.privacyPolicy;
   return (
-    <div className="screen">
-      <ScreenHead title={policy.title} back="setari-confidentialitate" />
+    <Screen title={policy.title} back>
       <PolicyText />
-    </div>
+    </Screen>
   );
 }

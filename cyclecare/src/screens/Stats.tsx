@@ -11,7 +11,7 @@ import { buildReportPdf } from '../pdf/report';
 import { BbtChart, ChartFrame, CycleLengthChart, MoodChart } from '../ui/charts';
 import { Segmented } from '../ui/controls';
 import { Sheet } from '../ui/Sheet';
-import { ScreenHead } from '../ui/Shell';
+import { Screen } from '../ui/Shell';
 
 const mean = (values: number[]) => (values.length ? values.reduce((a, b) => a + b, 0) / values.length : undefined);
 const HEAT_ROWS = 8;
@@ -51,8 +51,7 @@ export function StatsScreen() {
   const heatRows = view.matrix.rows.slice(0, HEAT_ROWS);
 
   return (
-    <div className="screen">
-      <ScreenHead title={st.title} settings />
+    <Screen title={st.title} settings>
       {!hasAnything ? (
         <div className="stack stack-3">
           <h2>{st.empty.title}</h2>
@@ -335,7 +334,7 @@ export function StatsScreen() {
         </div>
       )}
       <ExportSheet open={exporting} onClose={() => setExporting(false)} />
-    </div>
+    </Screen>
   );
 }
 

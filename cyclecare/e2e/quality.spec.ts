@@ -80,7 +80,11 @@ test('at the largest text size on a small phone nothing scrolls sideways', async
   await page.getByRole('button', { name: 'Înapoi' }).click();
   for (const name of ['Azi', 'Calendar', 'Jurnal', 'Sfaturi', 'Statistici'] as const) {
     await tab(page, name);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    // Each page scrolls on its own: neither the page nor the document may be wider than the screen.
+    const overflow = await page.evaluate(() => {
+      const current = document.querySelector('.page[data-active]')!;
+      return Math.max(current.scrollWidth - current.clientWidth, document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    });
     expect(overflow, `horizontal overflow on ${name}`).toBeLessThanOrEqual(0);
   }
 });

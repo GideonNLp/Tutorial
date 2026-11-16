@@ -14,7 +14,7 @@ import { FLOWS, type Flow } from '../domain/types';
 import { formatDate, formatRange, strings } from '../i18n';
 import { ChoiceChips } from '../ui/controls';
 import { CycleDial, phaseSpans } from '../ui/CycleDial';
-import { Notice, ScreenHead } from '../ui/Shell';
+import { Notice, Screen } from '../ui/Shell';
 import { flagText, summarizeLog, visiblePhase } from '../ui/summaries';
 
 export function TodayScreen() {
@@ -189,8 +189,7 @@ export function TodayScreen() {
   const symptomsFirst = goals.includes('symptoms');
 
   return (
-    <div className="screen">
-      <ScreenHead title={s.today.title} subtitle={formatDate(today, 'weekdayDayMonth')} settings />
+    <Screen title={s.today.title} subtitle={formatDate(today, 'weekdayDayMonth')} settings>
       <div className="stack stack-5">
         {storage !== 'encrypted' && (
           <Notice attention icon={<ShieldAlert size={20} aria-hidden="true" />}>
@@ -242,6 +241,6 @@ export function TodayScreen() {
         {!symptomsFirst && flagsBlock}
         {tipBlock}
       </div>
-    </div>
+    </Screen>
   );
 }

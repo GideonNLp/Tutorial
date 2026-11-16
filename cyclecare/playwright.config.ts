@@ -21,6 +21,8 @@ export default defineConfig({
     locale: 'ro-RO',
     timezoneId: 'Europe/Bucharest',
     viewport: { width: 390, height: 844 },
+    // Page transitions are covered by motion.spec.ts; everywhere else they would only slow the run down.
+    reducedMotion: 'reduce',
     trace: 'off',
     launchOptions: process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
   },

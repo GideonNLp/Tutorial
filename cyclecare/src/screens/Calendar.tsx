@@ -7,7 +7,7 @@ import { updateDay } from '../domain/journal';
 import type { DayInfo } from '../domain/prediction';
 import { isPeriodFlow, PHASES, type ISODate } from '../domain/types';
 import { formatDate, strings } from '../i18n';
-import { Notice, ScreenHead } from '../ui/Shell';
+import { Notice, Screen } from '../ui/Shell';
 import { summarizeLog, visiblePhase } from '../ui/summaries';
 
 export function CalendarScreen() {
@@ -117,8 +117,7 @@ export function CalendarScreen() {
   const selectedSummary = summarizeLog(data.logs[selected]);
 
   return (
-    <div className="screen">
-      <ScreenHead title={c.title} settings />
+    <Screen title={c.title} settings>
       <div className="cal-layout">
         <section className="stack stack-3" aria-label={c.gridLabel(monthTitle)}>
           <div className="cal-nav">
@@ -309,6 +308,6 @@ export function CalendarScreen() {
           </section>
         </div>
       </div>
-    </div>
+    </Screen>
   );
 }

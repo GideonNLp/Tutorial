@@ -1,48 +1,94 @@
 import { CalendarDays, ChartColumn, ChevronLeft, CircleDot, Lightbulb, NotebookPen, Settings, type LucideIcon } from 'lucide-react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { goBack, navigate, useRoute, type Route } from '../app/router';
 import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
+import { prefersReducedMotion } from './motion';
 
-// Until the person has pressed or tapped something, focus stays where the browser put it,
-// so the skip link is the first tab stop after a page load.
-let interacted = false;
-if (typeof window !== 'undefined') {
-  const mark = () => {
-    interacted = true;
-  };
-  window.addEventListener('pointerdown', mark, { capture: true, once: true });
-  window.addEventListener('keydown', mark, { capture: true, once: true });
+function scrollToTop(page: Element | null | undefined): void {
+  page?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
-/** Screen title. Moves focus to itself when the screen appears, so screen readers announce the new view. */
-export function ScreenHead(props: { title: string; subtitle?: string; back?: Route; settings?: boolean; actions?: ReactNode }) {
-  const ref = useRef<HTMLHeadingElement>(null);
+/**
+ * One screen: a navigation bar that stays at the top, the large title, then the content.
+ *
+ * At rest it looks like a plain header row (back button, title, settings button). Once the
+ * page scrolls, the bar turns into frosted glass over the content and shows the title in small,
+ * centred, while the large title scrolls away underneath — the way iOS navigation bars behave.
+ */
+export function Screen(props: { title: string; subtitle?: string; back?: boolean; settings?: boolean; children: ReactNode }) {
+  const barRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const s = strings();
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (interacted) ref.current?.focus({ preventScroll: true });
+
+  useLayoutEffect(() => {
+    const bar = barRef.current;
+    const title = titleRef.current;
+    const page = bar?.closest('.page');
+    if (!bar || !title || !page) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const scrolled = page.scrollTop > 2;
+      // The small title takes over when the large one has slid under the bar.
+      const collapsed = scrolled && title.getBoundingClientRect().bottom < bar.getBoundingClientRect().bottom - 6;
+      bar.toggleAttribute('data-scrolled', scrolled);
+      bar.toggleAttribute('data-collapsed', collapsed);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    page.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      page.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(frame);
+    };
   }, []);
+
+  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? 'has-trailing' : ''].filter(Boolean).join(' ');
   return (
-    <header className="screen-head">
-      {props.back && (
-        <button type="button" className="icon-btn outlined" aria-label={s.common.back} onClick={() => goBack(props.back!)}>
-          <ChevronLeft size={22} aria-hidden="true" />
-        </button>
-      )}
-      <div className="titles">
-        <h1 ref={ref} tabIndex={-1}>
-          {props.title}
-        </h1>
-        {props.subtitle && <p className="caption">{props.subtitle}</p>}
+    <>
+      <header
+        className="navbar"
+        ref={barRef}
+        onClick={(e) => {
+          // Like tapping the status bar: a tap on the bar itself returns to the top.
+          if (e.target instanceof Element && !e.target.closest('button')) scrollToTop(barRef.current?.closest('.page'));
+        }}
+      >
+        <div className="navbar-inner">
+          {props.back ? (
+            <button type="button" className="icon-btn outlined" aria-label={s.common.back} onClick={() => goBack()}>
+              <ChevronLeft size={22} aria-hidden="true" />
+            </button>
+          ) : (
+            <span />
+          )}
+          <span className="navbar-title" aria-hidden="true">
+            {props.title}
+          </span>
+          {props.settings ? (
+            <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
+              <Settings size={20} aria-hidden="true" />
+            </button>
+          ) : (
+            <span />
+          )}
+        </div>
+      </header>
+      <div className="screen">
+        <div className={classes}>
+          <div className="titles">
+            <h1 ref={titleRef} tabIndex={-1} data-page-title="">
+              {props.title}
+            </h1>
+            {props.subtitle && <p className="caption">{props.subtitle}</p>}
+          </div>
+        </div>
+        {props.children}
       </div>
-      {props.actions}
-      {props.settings && (
-        <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
-          <Settings size={20} aria-hidden="true" />
-        </button>
-      )}
-    </header>
+    </>
   );
 }
 
@@ -67,7 +113,9 @@ export function TabBar() {
               aria-current={route === to ? 'page' : undefined}
               onClick={(e) => {
                 e.preventDefault();
-                navigate(to);
+                // Tapping the tab you are on goes back to the top of its page.
+                if (route === to) scrollToTop(document.querySelector('.page[data-active]'));
+                else navigate(to);
               }}
             >
               <span className="tab-icon">

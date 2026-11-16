@@ -33,7 +33,7 @@ import {
 import { formatDate, formatNumber, strings } from '../i18n';
 import { ChoiceChips, ErrorText, MultiChips, Scale, Segmented } from '../ui/controls';
 import { ImportTempsSheet } from '../ui/ImportTempsSheet';
-import { ScreenHead } from '../ui/Shell';
+import { Screen } from '../ui/Shell';
 import { visiblePhase } from '../ui/summaries';
 
 const NOTE_MAX = 2000;
@@ -81,8 +81,7 @@ export function JournalScreen() {
   };
 
   return (
-    <div className="screen">
-      <ScreenHead title={j.title} settings />
+    <Screen title={j.title} settings>
       <div className="stack stack-5">
         <nav className="weekstrip" aria-label={j.weekLabel}>
           <button type="button" className="icon-btn" aria-label={j.prevWeek} onClick={() => setJournalDate(addDays(date, -7))}>
@@ -240,7 +239,7 @@ export function JournalScreen() {
           <NoteField key={date} initial={log?.note ?? ''} onChange={(note) => patch({ note })} />
         </Section>
       </div>
-    </div>
+    </Screen>
   );
 }
 

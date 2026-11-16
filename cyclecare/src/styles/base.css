@@ -1,12 +1,15 @@
 /*
  * CycleCare — base styles.
  *
- * Layout: one phone-width column with a fixed tab bar at the bottom; from 56rem up the tab bar
+ * Layout: a fixed app shell. Every page scrolls inside its own container, under a navigation bar
+ * that sticks to the top and above a tab bar fixed at the bottom; from 56rem up the tab bar
  * becomes a rail on the left and some screens split into two columns.
  * Colour: neutrals are a cool lilac-grey with deep indigo ink. The ink is also the "accent" for
  * buttons and selection, so the only saturated colours on screen are the four cycle phases —
  * colour always means a phase. Colour tokens live in tokens.css (generated from tokens.json).
  * Type: Bricolage Grotesque for headings and the cycle day, Figtree for everything else.
+ * Motion and glass: see the sections at the end; both step aside for the system's
+ * "reduce motion", "reduce transparency" and "increase contrast" settings.
  */
 :root {
   --font-display: 'Bricolage Grotesque Variable', 'Figtree Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -37,10 +40,59 @@
   --tabbar-h: 4.25rem;
   --gutter-l: max(16px, env(safe-area-inset-left, 0px));
   --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  /* The app draws under the system bars; bars and pages add these insets themselves. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* The app draws under the system bars; fixed bars add their own insets. */
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* A page's content column, shared by the screen and its navigation bar. */
+  --screen-max: 34rem;
+  --screen-pad-top: var(--s4);
+
+  /* Frosted surfaces: the same colours, let through. Solid fallbacks are set where they are used. */
+  --glass-bar: color-mix(in srgb, var(--bg) 74%, transparent);
+  --glass-surface: color-mix(in srgb, var(--surface) 80%, transparent);
+  --glass-ink: color-mix(in srgb, var(--ink) 88%, transparent);
+  --glass-line: color-mix(in srgb, var(--ink) 11%, transparent);
+  --glass-blur: saturate(180%) blur(20px);
+  --glass-shadow: color-mix(in srgb, var(--ink) 9%, transparent);
+
+  /* Motion. */
+  --ease-nav: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* A lightly damped spring: overshoots a little, settles in about 450 ms. */
+    --ease-spring: linear(
+      0,
+      0.009,
+      0.035 2.1%,
+      0.141,
+      0.281 6.7%,
+      0.723 12.9%,
+      0.938 16.7%,
+      1.017,
+      1.077,
+      1.121,
+      1.149 24.3%,
+      1.159,
+      1.163,
+      1.161,
+      1.154 29.9%,
+      1.129 32.8%,
+      1.051 39.6%,
+      1.017 43.1%,
+      0.991,
+      0.977 51%,
+      0.974 53.8%,
+      0.975 57.1%,
+      0.997 69.8%,
+      1.003 76.9%,
+      1.004 83.8%,
+      1
+    );
+  }
 }
 
 *,
@@ -55,9 +107,12 @@ html {
   text-size-adjust: 100%;
 }
 
+/* Pages scroll; the document itself never does (no rubber-banding of the whole app). */
 body {
   margin: 0;
-  min-height: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-text);
@@ -69,7 +124,7 @@ body {
 }
 
 #root {
-  min-height: 100%;
+  height: 100%;
 }
 
 h1,
@@ -213,10 +268,58 @@ main:focus {
 
 /* ---------------------------------------------------------------- shell */
 
+.app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+/* A state of the app (first run, locked, unlocked) replacing another. */
+.view-enter {
+  animation: view-in 0.26s var(--ease-out) backwards;
+}
+@keyframes view-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The page area: pages are stacked in it and move over one another. */
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.page {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  /* Vertical panning only: horizontal drags reach the swipe-back gesture instead of the browser. */
+  touch-action: pan-y pinch-zoom;
+  background: var(--bg);
+}
+.page[data-entering] {
+  z-index: 1;
+}
+.stage[data-moving] > .page {
+  will-change: transform, opacity;
+}
+/* The page on top casts a soft edge while it slides. */
+.stage[data-moving='push'] > .page[data-active],
+.stage[data-moving='drag'] > .page[data-active],
+.stage[data-moving='pop'] > .page:not([data-active]) {
+  box-shadow:
+    -1px 0 0 var(--glass-line),
+    -16px 0 40px var(--shadow);
+}
+
 .skip-link {
   position: absolute;
   left: var(--gutter-l);
-  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  top: calc(var(--safe-top) + 8px);
   z-index: 60;
   padding: var(--s2) var(--s4);
   border-radius: var(--r-pill);
@@ -230,22 +333,29 @@ main:focus {
 
 .screen {
   width: 100%;
-  max-width: 34rem;
+  max-width: var(--screen-max);
   margin-inline: auto;
   padding-left: var(--gutter-l);
   padding-right: var(--gutter-r);
-  padding-block: var(--s4) var(--s6);
+  padding-top: calc(var(--safe-top) + var(--screen-pad-top));
+  padding-bottom: calc(var(--safe-bottom) + var(--s6));
 }
 .with-tabbar .screen {
-  padding-bottom: calc(var(--tabbar-h) + var(--s6));
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s6));
 }
 
+/* The large title row. The buttons that sit beside it live in the navigation bar above. */
 .screen-head {
   display: flex;
   align-items: flex-start;
-  gap: var(--s3);
   min-height: 3rem;
   margin-bottom: var(--s4);
+}
+.screen-head.has-leading {
+  padding-left: calc(2.75rem + var(--s3));
+}
+.screen-head.has-trailing {
+  padding-right: calc(2.75rem + var(--s3));
 }
 .screen-head .titles {
   flex: 1 1 0;
@@ -257,17 +367,80 @@ main:focus {
   font-size: var(--fs-small);
 }
 
+/*
+ * Navigation bar. It takes no room in the flow (negative margin), so at rest its buttons sit in
+ * the title row exactly as a plain header would. When the page scrolls it sticks, a little higher
+ * (compact), turns to glass and shows the small centred title.
+ */
+.navbar {
+  --navbar-h: calc(var(--safe-top) + var(--screen-pad-top) + 2.75rem + var(--s2));
+  position: sticky;
+  top: calc(var(--s2) - var(--screen-pad-top));
+  z-index: 5;
+  height: var(--navbar-h);
+  margin-bottom: calc(-1 * var(--navbar-h));
+}
+.navbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 14px var(--glass-shadow);
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+.navbar[data-scrolled]::before {
+  opacity: 1;
+}
+.navbar-inner {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+  width: 100%;
+  max-width: var(--screen-max);
+  height: 100%;
+  margin-inline: auto;
+  padding: calc(var(--safe-top) + var(--screen-pad-top)) var(--gutter-r) 0 var(--gutter-l);
+}
+.navbar-title {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--safe-top) + var(--screen-pad-top));
+  max-width: calc(100% - 2 * (2.75rem + var(--s4)) - var(--gutter-l) - var(--gutter-r));
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: var(--fs-body);
+  font-weight: 650;
+  line-height: 2.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 6px);
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.2s var(--ease-out);
+  pointer-events: none;
+}
+.navbar[data-collapsed] .navbar-title {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 .tabbar {
-  position: fixed;
+  position: absolute;
   inset: auto 0 0 0;
   z-index: 40;
   display: flex;
   justify-content: center;
   padding-left: max(4px, env(safe-area-inset-left, 0px));
   padding-right: max(4px, env(safe-area-inset-right, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: var(--safe-bottom);
   background: var(--surface);
   border-top: 1px solid var(--line);
+  box-shadow: 0 -1px 14px var(--glass-shadow);
 }
 .tabbar ul {
   display: grid;
@@ -298,6 +471,9 @@ main:focus {
   width: 3.25rem;
   height: 1.875rem;
   border-radius: var(--r-pill);
+  transition:
+    background-color 0.2s ease-out,
+    color 0.2s ease-out;
 }
 .tab[aria-current='page'] {
   color: var(--ink);
@@ -818,7 +994,7 @@ dialog.sheet::backdrop {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + var(--s3));
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s3));
   z-index: 70;
   display: flex;
   flex-direction: column;
@@ -829,7 +1005,7 @@ dialog.sheet::backdrop {
   pointer-events: none;
 }
 .no-tabbar .toaster {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--s4));
+  bottom: calc(var(--safe-bottom) + var(--s4));
 }
 .toast {
   display: flex;
@@ -919,19 +1095,22 @@ dialog.sheet::backdrop {
 
 @media (min-width: 56rem) {
   .with-tabbar {
-    padding-left: 6.5rem;
+    --screen-max: 46rem;
+    --screen-pad-top: var(--s6);
+  }
+  .with-tabbar .stage {
+    left: 6.5rem;
   }
   .with-tabbar .screen {
-    max-width: 46rem;
     padding-bottom: var(--s7);
-    padding-top: var(--s6);
   }
   .tabbar {
     inset: 0 auto 0 0;
     width: 6.5rem;
-    padding: calc(env(safe-area-inset-top, 0px) + var(--s5)) 0 var(--s5) env(safe-area-inset-left, 0px);
+    padding: calc(var(--safe-top) + var(--s5)) 0 var(--s5) env(safe-area-inset-left, 0px);
     border-top: 0;
     border-right: 1px solid var(--line);
+    box-shadow: none;
     align-items: flex-start;
   }
   .tabbar ul {
@@ -946,13 +1125,17 @@ dialog.sheet::backdrop {
 
 /* ---------------------------------------------------------------- preferences */
 
+/* Reduced motion: nothing slides, fades or springs. (Page transitions check the same setting in motion.ts.)
+   Animations keep a token duration so their end state still applies; transitions are simply off. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
@@ -1006,7 +1189,16 @@ dialog.sheet::backdrop {
 @media print {
   .tabbar,
   .toaster,
+  .navbar,
   .skip-link {
     display: none !important;
+  }
+  body,
+  .app,
+  .stage,
+  .page {
+    position: static;
+    height: auto;
+    overflow: visible;
   }
 }
