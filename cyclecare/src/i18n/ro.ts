@@ -242,6 +242,8 @@ export const ro = {
     dialLabel: (day: number, phase: string) => (phase ? `Ziua ${day} a ciclului, ${phase}` : `Ziua ${day} a ciclului`),
     dialEmpty: 'Încă nu există un ciclu înregistrat',
     late: 'Menstruația întârzie',
+    overdue: 'Întârziere',
+    restOfCycle: 'Restul ciclului',
     legendTitle: 'Fazele acestui ciclu, estimate',
     legendDays: (from: number, to: number) => (from === to ? `ziua ${from}` : `zilele ${from}–${to}`),
     periodDay: (n: number) => `Ziua ${n} de menstruație`,
@@ -266,6 +268,8 @@ export const ro = {
       ovulation: (date: string) => `Ovulație estimată: ${date}, cu o marjă de câteva zile`,
       todayFertile: 'Azi este o zi fertilă estimată.',
       todayOvulation: 'Azi este ziua estimată a ovulației.',
+      unreliable:
+        'Cât timp menstruația întârzie, nu mai putem estima zilele fertile ale acestui ciclu. Estimările revin după ce notezi următoarea menstruație.',
     },
     noData: {
       title: 'Notează prima zi de menstruație',
@@ -332,6 +336,7 @@ export const ro = {
       entry: 'are notițe în jurnal',
       bleed: 'sângerare între menstruații',
       spotting: 'spotting',
+      overdue: 'după data estimată a menstruației',
       selected: 'selectată',
     },
     detail: {
@@ -345,6 +350,7 @@ export const ro = {
       fertile: 'Zi fertilă estimată',
       ovulation: 'Ziua estimată a ovulației',
       bleed: 'Sângerare între menstruații',
+      overdue: 'După data estimată: menstruația întârzie.',
     },
     edit: {
       start: 'Editează zilele de menstruație',

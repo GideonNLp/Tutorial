@@ -878,6 +878,15 @@ dialog.sheet::backdrop {
   --c: var(--luteal);
   --tint: var(--luteal-tint);
 }
+/* A swatch followed by text that may wrap: the swatch stays on the first line. */
+.phase-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+}
+.phase-line .swatch {
+  transform: translateY(0.05rem);
+}
 
 /* ---------------------------------------------------------------- wide screens */
 

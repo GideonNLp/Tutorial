@@ -51,7 +51,7 @@ export function TodayScreen() {
   }, [phase, today]);
 
   const phaseLabel = late ? s.today.late : todayInfo.periodLogged && current ? s.phase.menstruation : phase ? s.phase[phase] : '';
-  const { spans } = phaseSpans(timeline);
+  const { spans } = phaseSpans(timeline, showFertility);
   const forecast = prediction.forecasts[0];
   const summary = summarizeLog(todayLog);
 
@@ -91,20 +91,27 @@ export function TodayScreen() {
   const fertilityBlock = current && showFertility && (
     <section aria-labelledby="fertility-heading" className="stack stack-2">
       <h2 id="fertility-heading">{s.today.fertility.heading}</h2>
-      {todayInfo.ovulationDay ? (
-        <p className="strong">{s.today.fertility.todayOvulation}</p>
+      {late ? (
+        // With the period overdue nobody knows where this cycle stands, so no fertile days are claimed.
+        <p>{s.today.fertility.unreliable}</p>
       ) : (
-        todayInfo.fertile && !late && <p className="strong">{s.today.fertility.todayFertile}</p>
+        <>
+          {todayInfo.ovulationDay ? (
+            <p className="strong">{s.today.fertility.todayOvulation}</p>
+          ) : (
+            todayInfo.fertile && <p className="strong">{s.today.fertility.todayFertile}</p>
+          )}
+          {(() => {
+            const next = current.fertileEnd >= today ? current : forecast;
+            return next ? (
+              <>
+                <p>{s.today.fertility.window(formatRange(next.fertileStart, next.fertileEnd))}</p>
+                <p className="ink-2">{s.today.fertility.ovulation(formatDate(next.ovulation, 'dayMonth'))}</p>
+              </>
+            ) : null;
+          })()}
+        </>
       )}
-      {(() => {
-        const next = current.fertileEnd >= today ? current : forecast;
-        return next ? (
-          <>
-            <p>{s.today.fertility.window(formatRange(next.fertileStart, next.fertileEnd))}</p>
-            <p className="ink-2">{s.today.fertility.ovulation(formatDate(next.ovulation, 'dayMonth'))}</p>
-          </>
-        ) : null;
-      })()}
       <Notice icon={<Info size={18} aria-hidden="true" />}>
         <p>{data.profile.goals.includes('contraception') ? s.contraceptionGoalWarning : s.contraceptionWarning}</p>
       </Notice>
@@ -216,17 +223,17 @@ export function TodayScreen() {
             <CycleDial timeline={timeline} showFertility={showFertility} phaseLabel={phaseLabel} />
             {current ? (
               <ul className="phase-legend" aria-label={s.today.legendTitle}>
-                {spans
-                  .filter((span) => showFertility || span.phase === 'menstruation')
-                  .map((span) => (
-                    <li key={span.from} data-phase={span.phase}>
-                      <span className="swatch" aria-hidden="true" />
-                      <span>
-                        <span className="strong">{s.phase[span.phase]}</span>
-                        <span className="caption"> {s.today.legendDays(span.from, span.to)}</span>
+                {spans.map((span) => (
+                  <li key={span.from} data-phase={span.kind}>
+                    <span className="swatch" aria-hidden="true" />
+                    <span>
+                      <span className="strong">
+                        {span.kind === 'overdue' ? s.today.overdue : span.kind === 'rest' ? s.today.restOfCycle : s.phase[span.kind]}
                       </span>
-                    </li>
-                  ))}
+                      <span className="caption"> {s.today.legendDays(span.from, span.to)}</span>
+                    </span>
+                  </li>
+                ))}
               </ul>
             ) : (
               <div className="stack stack-3" style={{ textAlign: 'center' }}>

@@ -213,7 +213,7 @@ Apare la deschidere dacă există un PIN și atunci când aplicația a stat în 
 | Situație | Ce se schimbă |
 |---|---|
 | Nicio menstruație notată | „Azi” invită la prima notare; „Statistici” explică ce va apărea; „Sfaturi” lasă fazele de răsfoit fără una marcată „acum” |
-| Menstruație întârziată | Cadranul arată „Menstruația întârzie”; apare o observație informativă; calendarul desenează menstruația estimată începând de azi |
+| Menstruație întârziată | Cadranul arată „Menstruația întârzie” și zilele de întârziere ca arc neutru; apare o observație informativă; calendarul desenează doar menstruația așteptată, de azi, fără faze sau zile fertile pentru ciclurile următoare; secțiunea „Fertilitate” spune că estimările sunt suspendate până la notarea următoarei menstruații |
 | Estimări de fertilitate oprite | Dispar ovulația, zilele fertile și fazele în afara menstruației, în cadran, calendar, jurnal și raport; rămân zilele de menstruație și estimarea următoarei menstruații |
 | Stocare indisponibilă (fereastră privată, fără HTTPS) | Un anunț pe „Azi” spune că datele se păstrează doar până la închiderea paginii; PIN-ul nu poate fi setat fără criptare |
 | Date demonstrative | Un anunț permanent pe „Azi”, cu ștergere dintr-o atingere |

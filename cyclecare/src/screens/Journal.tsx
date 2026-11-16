@@ -131,9 +131,9 @@ export function JournalScreen() {
             )}
           </div>
           {info.cycleDay !== undefined && (
-            <p className="ink-2 row" style={{ ['--gap' as string]: 'var(--s2)' }} data-phase={phase}>
+            <p className="ink-2 phase-line" data-phase={phase}>
               {phase && <span className="swatch" aria-hidden="true" />}
-              {phase ? j.cycleInfo(info.cycleDay, s.phaseInSentence[phase]) : s.calendar.detail.cycleDay(info.cycleDay)}
+              <span>{phase ? j.cycleInfo(info.cycleDay, s.phaseInSentence[phase]) : s.calendar.detail.cycleDay(info.cycleDay)}</span>
             </p>
           )}
           <p className="caption save-state" role="status">

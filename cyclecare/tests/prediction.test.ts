@@ -143,7 +143,15 @@ describe('timeline', () => {
     // A late period is drawn from today, never in the past.
     expect(late.prediction.forecasts[0]).toMatchObject({ start: '2026-11-22', earliest: '2026-11-22', latest: '2026-11-22' });
     expect(late.dayInfo('2026-11-22')).toMatchObject({ periodPredicted: true, cycleDay: 36 });
-    expect(late.dayInfo('2026-11-20')).toMatchObject({ periodPredicted: false, phase: 'luteal' });
+    // Days after the expected start claim no phase, and no cycle is projected past "it may start any day".
+    expect(late.dayInfo('2026-11-14')).toMatchObject({ phase: 'luteal', overdue: false });
+    expect(late.dayInfo('2026-11-20')).toMatchObject({ periodPredicted: false, overdue: true });
+    expect(late.dayInfo('2026-11-20').phase).toBeUndefined();
+    expect(late.dayInfo('2026-11-26')).toMatchObject({ periodPredicted: true, phase: 'menstruation' });
+    for (const day of ['2026-11-27', '2026-12-05', '2026-12-12']) {
+      expect(late.dayInfo(day)).toMatchObject({ fertile: false, ovulationDay: false, periodPredicted: false });
+      expect(late.dayInfo(day).phase).toBeUndefined();
+    }
     expect(currentPhase(late)).toBe('luteal');
   });
 

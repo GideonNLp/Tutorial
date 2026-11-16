@@ -179,6 +179,8 @@ export interface DayInfo {
   /** A period-type flow logged outside the opening period (bleeding between periods). */
   intermenstrualBleed: boolean;
   spotting: boolean;
+  /** A past day after the expected start of the next period, which has not been logged yet. */
+  overdue: boolean;
 }
 
 export interface Timeline {
@@ -295,6 +297,7 @@ export function buildTimeline(logs: DayLogs, profile: Profile, today: ISODate): 
       fertile: false,
       intermenstrualBleed: false,
       spotting: flow === 'spotting',
+      overdue: false,
     };
     if (!open || !firstForecast || !lastForecast) return info;
 
@@ -305,7 +308,17 @@ export function buildTimeline(logs: DayLogs, profile: Profile, today: ISODate): 
       const f = prediction.forecasts[k];
       if (!f) return info;
       const offset = diffDays(date, f.start);
-      // A late period is drawn from today, but today still belongs to the cycle that is running.
+      if (prediction.status === 'late') {
+        // The period is overdue, so nobody knows when the next cycle starts. Only "it may start
+        // any day now" is shown; phases and fertile days come back once the period is logged.
+        if (k === 0 && offset < periodLength) {
+          info.phase = 'menstruation';
+          info.periodPredicted = true;
+          if (date === today) info.cycleDay = prediction.current!.cycleDay;
+        }
+        return info;
+      }
+      // A period that is due is drawn from today, but today still belongs to the cycle that is running.
       info.cycleDay = date === today ? prediction.current!.cycleDay : offset + 1;
       info.phase = phaseAt(offset, cycleLength, periodLength - 1);
       info.periodPredicted = info.phase === 'menstruation';
@@ -338,6 +351,11 @@ export function buildTimeline(logs: DayLogs, profile: Profile, today: ISODate): 
 
     // Current cycle: logged period, then its predicted continuation, then estimated phases.
     const current = prediction.current!;
+    if (offset >= cycleLength) {
+      // Past the expected start with no period logged: the estimate has run out, so no phase is claimed.
+      info.overdue = true;
+      return info;
+    }
     const loggedEnd = diffDays(cycle.period.end, cycle.start);
     const shownEnd = date >= today ? diffDays(current.periodEnd, cycle.start) : loggedEnd;
     info.phase = phaseAt(offset, cycleLength, shownEnd);

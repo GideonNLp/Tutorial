@@ -173,7 +173,13 @@ Se proiectează 3 cicluri. Al `k`-lea ciclu viitor (`k = 1, 2, 3`) începe la:
 hₖ = max(1, rotunjire(1,2816 · σ · √(k + k²/N)))
 ```
 
-Nesiguranța crește cu fiecare ciclu: variațiile se adună, iar eroarea mediei se înmulțește. Când menstruația întârzie, prima estimare se mută pe ziua de azi, iar zilele trecute rămân în faza luteală. Dincolo de al treilea ciclu calendarul nu mai arată nimic.
+Nesiguranța crește cu fiecare ciclu: variațiile se adună, iar eroarea mediei se înmulțește. Dincolo de al treilea ciclu calendarul nu mai arată nimic.
+
+Când data cea mai probabilă a trecut fără ca menstruația să fie notată:
+
+- zilele de după data estimată **nu primesc nicio fază**: estimarea s-a terminat acolo, iar aplicația nu pretinde că știe ce urmează;
+- cât timp ziua de azi este încă în interval (starea „așteptată”), ciclurile următoare se desenează pornind de azi;
+- după ce ziua de azi a trecut de interval (starea „întârziată”), se arată **doar** menstruația așteptată, începând de azi. Fazele, ovulația și zilele fertile ale ciclurilor următoare nu se mai estimează, iar memento-urile pentru zilele fertile se opresc, până când următoarea menstruație este notată. Un ciclu care nu a urmat estimarea nu este o bază bună pentru altele.
 
 ### Pasul 11 — Recalcularea
 
@@ -239,7 +245,7 @@ Intervalul este de ±8 zile, iar precizia „scăzută”: aplicația nu pretind
 | Sângerare la mijlocul ciclului | Rămâne în ciclul curent, ca sângerare între menstruații |
 | Două sângerări la mai puțin de 15 zile | A doua nu deschide un ciclu; apare observația corespunzătoare dacă se repetă |
 | Luni întregi fără nicio notare | Ciclul rezultat (peste 90 de zile) nu intră în medie |
-| Menstruație întârziată | Stare „întârziată”; estimarea se desenează de azi; după 90 de zile apare o observație |
+| Menstruație întârziată | Stare „întârziată”; se arată doar menstruația așteptată, de azi; fazele și zilele fertile următoare sunt suspendate; după 90 de zile apare o observație |
 | Doar prima zi a menstruației notată | Durata menstruației rămâne cea declarată; ciclul se măsoară corect |
 | Ciclu foarte scurt (15–20 de zile) | Fazele se pot suprapune; menstruația are prioritate la afișare |
 | Corectarea unei zile din trecut | Totul se recalculează; nu există stare veche de reparat |

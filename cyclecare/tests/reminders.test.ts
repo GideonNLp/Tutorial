@@ -61,10 +61,11 @@ describe('reminder occurrences', () => {
     expect(list[0]).toMatchObject({ id: 'medication:2026-11-16:08:00:iron', medicationName: 'Fier' });
   });
 
-  it('stops period reminders once the period is late', () => {
+  it('stops period and fertile-day reminders once the period is late', () => {
     const late = buildTimeline(periods(['2026-10-01']), profile({ typicalCycleLength: 28 }), today).prediction;
     const s = base();
     s.period = { enabled: true, daysBefore: 0, time: '09:00', repeatDaily: false };
+    s.fertile = { enabled: true, daysBefore: 0, time: '09:00', repeatDaily: true };
     expect(late.status).toBe('late');
     expect(reminderOccurrences(s, late, true, today, '2026-12-31')).toEqual([]);
   });

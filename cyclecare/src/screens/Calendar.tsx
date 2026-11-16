@@ -94,6 +94,7 @@ export function CalendarScreen() {
     else if (showFertility && info.fertile) partsList.push(c.aria.fertile);
     if (info.intermenstrualBleed) partsList.push(c.aria.bleed);
     if (info.spotting) partsList.push(c.aria.spotting);
+    if (info.overdue) partsList.push(c.aria.overdue);
     if (hasEntry(date)) partsList.push(c.aria.entry);
     return partsList.join(', ');
   };
@@ -218,11 +219,11 @@ export function CalendarScreen() {
                 {formatDate(selected, 'weekdayDayMonth')}
               </h2>
               {selectedInfo.cycleDay ? (
-                <p className="row" style={{ ['--gap' as string]: 'var(--s2)' }} data-phase={selectedPhase}>
+                <p className="phase-line" data-phase={selectedPhase}>
                   {selectedPhase && <span className="swatch" aria-hidden="true" />}
                   <span>
                     <span className="strong">{c.detail.cycleDay(selectedInfo.cycleDay)}</span>
-                    {selectedPhase ? `, ${s.phaseInSentence[selectedPhase]}` : ''}
+                    {selectedPhase && !selectedInfo.periodPredicted ? `, ${s.phaseInSentence[selectedPhase]}` : ''}
                     {selectedInfo.forecast && selected !== today ? ` (${s.common.estimate})` : ''}
                   </span>
                 </p>
@@ -230,10 +231,12 @@ export function CalendarScreen() {
                 <p className="ink-2">{c.detail.noInfo}</p>
               )}
               {(selectedInfo.periodPredicted ||
+                selectedInfo.overdue ||
                 (showFertility && (selectedInfo.fertile || selectedInfo.ovulationDay)) ||
                 selectedInfo.intermenstrualBleed) && (
                 <ul className="small ink-2 stack stack-1">
                   {selectedInfo.periodPredicted && <li>{c.detail.periodPredicted}</li>}
+                  {selectedInfo.overdue && <li>{c.detail.overdue}</li>}
                   {showFertility && selectedInfo.ovulationDay && <li>{c.detail.ovulation}</li>}
                   {showFertility && selectedInfo.fertile && !selectedInfo.ovulationDay && <li>{c.detail.fertile}</li>}
                   {selectedInfo.intermenstrualBleed && <li>{c.detail.bleed}</li>}

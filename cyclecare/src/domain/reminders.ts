@@ -60,7 +60,8 @@ export function reminderOccurrences(
     }
   }
 
-  if (settings.fertile.enabled && showFertility) {
+  // While a period is late the fertile-day estimates are suspended (see buildTimeline), and so are their reminders.
+  if (settings.fertile.enabled && showFertility && prediction.status !== 'late') {
     const { daysBefore, time, repeatDaily } = settings.fertile;
     const windows: Array<{ start: ISODate; end: ISODate }> = [];
     if (prediction.current) windows.push({ start: prediction.current.fertileStart, end: prediction.current.fertileEnd });

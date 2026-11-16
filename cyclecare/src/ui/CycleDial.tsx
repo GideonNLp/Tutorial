@@ -14,7 +14,7 @@ const C = SIZE / 2;
 const R = 104; // ring radius
 const RING = 20; // ring thickness
 const OUTER = R + 19; // radius of the outer track (fertile days, next-period interval)
-const GAP = 2 / (2 * Math.PI * R); // 2px between phase arcs, as a fraction of the circle
+const GAP = 2 / (2 * Math.PI * R); // 2px between arcs, as a fraction of the circle
 
 function point(fraction: number, radius: number): [number, number] {
   const angle = fraction * 2 * Math.PI - Math.PI / 2;
@@ -28,15 +28,22 @@ function arc(from: number, to: number, radius: number): string {
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${radius} ${radius} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
+/**
+ * What an arc of the dial stands for: one of the four phases, `overdue` (days after the expected
+ * start of a period that has not come), or `rest` (everything but menstruation, when the person
+ * switched phase and fertility estimates off).
+ */
+export type SpanKind = Phase | 'overdue' | 'rest';
+
 export interface PhaseSpan {
-  phase: Phase;
+  kind: SpanKind;
   /** 1-based cycle days, inclusive. */
   from: number;
   to: number;
 }
 
-/** Estimated phase spans of the running cycle (also used for the legend under the dial). */
-export function phaseSpans(timeline: Timeline): { spans: PhaseSpan[]; total: number } {
+/** Spans of the running cycle, for the dial and the legend under it. */
+export function phaseSpans(timeline: Timeline, showFertility: boolean): { spans: PhaseSpan[]; total: number } {
   const { prediction } = timeline;
   const current = prediction.current;
   if (!current) return { spans: [], total: prediction.cycleLength };
@@ -44,19 +51,22 @@ export function phaseSpans(timeline: Timeline): { spans: PhaseSpan[]; total: num
   const periodEnd = diffDays(current.periodEnd, current.start);
   const spans: PhaseSpan[] = [];
   for (let d = 0; d < total; d++) {
-    const phase = phaseAt(d, prediction.cycleLength, periodEnd);
+    let kind: SpanKind = d >= prediction.cycleLength ? 'overdue' : phaseAt(d, prediction.cycleLength, periodEnd);
+    if (!showFertility && kind !== 'menstruation' && kind !== 'overdue') kind = 'rest';
     const last = spans[spans.length - 1];
-    if (last && last.phase === phase) last.to = d + 1;
-    else spans.push({ phase, from: d + 1, to: d + 1 });
+    if (last && last.kind === kind) last.to = d + 1;
+    else spans.push({ kind, from: d + 1, to: d + 1 });
   }
   return { spans, total };
 }
+
+const strokeOf = (kind: SpanKind) => (kind === 'overdue' || kind === 'rest' ? 'var(--line-strong)' : `var(--${kind})`);
 
 export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: Timeline; showFertility: boolean; phaseLabel: string }) {
   const s = strings();
   const { prediction } = timeline;
   const current = prediction.current;
-  const { spans, total } = phaseSpans(timeline);
+  const { spans, total } = phaseSpans(timeline, showFertility);
   const late = prediction.status === 'late';
 
   if (!current) {
@@ -78,6 +88,7 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
   const h = Math.min(prediction.halfWidth, Math.floor(total / 2) - 1) / total;
   const today = (current.cycleDay - 0.5) / total;
   const [bx, by] = point(today, R);
+  const [ox, oy] = point((ov + 0.5) / total, OUTER);
   const ticks = [1, 7, 14, 21, 28, 35, 42].filter((d) => d <= total && (d === 1 || total - d >= 3));
 
   return (
@@ -88,8 +99,7 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
             key={span.from}
             d={arc((span.from - 1) / total + GAP / 2, span.to / total - GAP / 2, R)}
             fill="none"
-            // With fertility estimates off, only menstruation keeps its colour (see visiblePhase).
-            stroke={showFertility || span.phase === 'menstruation' ? `var(--${span.phase})` : 'var(--line-strong)'}
+            stroke={strokeOf(span.kind)}
             strokeWidth={RING}
           />
         ))}
@@ -111,14 +121,7 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
               strokeLinecap="round"
               strokeDasharray="0.1 8"
             />
-            <circle
-              cx={point((ov + 0.5) / total, OUTER)[0]}
-              cy={point((ov + 0.5) / total, OUTER)[1]}
-              r={5.5}
-              fill="var(--ovulation)"
-              stroke="var(--surface)"
-              strokeWidth={2}
-            />
+            <circle cx={ox} cy={oy} r={5.5} fill="var(--ovulation)" stroke="var(--surface)" strokeWidth={2} />
           </>
         )}
         {!late && (
@@ -132,7 +135,7 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
       </svg>
       <div className="dial-center" aria-hidden="true">
         <span className="dial-day">{s.today.cycleDay(current.cycleDay)}</span>
-        <span className="dial-phase">{phaseLabel}</span>
+        {phaseLabel && <span className="dial-phase">{phaseLabel}</span>}
       </div>
     </div>
   );

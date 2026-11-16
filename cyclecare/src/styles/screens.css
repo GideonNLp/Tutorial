@@ -106,6 +106,7 @@
   position: relative;
   width: min(18.5rem, 100%);
   margin-inline: auto;
+  container-type: inline-size;
 }
 .dial {
   width: 100%;
@@ -129,15 +130,21 @@
   text-align: center;
   pointer-events: none;
 }
+/* The text inside the ring is sized from the ring, so it fits at any text-size setting;
+   the same information is repeated as ordinary, scalable text right below the dial. */
 .dial-day {
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 11vw, 2.75rem);
+  font-size: 2.4rem;
+  font-size: min(2.75rem, 15cqw);
   font-weight: 650;
   line-height: 1;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 .dial-phase {
   margin-top: 0.4rem;
+  font-size: 1rem;
+  font-size: min(1.0625rem, 6.2cqw);
   font-weight: 600;
   line-height: 1.2;
 }
@@ -263,8 +270,8 @@
 .cal-num {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: min(2rem, calc(100% - 6px));
+  aspect-ratio: 1;
   border: 2px solid transparent;
   border-radius: 50%;
   font-size: var(--fs-small);
@@ -289,8 +296,7 @@
   box-shadow:
     0 0 0 2px var(--surface),
     0 0 0 4px var(--ovulation);
-  width: 1.5rem;
-  height: 1.5rem;
+  width: min(1.5rem, calc(100% - 14px));
 }
 .cal-day[aria-current='date'] .cal-num {
   font-weight: 800;
@@ -363,12 +369,10 @@
 .legend-num {
   flex: none;
   width: 1.25rem;
-  height: 1.25rem;
   margin-inline: 0.125rem;
 }
 .legend-num[data-ovulation] {
   width: 0.9rem;
-  height: 0.9rem;
   margin-inline: 0.3rem;
 }
 .legend-mark {
@@ -391,6 +395,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   flex: 1;
   gap: 2px;
+  container-type: inline-size;
 }
 .weekday {
   display: flex;
@@ -405,11 +410,13 @@
   background: none;
 }
 .weekday-name {
-  font-size: 0.75rem;
+  font-size: min(0.75rem, 6cqw);
   font-weight: 600;
   color: var(--muted);
 }
+/* Seven days always fit in one row: the digits shrink with the strip instead of colliding. */
 .weekday-num {
+  font-size: min(1rem, 7.5cqw);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
