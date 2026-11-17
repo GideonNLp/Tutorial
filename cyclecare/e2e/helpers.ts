@@ -52,6 +52,12 @@ export async function startWithJournal(page: Page): Promise<void> {
   await expect(page.getByRole('img', { name: /Ziua 12 a ciclului/ })).toBeVisible();
 }
 
+/** Days with entries open as a compact summary: this opens one section of it in full (no-op when already open). */
+export async function editJournalSection(page: Page, title: string): Promise<void> {
+  const button = page.locator('.page[data-active]').getByRole('button', { name: new RegExp(`^(Editează|Adaugă): ${title}$`) });
+  if (await button.count()) await button.click();
+}
+
 export async function tab(page: Page, name: 'Azi' | 'Calendar' | 'Jurnal' | 'Sfaturi' | 'Statistici'): Promise<void> {
   await page.getByRole('navigation', { name: 'Navigare principală' }).getByRole('link', { name, exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();

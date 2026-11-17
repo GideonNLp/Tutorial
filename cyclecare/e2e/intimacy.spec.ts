@@ -1,13 +1,14 @@
 import { readFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { dumpStorage, openSettings, startWithJournal, tab } from './helpers';
+import { dumpStorage, editJournalSection, openSettings, startWithJournal, tab } from './helpers';
 
 // The sample journal is on cycle day 12 on 15 November: inside the estimated fertile window.
 const TODAY_CELL = /duminică, 15 noiembrie 2026/;
 
 async function logContact(page: Page) {
   await tab(page, 'Jurnal');
+  await editJournalSection(page, 'Viață intimă');
   await page.getByRole('switch', { name: 'Am avut un contact intim' }).click();
   await expect(page.getByRole('group', { name: 'Ce fel de contact?' })).toBeVisible();
 }
@@ -75,6 +76,7 @@ test('the home screen shows the chance today, the contacts this cycle and what t
 
   await card.getByRole('button', { name: 'Notează un contact intim' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Jurnal' })).toBeVisible();
+  await editJournalSection(page, 'Viață intimă');
   await page.getByRole('switch', { name: 'Am avut un contact intim' }).click();
   await chip(page, 'Penetrare vaginală').check();
   await chip(page, 'Fără protecție').check();

@@ -17,8 +17,14 @@ export interface Toast {
   leaving?: boolean;
 }
 
+/** Journal sections that fold into a compact summary after "Salvare". */
+export const JOURNAL_SECTIONS = ['flow', 'symptoms', 'mood', 'energy', 'bbt', 'mucus', 'intimacy', 'note'] as const;
+export type JournalSection = (typeof JOURNAL_SECTIONS)[number];
+
 interface UiState {
   journalDate: ISODate;
+  /** Sections shown in full, per day. A day not in the map has not been opened yet. */
+  journalOpen: Record<ISODate, readonly JournalSection[]>;
   calendarYear: number;
   calendarMonth: number;
   calendarSelected: ISODate;
@@ -28,6 +34,7 @@ interface UiState {
 const now = todayISO();
 const ui = createStore<UiState>({
   journalDate: now,
+  journalOpen: {},
   calendarYear: parts(now).year,
   calendarMonth: parts(now).month,
   calendarSelected: now,
@@ -39,6 +46,11 @@ export const useCalendarYear = () => useStore(ui, (s) => s.calendarYear);
 export const useCalendarMonth = () => useStore(ui, (s) => s.calendarMonth);
 export const useCalendarSelected = () => useStore(ui, (s) => s.calendarSelected);
 export const useToasts = () => useStore(ui, (s) => s.toasts);
+export const useJournalOpen = (date: ISODate) => useStore(ui, (s) => s.journalOpen[date]);
+
+export function setJournalOpen(date: ISODate, sections: readonly JournalSection[]): void {
+  ui.set((s) => ({ ...s, journalOpen: { ...s.journalOpen, [date]: sections } }));
+}
 
 export function setJournalDate(date: ISODate): void {
   ui.set((s) => ({ ...s, journalDate: date }));
@@ -113,6 +125,7 @@ export function resetUi(): void {
   const today = todayISO();
   ui.set({
     journalDate: today,
+    journalOpen: {},
     calendarYear: parts(today).year,
     calendarMonth: parts(today).month,
     calendarSelected: today,

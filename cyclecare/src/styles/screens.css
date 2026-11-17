@@ -545,6 +545,89 @@
   background: var(--surface);
 }
 
+/* Folded sections: the heading, a small edit button and what was chosen, as tags. */
+.journal-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding-top: var(--s4);
+  animation: summary-in 0.28s var(--ease-out) backwards;
+}
+.journal-summary + .journal-summary {
+  padding-top: var(--s3);
+}
+@keyframes summary-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.summary-head h2 {
+  font-size: var(--fs-h3);
+}
+.summary-edit {
+  min-height: 2.75rem;
+  margin-right: -0.5rem;
+  text-decoration: none;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s2);
+}
+.tag {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.tag-detail {
+  font-weight: 450;
+  color: var(--ink-2);
+  white-space: pre;
+}
+.note-preview {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* The save button stays at the bottom of the screen while sections are open, above the tab bar. */
+.save-bar {
+  position: sticky;
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s3));
+  z-index: 4;
+  padding-top: var(--s2);
+}
+.save-bar .btn {
+  box-shadow: 0 6px 20px var(--shadow);
+}
+.btn-saved {
+  animation: saved-pop 0.45s var(--ease-spring);
+}
+@keyframes saved-pop {
+  from {
+    transform: scale(0.96);
+  }
+}
+@media (min-width: 56rem) {
+  .save-bar {
+    bottom: var(--s5);
+  }
+}
+
 /* ---------------------------------------------------------------- tips */
 
 .tip-list {

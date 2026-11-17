@@ -147,7 +147,13 @@ O zi pe ecran, aleasă dintr-o bandă cu zilele săptămânii. Zilele viitoare n
 | Viață intimă | comutator „Am avut un contact intim”, apoi alegere multiplă pentru felul contactului și pentru contracepție; „Prezervativul s-a rupt sau a alunecat” | penetrare vaginală, sex oral, sex anal, jucării sexuale; prezervativ, pilulă, sterilet, altă metodă hormonală, retragere, fără protecție, pilula de urgență |
 | Notă | text liber | până la 2000 de caractere |
 
-Nu există buton de salvare: fiecare schimbare se salvează pe loc, iar sub dată apare „Salvat”.
+Fiecare alegere se păstrează pe loc, iar sub dată apare „Salvat”, așa că nimic nu se pierde dacă pagina este părăsită. În plus, cât timp o secțiune este deschisă, butonul **„Salvare”** stă fixat jos, deasupra barei de file, și ajunge la capătul listei când derulezi până acolo. La apăsare:
+
+1. modificările sunt scrise imediat pe dispozitiv, butonul devine „Salvat ✓” și apare mesajul „Salvat ✓”;
+2. după o clipă toate secțiunile se restrâng într-un **rezumat**: titlul secțiunii, alegerile ca etichete mici (de exemplu „Crampe · sever”, „Mediu”, „36,55 °C”), primele rânduri ale notei sau „Nimic notat”; pagina revine sus;
+3. fiecare secțiune restrânsă are un buton mic **„Editează”** (sau „Adaugă”, dacă e goală) care o redeschide doar pe ea și mută focusul pe primul ei control.
+
+O zi care are deja ceva notat se deschide direct ca rezumat; o zi goală se deschide cu toate secțiunile. O temperatură care nu poate fi păstrată (de exemplu 50) oprește restrângerea: câmpul rămâne deschis, cu mesajul lângă el.
 
 Sub detaliile unui contact intim apare riscul de sarcină pentru acel contact și motivul (de exemplu „Risc de sarcină: scăzut. Prezervativul folosit corect reduce mult riscul.”). Oprirea comutatorului șterge contactul, cu „Anulează” în mesajul de confirmare. Contactele intime nu apar în raportul PDF.
 
