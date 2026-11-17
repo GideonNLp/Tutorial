@@ -164,7 +164,10 @@ Sub detaliile unui contact intim apare riscul de sarcină pentru acel contact ș
 ### 4.4 Sfaturi
 
 1. **De urmărit**: observațiile active, fiecare cu „Am înțeles” (o ascunde 30 de zile).
-2. **Pentru faza în care ești**: faza curentă este preselectată și marcată „acum”; celelalte pot fi răsfoite. Patru teme: alimentație, mișcare, somn, piele.
+2. **Pentru faza în care ești**: faza curentă este preselectată și marcată „acum”; celelalte pot fi răsfoite.
+   - Un card în culoarea fazei cu rezumatul ei și butonul extensibil **„De ce se întâmplă asta?”**, care explică pe scurt ce fac hormonii în acea fază.
+   - Patru teme (alimentație, mișcare, somn, piele), fiecare cu 7 sfaturi. Se văd câte **3 carduri**, alese după ziua ciclului, deci altele în fiecare zi; **„Alte idei ↻”** arată imediat următoarele trei.
+   - Fiecare card are tema (cu pictogramă), un titlu care spune ce faci, textul, **„De ce ajută?”** (legătura cu hormonii, închisă până la apăsare) și **„Am aplicat ✓”**, care marchează cardul pentru ziua de azi; o a doua apăsare anulează marcajul.
 3. **Pentru ce ai notat recent**: câte o fișă pentru fiecare simptom notat de curând, cu „Ce poate ajuta” și „Când merită să ceri sfatul unui medic”.
 4. Mențiunea că sfaturile sunt informații generale.
 

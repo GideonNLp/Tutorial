@@ -630,17 +630,113 @@
 
 /* ---------------------------------------------------------------- tips */
 
-.tip-list {
+/* The phase in a few words, on the phase's own tint, with the hormonal "why" behind it. */
+.phase-card {
   display: flex;
   flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-left: 4px solid var(--c);
+  border-radius: var(--r-control);
+  background: var(--tint);
 }
-.tip-list > li {
-  padding-block: var(--s4);
-  border-top: 1px solid var(--line);
+.phase-card .phase-line {
+  font-size: var(--fs-small);
 }
-.tip-list > li:first-child {
-  border-top: 0;
-  padding-top: 0;
+
+.tips-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: calc(-1 * var(--s2));
+}
+.tips-toolbar .btn {
+  flex: none;
+  margin-right: -0.5rem;
+}
+
+.tip-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.tip-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  transition: border-color 0.2s ease-out;
+}
+.tip-card[data-applied] {
+  border-color: var(--ink);
+}
+.tip-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  line-height: 1.25;
+}
+.tip-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+.tip-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.65rem;
+  border-radius: var(--r-pill);
+  background: var(--tint);
+  font-size: var(--fs-caption);
+  font-weight: 650;
+}
+.tip-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--fs-caption);
+  font-weight: 650;
+}
+
+/* "De ce ajută?" — a quiet disclosure; the chevron turns when it opens. */
+.why summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.75rem;
+  font-size: var(--fs-small);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  list-style: none;
+}
+.why summary::-webkit-details-marker {
+  display: none;
+}
+.why summary svg {
+  transition: transform 0.2s var(--ease-out);
+}
+.why[open] summary svg {
+  transform: rotate(180deg);
+}
+.why p {
+  padding: var(--s3);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+  line-height: 1.5;
+}
+.phase-card .why p {
+  background: var(--surface);
+}
+.why[open] p {
+  animation: summary-in 0.24s var(--ease-out) backwards;
 }
 .symptom-card h3 {
   font-family: var(--font-display);

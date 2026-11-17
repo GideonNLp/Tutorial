@@ -549,6 +549,12 @@ export const ro = {
     },
     category: { nutrition: 'Alimentație', movement: 'Mișcare', sleep: 'Somn', skin: 'Piele' },
     categoryLabel: 'Alege tema',
+    whyPhase: 'De ce se întâmplă asta?',
+    why: 'De ce ajută?',
+    applied: 'Am aplicat',
+    appliedToday: 'Aplicat azi',
+    more: 'Alte idei',
+    rotation: (shown: number, total: number) => `${shown} din ${total} idei · se schimbă în fiecare zi a ciclului`,
     symptoms: {
       title: 'Pentru ce ai notat recent',
       empty: 'Când notezi simptome în jurnal, aici apar sugestii potrivite lor.',

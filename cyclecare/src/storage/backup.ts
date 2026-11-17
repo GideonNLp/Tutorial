@@ -172,6 +172,12 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
     }
   }
 
+  if (isObject(raw.appliedTips)) {
+    for (const [id, date] of Object.entries(raw.appliedTips)) {
+      if (/^[a-z]{3}-[a-z]{3}-\d{1,2}$/.test(id) && isValidISODate(date)) data.appliedTips[id] = date;
+    }
+  }
+
   if (Array.isArray(raw.importBatches)) {
     data.importBatches = raw.importBatches.slice(-50).flatMap((b): ImportBatch[] => {
       if (!isObject(b)) return [];

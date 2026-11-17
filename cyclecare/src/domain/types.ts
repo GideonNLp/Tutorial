@@ -161,6 +161,8 @@ export interface AppData {
   firedReminders: Record<string, ISOTimestamp>;
   /** flag id → day it was dismissed. */
   dismissedFlags: Record<string, ISODate>;
+  /** tip id → the day it was last marked "Am aplicat". */
+  appliedTips: Record<string, ISODate>;
   importBatches: ImportBatch[];
 }
 
@@ -183,6 +185,7 @@ export function emptyAppData(): AppData {
     },
     firedReminders: {},
     dismissedFlags: {},
+    appliedTips: {},
     importBatches: [],
   };
 }

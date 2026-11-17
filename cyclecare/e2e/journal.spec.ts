@@ -104,7 +104,8 @@ test('tips follow the phase and the recently logged symptoms; a flag can be dism
   await startWithJournal(page);
   await tab(page, 'Sfaturi');
   await expect(page.getByRole('radio', { name: /Faza foliculară/ })).toBeChecked();
-  await expect(page.getByRole('heading', { name: 'Farfurie variată' })).toBeVisible();
+  // Cycle day 12: the follicular set that starts with the second tip.
+  await expect(page.getByRole('heading', { name: 'Proteine la fiecare masă' })).toBeVisible();
   await page.getByRole('radio', { name: 'Somn' }).check();
   await expect(page.getByRole('heading', { name: 'Lumină dimineața' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 3, name: 'Crampe', exact: true })).toBeVisible();
