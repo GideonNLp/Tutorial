@@ -131,7 +131,7 @@ function notFoundPage(site: SiteConfig): string {
     <meta name="referrer" content="no-referrer">
     <meta name="theme-color" content="${COLORS.lightBg}" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="${COLORS.darkBg}" media="(prefers-color-scheme: dark)">
-    <title>Pagina nu a fost găsită – ${name}</title>
+    <title>Pagina nu a fost găsită · Page not found – ${name}</title>
     <style>
       :root { color-scheme: light dark; --bg: ${COLORS.lightBg}; --ink: ${COLORS.lightInk}; --on-ink: #FFFFFF; }
       @media (prefers-color-scheme: dark) { :root { --bg: ${COLORS.darkBg}; --ink: ${COLORS.darkInk}; --on-ink: ${COLORS.darkBg}; } }
@@ -147,6 +147,7 @@ function notFoundPage(site: SiteConfig): string {
       .code { margin: 0; font-size: 0.9375rem; font-weight: 650; letter-spacing: 0.08em; opacity: 0.7; }
       h1 { margin: 0.5rem 0 0.75rem; font-size: 1.875rem; line-height: 1.15; letter-spacing: -0.01em; }
       p { margin: 0 0 1.5rem; }
+      .en { margin-top: -0.75rem; opacity: 0.8; }
       a {
         display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding: 0.5rem 1.5rem;
         border-radius: 999px; background: var(--ink); color: var(--on-ink); font-weight: 650; text-decoration: none;
@@ -159,7 +160,8 @@ function notFoundPage(site: SiteConfig): string {
       <p class="code">Eroare 404</p>
       <h1>Pagina nu a fost găsită</h1>
       <p>Adresa nu există sau a fost mutată. Datele tale din ${name} nu sunt afectate: ele rămân pe dispozitivul tău.</p>
-      <a href="${escapeHtml(home)}">Deschide ${name}</a>
+      <p class="en" lang="en">Page not found. This address doesn’t exist or has moved. Your ${name} data is not affected: it stays on your device.</p>
+      <a href="${escapeHtml(home)}">Deschide ${name} · <span lang="en">Open</span></a>
     </main>
   </body>
 </html>

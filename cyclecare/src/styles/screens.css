@@ -1117,6 +1117,11 @@ details.table-view > summary {
   margin-top: var(--s3);
   text-align: center;
 }
+.onb-lang {
+  justify-content: center;
+  gap: var(--s1);
+  color: var(--ink-2);
+}
 .partner-day {
   font-family: var(--font-display);
   font-size: var(--fs-h2);

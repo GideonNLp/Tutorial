@@ -12,6 +12,7 @@ import {
   type PartnerView,
   type UserProfile,
 } from '../domain/types';
+import { deviceLocale } from '../i18n';
 import { deleteShare } from '../partner/flows';
 import { cryptoAvailable } from '../storage/crypto';
 import { openBestStore } from '../storage/kv';
@@ -19,7 +20,7 @@ import { Vault, type UnlockResult } from '../storage/vault';
 import { biometricSecret, registerBiometric } from '../storage/webauthn';
 import { reportError } from './errors';
 import { createStore, useStore } from './miniStore';
-import { applyPrefs, clearPrefs, DEFAULT_PREFS, loadPrefs, savePrefs, type Prefs } from './prefs';
+import { applyPrefs, clearPrefs, DEFAULT_PREFS, hasSavedLocale, loadPrefs, savePrefs, type Prefs } from './prefs';
 import { resetRoute } from './router';
 import { resetUi } from './ui';
 
@@ -75,6 +76,7 @@ function withDefaults(data: AppData): AppData {
 export async function initApp(): Promise<void> {
   applyPrefs(store.get().prefs);
   if (!cryptoAvailable()) {
+    adoptDeviceLanguage();
     patch({ status: 'onboarding', storage: 'plain' });
     return;
   }
@@ -82,6 +84,7 @@ export async function initApp(): Promise<void> {
   vault = await Vault.open(kv);
   const storage: StorageMode = kv.persistent ? 'encrypted' : 'session';
   if (!vault.exists) {
+    adoptDeviceLanguage();
     patch({ status: 'onboarding', storage });
   } else if (vault.hasPin) {
     patch({ status: 'locked', storage, ...lockInfo() });
@@ -90,6 +93,14 @@ export async function initApp(): Promise<void> {
     if (result.ok) patch({ status: 'ready', storage, data: withDefaults(result.data), ...lockInfo() });
     else patch({ status: 'broken', storage });
   }
+}
+
+/**
+ * A first run speaks the device's language, if the app has it, and remembers it. Journals started
+ * before English existed have no saved language and stay in Romanian (DEFAULT_LOCALE).
+ */
+function adoptDeviceLanguage(): void {
+  if (!hasSavedLocale()) setPrefs({ locale: deviceLocale() });
 }
 
 // ---- Saving -----------------------------------------------------------------------------------

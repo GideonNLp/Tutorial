@@ -1,21 +1,40 @@
 import { parts, toUTCDate } from '../domain/dates';
 import type { ISODate } from '../domain/types';
+import { en } from './en';
 import { ro } from './ro';
 
 /**
  * Internationalisation.
  *
- * Every user-facing string lives in a locale dictionary (`ro.ts`). Entries are plain strings or
+ * Every user-facing string lives in a locale dictionary (`ro.ts`, `en.ts`). Entries are plain strings or
  * small functions, so plurals and interpolation stay type-checked. To add a language:
- *   1. copy `ro.ts` to e.g. `en.ts` and translate it — `satisfies Dictionary` flags anything missing;
+ *   1. copy `en.ts` to e.g. `de.ts` and translate it — the `Dictionary` type flags anything missing;
  *   2. translate the content files in `src/content/<locale>/`;
  *   3. register both below. The language picker in Settings lists every registered locale.
  */
 export type Dictionary = typeof ro;
 
-export const dictionaries = { ro } satisfies Record<string, Dictionary>;
+export const dictionaries = { ro, en } satisfies Record<string, Dictionary>;
 export type Locale = keyof typeof dictionaries;
+/** The language of journals started before the language was chosen from the device. */
 export const DEFAULT_LOCALE: Locale = 'ro';
+/** For a device whose languages are all unavailable here. */
+export const FALLBACK_LOCALE: Locale = 'en';
+
+export function isLocale(value: unknown): value is Locale {
+  return typeof value === 'string' && Object.hasOwn(dictionaries, value);
+}
+
+/** The first of the device's preferred languages that the app speaks ("ro-MD" → ro, "en-US" → en). */
+export function deviceLocale(
+  languages: readonly string[] = typeof navigator === 'undefined' ? [] : (navigator.languages ?? [navigator.language]),
+): Locale {
+  for (const tag of languages) {
+    const base = tag?.toLowerCase().split(/[-_]/)[0];
+    if (isLocale(base)) return base;
+  }
+  return FALLBACK_LOCALE;
+}
 
 let active: Locale = DEFAULT_LOCALE;
 

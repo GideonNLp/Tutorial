@@ -1,4 +1,7 @@
 import { getLocale, type Locale } from '../i18n';
+import * as enLegal from './en/legal';
+import * as enPartner from './en/partnerTips';
+import * as enTips from './en/tips';
 import * as roLegal from './ro/legal';
 import * as roPartner from './ro/partnerTips';
 import * as roTips from './ro/tips';
@@ -9,6 +12,7 @@ import * as roTips from './ro/tips';
  */
 const contents = {
   ro: { tips: roTips, legal: roLegal, partner: roPartner },
+  en: { tips: enTips, legal: enLegal, partner: enPartner },
 } satisfies Record<Locale, { tips: typeof roTips; legal: typeof roLegal; partner: typeof roPartner }>;
 
 export function content() {
