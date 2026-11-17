@@ -215,7 +215,8 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 |---|---|
 | Ciclul meu | Duratele obișnuite (sau „Nu știu”), obiectivele, comutatorul „Arată fazele ciclului și estimările de fertilitate” |
 | Memento-uri | Starea permisiunii de notificare; text discret; începutul menstruației estimate și zilele fertile (cu câte zile înainte, ora, repetare zilnică); pilulă și alte medicamente (denumire, oră, în fiecare zi sau în anumite zile) |
-| Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; discreție (inimioarele din calendar); unde sunt datele; partajarea cu terți; acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
+| Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; discreție (inimioarele din calendar); unde sunt datele; partajarea cu terți (ce se partajează prin Modul Partener, cu legătură către Setări → Partener); acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
+| Partener | Ce poate vedea partenerul, invitația și oprirea partajării (secțiunea 5.1) |
 | Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor |
 | Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba |
 | Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal, actualizarea la o versiune nouă, licențe |
@@ -226,6 +227,20 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 <img src="screenshots/15-confidentialitate.png" width="230" alt="Confidențialitate și securitate">
 <img src="screenshots/18-blocare.png" width="230" alt="Ecranul de blocare cu PIN">
 </p>
+
+### 5.1 Modul Partener
+
+**Pe telefonul proprietarei, Setări → Partener.** Bifele „Ce poate vedea partenerul” (faza curentă; calendarul și estimările; cum te simți; notițele personale, doar împreună cu „cum te simți”), toate pornite la început, și nota cu ce nu este trimis niciodată (contactele intime, temperatura, secreția cervicală, poza de profil). „Invită partenerul” cere întâi un acord separat, apoi afișează codul de 6 caractere, timpul rămas (10 minute) și „Trimite linkul”. Când partenerul introduce codul, apar cele 6 cifre de verificare, cu „Aprob” și „Nu sunt aceleași”. După conectare: data conectării, starea sincronizării („Ultima actualizare trimisă: acum”, „Fără internet: actualizarea pleacă de îndată ce revii online”), bifele și „Oprește partajarea”, cu confirmare. Unde aplicația nu are server (GitHub Pages), ecranul spune doar că modul nu este disponibil.
+
+**Pe telefonul partenerului.** Primul ecran are și „Conectează-te ca partener”: codul (sau linkul de invitație, care îl completează), apoi cele 6 cifre de arătat. După aprobare, aplicația are trei file, doar pentru citire:
+
+| Filă | Conținut |
+|---|---|
+| Azi | Faza și ziua ciclului, peste câte zile este așteptată menstruația (cu intervalul), „Cum se simte azi” (flux, simptome, dispoziție, energie, nota zilei), „Cum poți ajuta” (două sfaturi pentru faza curentă, cu „Alte idei ↻”) |
+| Calendar | Luna, cu fazele, menstruația notată și estimată, zilele fertile; detaliile zilei alese |
+| Istoric | Zilele notate din ultimele 14, cu etichete și note, după permisiuni |
+
+Sus, pe fiecare filă: „Actualizat acum” și „Actualizează”; fără internet, momentul ultimei actualizări primite; după oprirea partajării, „Partajarea a fost oprită”. Ce nu este împărtășit apare ca atare („Jurnalul nu este împărtășit.”). Avatarul din colț deschide setările partenerului: conexiunea și „Deconectează-te” (care șterge tot de pe telefonul lui), PIN, aspect, despre.
 
 ## 6. Blocare
 
@@ -268,7 +283,8 @@ Fiecare ecran are o adresă simplă, astfel încât butonul „înapoi” al tel
 | `#statistici` | Statistici |
 | `#profil` | Profil |
 | `#setari` | Setări |
-| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
+| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-partener`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
+| `#partener=COD` | Linkul de invitație: deschide conectarea partenerului cu codul completat, apoi adresa revine la `#azi` |
 | `#politica` | Declarația de confidențialitate |
 
 Ziua deschisă în jurnal și luna din calendar nu apar în adresă.

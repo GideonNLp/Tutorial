@@ -1,0 +1,10 @@
+# Netlify: builds CycleCare from cyclecare/ and serves the partner relay as a function at /api/partner.
+# (If the site's base directory is set to "cyclecare" in the Netlify UI, the same defaults apply:
+#  functions are found in netlify/functions and the build output is dist/.)
+[build]
+  base = "cyclecare"
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"

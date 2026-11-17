@@ -51,7 +51,10 @@ export interface BackupFile {
 }
 
 export function exportBackup(data: AppData, now: Date): string {
-  const file: BackupFile = { app: APP_ID, format: BACKUP_FORMAT, exportedAt: now.toISOString(), data };
+  // A backup carries the journal, not the keys of a partner link: whoever holds the file must not be able to read along.
+  const { partnerView: _view, ...rest } = data;
+  const portable: AppData = { ...rest, partner: { permissions: data.partner.permissions } };
+  const file: BackupFile = { app: APP_ID, format: BACKUP_FORMAT, exportedAt: now.toISOString(), data: portable };
   return JSON.stringify(file, null, 2);
 }
 
@@ -132,6 +135,10 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
   }
 
   data.user = sanitizeUser(raw.user);
+  if (isObject(raw.partner) && isObject(raw.partner.permissions)) {
+    const p = raw.partner.permissions;
+    data.partner.permissions = { phase: p.phase !== false, calendar: p.calendar !== false, journal: p.journal !== false, notes: p.notes !== false };
+  }
 
   if (isObject(raw.logs)) {
     for (const [date, value] of Object.entries(raw.logs)) {

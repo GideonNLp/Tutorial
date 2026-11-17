@@ -61,6 +61,7 @@ jobs:
           VITE_OPERATOR_REGISTRATION: ${{ vars.VITE_OPERATOR_REGISTRATION }}
           VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
           VITE_DPO_CONTACT: ${{ vars.VITE_DPO_CONTACT }}
+          VITE_PARTNER_SYNC_URL: ${{ vars.VITE_PARTNER_SYNC_URL }}
           VITE_LEGAL_REVIEWED: ${{ vars.VITE_LEGAL_REVIEWED }}
         run: |
           if [ -z "$VITE_PUBLIC_URL" ]; then

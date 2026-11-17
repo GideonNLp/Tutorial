@@ -22,6 +22,7 @@ export const ROUTES = [
   'setari-memento',
   'setari-confidentialitate',
   'setari-date',
+  'setari-partener',
   'setari-aspect',
   'setari-despre',
   'politica',

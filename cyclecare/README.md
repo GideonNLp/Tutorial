@@ -61,6 +61,25 @@ Butonul „Instalează aplicația” apare pe ecranul de bun venit, pe „Azi”
 
 Codul este în `src/app/pwa.ts` și `src/ui/InstallApp.tsx`.
 
+## Modul Partener
+
+Persoana care folosește aplicația poate invita un partener să vadă, pe telefonul acestuia, o parte din datele ei: faza curentă, calendarul cu estimările, cum se simte (simptome, dispoziție, energie, flux) și, la alegere, notițele. Partenerul doar citește. Contactele intime, temperatura, secreția cervicală și poza de profil nu sunt trimise niciodată.
+
+**Cum se conectează.** Setări → Partener → „Invită partenerul” (cu un acord separat) afișează un cod de 6 caractere, valabil 10 minute, și un link de invitație. Pe celălalt telefon: „Conectează-te ca partener” pe primul ecran, apoi codul. Ambele ecrane arată aceleași 6 cifre de verificare; proprietara aprobă doar dacă se potrivesc. Partajarea se poate opri oricând, iar ce vede partenerul se poate schimba din aceleași bife.
+
+**Cum funcționează.**
+
+| Pas       | Ce se întâmplă                                                                                                                                                                                                                                    | Ce vede serverul                                |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Asociere  | Cele două telefoane schimbă chei publice ECDH (P-256) prin server, sub codul de 6 caractere, și obțin aceeași cheie AES cu HKDF. Cifrele de verificare sunt calculate din ambele chei, deci un intermediar care le-ar înlocui ar schimba cifrele. | Codul, cele două chei publice, un mesaj criptat |
+| Partajare | Telefonul proprietarei calculează un rezumat după bife, îl criptează cu AES-256-GCM (cheie de 256 de biți, legată de canal) și îl trimite la fiecare schimbare. Doar el poate scrie (token de scriere, păstrat pe server doar ca hash).           | Text criptat și momentul actualizării           |
+| Citire    | Telefonul partenerului verifică la fiecare 20 de secunde cât timp aplicația e deschisă, la revenire și la „Actualizează”. Ultimul rezumat rămâne în seiful criptat al telefonului, deci se vede și fără internet.                                 | Cererea de citire                               |
+| Oprire    | Rezumatul criptat este șters de pe server (dacă telefonul e offline, imediat ce revine online). Partenerul vede „Partajarea a fost oprită”.                                                                                                       | Nimic                                           |
+
+Cheile canalului stau în seiful criptat al fiecărui telefon și nu intră în copia de siguranță JSON.
+
+**Serverul.** O funcție Netlify (`netlify/functions/partner.mts`) cu stocare Netlify Blobs, pe același domeniu, la `/api/partner`; logica este în `server/relay.ts`. Pe Netlify este inclusă automat (`netlify.toml` la rădăcina depozitului). Pe GitHub Pages, care nu poate rula funcții, Modul Partener nu apare. Pentru altă gazdă, `VITE_PARTNER_SYNC_URL` poate indica o adresă https care rulează același cod; acea origine este adăugată automat în politica de securitate.
+
 ## Configurare
 
 Build-ul funcționează fără nicio configurare. Valorile de mai jos se dau ca variabile de mediu la build sau într-un fișier `.env.local` (vezi [.env.example](.env.example)); niciuna nu este secretă.
@@ -72,6 +91,7 @@ Build-ul funcționează fără nicio configurare. Valorile de mai jos se dau ca 
 | `VITE_ALLOW_INDEXING`                                                                                                 | `true` permite motoarelor de căutare să indexeze pagina (implicit: `noindex` și `robots.txt` care interzice tot) |
 | `VITE_OPERATOR_NAME`, `VITE_OPERATOR_ADDRESS`, `VITE_OPERATOR_REGISTRATION`, `VITE_CONTACT_EMAIL`, `VITE_DPO_CONTACT` | Datele operatorului din declarația de confidențialitate; cât lipsesc, rămân vizibile ca spații de completat      |
 | `VITE_LEGAL_REVIEWED`                                                                                                 | `true` după verificarea juridică a textelor: scoate mențiunea „schiță” și notele pentru jurist                   |
+| `VITE_PARTNER_SYNC_URL`                                                                                               | Adresa serverului Modului Partener; pe Netlify implicit `/api/partner`, în rest gol (modul nu apare)             |
 
 ## Publicare
 
@@ -86,7 +106,9 @@ Build-ul funcționează fără nicio configurare. Valorile de mai jos se dau ca 
 | `_headers`                           | Antete de securitate și de cache pentru Netlify și Cloudflare Pages; pe alte gazde, aceleași antete se setează în configurarea lor |
 | `robots.txt`                         | Politica pentru motoarele de căutare                                                                                               |
 
-Politica de securitate (`default-src 'self'`, `connect-src 'self'`) este inclusă și în pagină, deci se aplică pe orice gazdă: aplicația nu poate încărca nimic de pe alt server și nu poate trimite date nicăieri, așa că nu există nici conținut mixt.
+Politica de securitate (`default-src 'self'`, `connect-src 'self'`) este inclusă și în pagină, deci se aplică pe orice gazdă: aplicația nu poate încărca nimic de pe alt server și nu poate trimite date în afara propriului domeniu (unde răspunde, dacă este activat, serverul Modului Partener, care primește doar date criptate), așa că nu există nici conținut mixt.
+
+**Netlify.** Conectează depozitul în Netlify: `netlify.toml` setează directorul `cyclecare`, comanda `npm run build`, publicarea din `dist` și funcția Modului Partener. Netlify Blobs nu cere configurare. Variabilele `VITE_*` se setează în Site configuration → Environment variables.
 
 Fluxul din `.github/workflows/cyclecare-pages.yml` rulează verificările și publică `dist/` pe GitHub Pages (ramura `gh-pages`) la fiecare modificare ajunsă în `main` sau la pornirea manuală din fila Actions.
 
@@ -100,10 +122,11 @@ Fluxul din `.github/workflows/cyclecare-pages.yml` rulează verificările și pu
 | 4. Sfaturi personalizate           | Pe faza curentă (alimentație, mișcare, somn, piele), pe simptomele recente, semnalizări pentru simptome neobișnuite sau persistente                  | `src/content/ro/tips.ts`, `src/domain/insights.ts`, `src/screens/Tips.tsx`                             | `tests/insights.test.ts`, `tests/docs.test.ts`                            |
 | 5. Memento-uri                     | Menstruație, zile fertile, pilulă și alte medicamente; ore, zile și repetare alese de persoană; text discret                                         | `src/domain/reminders.ts`, `src/app/lifecycle.ts`, `src/screens/Settings.tsx`                          | `tests/reminders.test.ts`, `e2e/data.spec.ts`                             |
 | 6. Statistici și rapoarte          | Grafice pentru durata ciclurilor, simptome și dispoziție, fiecare cu tabel; raport PDF generat pe dispozitiv                                         | `src/domain/stats.ts`, `src/ui/charts.tsx`, `src/pdf/`                                                 | `tests/stats.test.ts`, `tests/pdf.test.ts`, `e2e/data.spec.ts`            |
-| 7. Confidențialitate și securitate | AES-256-GCM în repaus, PIN, biometrie, blocare automată, ștergerea tuturor datelor, nicio partajare                                                  | `src/storage/`, `src/app/store.ts`                                                                     | `tests/vault.test.ts`, `e2e/security.spec.ts`, `e2e/quality.spec.ts`      |
+| 7. Confidențialitate și securitate | AES-256-GCM în repaus, PIN, biometrie, blocare automată, ștergerea tuturor datelor, partajare doar cu partenerul ales, criptată cap-coadă            | `src/storage/`, `src/app/store.ts`                                                                     | `tests/vault.test.ts`, `e2e/security.spec.ts`, `e2e/quality.spec.ts`      |
 | 8. Design și accesibilitate        | Paletă calmă verificată pentru contrast și daltonism, mod întunecat, text scalabil, cititoare de ecran, română cu loc pentru alte limbi              | `src/styles/`, `src/i18n/`                                                                             | `tests/tokens.test.ts`, `e2e/quality.spec.ts`                             |
 | Viață intimă și risc de sarcină    | Contact intim în jurnal (fel, contracepție, prezervativ rupt), inimioare în calendar, risc de sarcină pe „Azi”, cu contracepția de urgență și testul | `src/domain/pregnancyRisk.ts`, `src/screens/Journal.tsx`, `src/ui/PregnancyRisk.tsx`                   | `tests/pregnancyRisk.test.ts`, `e2e/intimacy.spec.ts`                     |
 | Profil                             | Nume sau poreclă întrebat la prima deschidere (opțional), poză rotundă în colțul din dreapta sus, ecran pentru nume și poză                          | `src/screens/Profile.tsx`, `src/ui/Avatar.tsx`, `src/app/photo.ts`, `src/domain/user.ts`               | `tests/user.test.ts`, `e2e/profile.spec.ts`                               |
+| Modul Partener                     | Invitație cu cod și cifre de verificare, permisiuni, sincronizare criptată cap-coadă, vizualizare doar pentru citire pe telefonul partenerului       | `src/partner/`, `src/domain/partner.ts`, `src/screens/PartnerScreens.tsx`, `server/relay.ts`           | `tests/partner.test.ts`, `tests/relay.test.ts`, `e2e/partner.spec.ts`     |
 | Navigare și mișcare                | Stivă de ecrane cu tranziții, glisare înapoi, ferestre care se trag în jos, sticlă, reacție la apăsare; totul se oprește la „Reducere mișcare”       | `src/app/router.ts`, `src/ui/Navigator.tsx`, `src/ui/motion.ts`, `src/ui/Sheet.tsx`                    | `tests/router.test.ts`, `e2e/motion.spec.ts`                              |
 | Instalare și producție             | Manifest, pictograme, pornire fără internet, actualizări acceptate de persoană, pagină 404, tratarea erorilor, anulare, validări lângă câmp          | `vite.config.ts`, `public/sw.js`, `src/app/pwa.ts`, `src/app/errors.ts`                                | `e2e/pwa.spec.ts`, `e2e/polish.spec.ts`                                   |
 
@@ -113,6 +136,7 @@ Fluxul din `.github/workflows/cyclecare-pages.yml` rulează verificările și pu
 - Fără PIN, cheia este păstrată de browser și nu poate fi exportată. Cu PIN, cheia este protejată de o cheie derivată din PIN (PBKDF2-HMAC-SHA-256, 600 000 de iterații); PIN-ul nu este stocat și nu poate fi recuperat.
 - Deblocarea biometrică folosește WebAuthn cu extensia PRF: senzorul dispozitivului eliberează un secret care despachetează cheia. Nu se trimite nimic unui server.
 - Build-ul de producție are o politică de securitate (`connect-src 'self'`) care împiedică aplicația să comunice cu alt server. Nu există fonturi sau scripturi încărcate de la terți.
+- Singurele date care pleacă de pe telefon sunt cele din Modul Partener, doar după acordul separat și aprobarea cifrelor de verificare, criptate cu o cheie pe care serverul nu o are.
 - „Șterge toate datele” șterge jurnalul, cheile și preferințele. Retragerea consimțământului face același lucru.
 - După ce există un jurnal, aplicația cere browserului să nu îl șteargă la curățarea automată a spațiului; dacă browserul nu promite asta, ecranul de confidențialitate o spune și recomandă instalarea și un export periodic.
 
@@ -137,10 +161,13 @@ src/
   app/         starea sesiunii, stiva de navigare, configurare, instalare și actualizări, erori, memento-uri în timp real
   screens/     ecranele
   ui/          cadrul aplicației, tranziții și gesturi, ferestre, controale, cadranul ciclului, grafice
+  partner/     Modul Partener: criptografie, asociere, sincronizare
   pdf/         cititor TrueType și generator PDF, fără dependențe
   i18n/        texte de interfață și formatare
   content/     sfaturi și texte juridice, pe limbi
   styles/      culori (tokens.json), fonturi, stiluri
+server/        serverul Modului Partener (logică fără dependențe, folosită de funcția Netlify și în teste)
+netlify/       funcția Netlify care îl găzduiește
 tests/         teste unitare
 e2e/           teste cap-coadă
 scripts/       generatoare: culori, documente, pictograme, previzualizare într-un singur fișier

@@ -286,6 +286,7 @@ export function ConfirmSheet(props: {
   title: string;
   body: string;
   confirmLabel: string;
+  cancelLabel?: string;
   danger?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -295,7 +296,7 @@ export function ConfirmSheet(props: {
       <p>{props.body}</p>
       <div className="sheet-actions">
         <button type="button" className="btn btn-secondary" onClick={props.onCancel}>
-          {strings().common.cancel}
+          {props.cancelLabel ?? strings().common.cancel}
         </button>
         <button
           type="button"

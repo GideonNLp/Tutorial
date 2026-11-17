@@ -1,7 +1,11 @@
 import { Check, ChevronLeft, Info } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { requestNotifications } from '../app/platform';
-import { completeOnboarding, useStorageMode, useToday } from '../app/store';
+import { partnerAvailable } from '../app/config';
+import { completeOnboarding, startPartnerDevice, useStorageMode, useToday } from '../app/store';
+import { isPairingCode, normalizePairingCode } from '../partner/crypto';
+import { collectCredentials, joinPairing, type PartnerJoin } from '../partner/flows';
+import { takeInviteCode } from '../partner/invite';
 import { content } from '../content';
 import { diffDays, isValidISODate } from '../domain/dates';
 import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/prediction';
@@ -17,7 +21,7 @@ import { StepStack } from '../ui/StepStack';
 import { Notice } from '../ui/Shell';
 import { haptic } from '../ui/haptics';
 
-type Step = 'welcome' | 'consent' | 'nickname' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goals' | 'finish';
+type Step = 'welcome' | 'partnerJoin' | 'partnerVerify' | 'consent' | 'nickname' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goals' | 'finish';
 const QUESTION_STEPS: Step[] = ['consent', 'nickname', 'lastPeriod', 'cycleLength', 'periodLength', 'goals', 'finish'];
 
 /** The name to keep, if any (the step itself refuses names it cannot keep). */
@@ -31,7 +35,13 @@ export function Onboarding() {
   const o = s.onboarding;
   const today = useToday();
   const storage = useStorageMode();
-  const [step, setStep] = useState<Step>('welcome');
+  // An invitation link opens straight on the partner's code screen, with the code filled in.
+  const [inviteCode] = useState(() => (partnerAvailable() ? takeInviteCode() : undefined));
+  const [step, setStep] = useState<Step>(inviteCode ? 'partnerJoin' : 'welcome');
+  const [partnerCode, setPartnerCode] = useState(inviteCode ?? '');
+  const [partnerError, setPartnerError] = useState<string | undefined>(undefined);
+  const [partnerBusy, setPartnerBusy] = useState(false);
+  const [join, setJoin] = useState<PartnerJoin | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
   const [nickname, setNickname] = useState('');
@@ -105,7 +115,153 @@ export function Onboarding() {
     </div>
   );
 
+  const pm = s.partnerMode;
+
+  const submitPartnerCode = async () => {
+    const code = normalizePairingCode(partnerCode);
+    if (!isPairingCode(code)) return setPartnerError(pm.join.invalid);
+    setPartnerBusy(true);
+    setPartnerError(undefined);
+    const res = await joinPairing(code);
+    setPartnerBusy(false);
+    if (!res.ok) {
+      haptic('warning');
+      return setPartnerError(
+        res.reason === 'not_found'
+          ? pm.join.notFound
+          : res.reason === 'conflict'
+            ? pm.join.taken
+            : res.reason === 'offline'
+              ? s.share.errors.offline
+              : s.share.errors.generic,
+      );
+    }
+    setJoin(res.value);
+    go('partnerVerify');
+  };
+
+  // Waiting for the owner to compare the digits and approve.
+  useEffect(() => {
+    if (step !== 'partnerVerify' || !join) return;
+    let stopped = false;
+    const timer = setInterval(async () => {
+      const res = await collectCredentials(join);
+      if (stopped) return;
+      if (res.ok && res.value) {
+        stopped = true;
+        clearInterval(timer);
+        haptic('success');
+        await startPartnerDevice(res.value);
+      } else if (!res.ok && res.reason !== 'offline' && res.reason !== 'server') {
+        stopped = true;
+        clearInterval(timer);
+        setPartnerError(res.reason === 'not_found' ? pm.verify.rejected : pm.verify.failed);
+      }
+    }, 2000);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+  }, [step, join, pm]);
+
+  /** First-run screens for the partner: no progress bar, a way back to the welcome screen. */
+  const partnerShell = (title: string, body: ReactNode, actions: ReactNode) => (
+    <div className="onb">
+      <header className="onb-top">
+        <button
+          type="button"
+          className="icon-btn outlined"
+          aria-label={s.common.back}
+          onClick={() => {
+            setJoin(undefined);
+            setPartnerError(undefined);
+            setForward(false);
+            setStep(step === 'partnerVerify' ? 'partnerJoin' : 'welcome');
+          }}
+        >
+          <ChevronLeft size={22} aria-hidden="true" />
+        </button>
+      </header>
+      <main className="onb-body stack stack-5">
+        <h1 tabIndex={-1} data-page-title="">
+          {title}
+        </h1>
+        {body}
+      </main>
+      <footer className="onb-actions">{actions}</footer>
+    </div>
+  );
+
   const renderStep = (): ReactNode => {
+    if (step === 'partnerJoin') {
+      return partnerShell(
+        pm.join.title,
+        <>
+          <p className="ink-2">{pm.join.lead}</p>
+          <div className="field">
+            <label className="field-label" htmlFor="partner-code">
+              {pm.join.label}
+            </label>
+            <p className="field-hint" id="partner-code-hint">
+              {pm.join.hint}
+            </p>
+            <input
+              id="partner-code"
+              className="input pin-input"
+              value={partnerCode}
+              maxLength={8}
+              autoComplete="one-time-code"
+              autoCapitalize="characters"
+              spellCheck={false}
+              enterKeyHint="go"
+              aria-invalid={partnerError ? true : undefined}
+              aria-describedby={`partner-code-hint${partnerError ? ' partner-code-error' : ''}`}
+              onChange={(e) => {
+                setPartnerCode(e.target.value.toUpperCase());
+                setPartnerError(undefined);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void submitPartnerCode();
+              }}
+            />
+            {partnerError && <ErrorText id="partner-code-error">{partnerError}</ErrorText>}
+          </div>
+          <Notice icon={<Info size={18} aria-hidden="true" />}>
+            <p>{pm.join.notice}</p>
+          </Notice>
+        </>,
+        <button
+          type="button"
+          className="btn btn-primary btn-block"
+          disabled={partnerBusy}
+          aria-busy={partnerBusy || undefined}
+          onClick={() => void submitPartnerCode()}
+        >
+          {pm.join.submit}
+        </button>,
+      );
+    }
+
+    if (step === 'partnerVerify' && join) {
+      return partnerShell(
+        pm.verify.title,
+        <>
+          <p className="ink-2">{pm.verify.lead}</p>
+          <p className="pair-code" data-testid="partner-digits">
+            {join.digits}
+          </p>
+          {partnerError ? (
+            <ErrorText>{partnerError}</ErrorText>
+          ) : (
+            <p className="caption" role="status">
+              {pm.verify.waiting}
+            </p>
+          )}
+        </>,
+        null,
+      );
+    }
+
     if (step === 'welcome') {
       return (
         <div className="onb">
@@ -130,6 +286,14 @@ export function Onboarding() {
               {o.welcome.start}
             </button>
             <InstallButton className="btn btn-secondary btn-block" />
+            {partnerAvailable() && (
+              <div className="stack stack-1 onb-partner">
+                <p className="caption">{pm.welcomeHint}</p>
+                <button type="button" className="btn btn-quiet btn-block" onClick={() => go('partnerJoin')}>
+                  {pm.welcomeAction}
+                </button>
+              </div>
+            )}
             {__PREVIEW__ && (
               <p className="caption" style={{ textAlign: 'center' }}>
                 {o.welcome.previewNote}

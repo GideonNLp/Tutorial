@@ -10,12 +10,14 @@ import {
   RefreshCw,
   ShieldCheck,
   Trash2,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { notificationStatus, readFileAsText, requestNotifications, saveFile, type NotificationStatus } from '../app/platform';
 import type { AutoLock, TextSize, ThemePref } from '../app/prefs';
 import { applyUpdate, useInstallState, useStoragePersisted, useUpdateReady } from '../app/pwa';
+import { partnerAvailable } from '../app/config';
 import { navigate, type Route } from '../app/router';
 import {
   disableBiometrics,
@@ -47,6 +49,7 @@ import { ImportTempsSheet } from '../ui/ImportTempsSheet';
 import { InstallButton } from '../ui/InstallApp';
 import { PinFields, validateNewPin } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
+import { PartnerShareSettings } from './PartnerShareSettings';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
 import { Notice, Screen } from '../ui/Shell';
 import { content } from '../content';
@@ -62,6 +65,8 @@ export function SettingsScreen({ route }: { route: Route }) {
       return <PrivacySettings />;
     case 'setari-date':
       return <DataSettings />;
+    case 'setari-partener':
+      return <PartnerShareSettings />;
     case 'setari-aspect':
       return <AppearanceSettings />;
     case 'setari-despre':
@@ -92,6 +97,7 @@ function SettingsIndex() {
     { route: 'setari-memento', icon: Bell, text: s.sections.reminders },
     { route: 'setari-confidentialitate', icon: ShieldCheck, text: s.sections.privacy },
     { route: 'setari-date', icon: Database, text: s.sections.data },
+    { route: 'setari-partener', icon: Users, text: s.sections.partner },
     { route: 'setari-aspect', icon: Palette, text: s.sections.appearance },
     { route: 'setari-despre', icon: CircleHelp, text: s.sections.about },
   ];
@@ -411,9 +417,9 @@ function ReminderSettingsScreen() {
 
 // ---------------------------------------------------------------- privacy & security
 
-type PinMode = 'set' | 'change' | 'remove';
+export type PinMode = 'set' | 'change' | 'remove';
 
-function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void }) {
+export function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void }) {
   const s = strings();
   const p = s.settings.privacy;
   const currentId = useId();
@@ -634,7 +640,20 @@ function PrivacySettings() {
         </Group>
 
         <Group title={p.sharingTitle}>
-          <p>{p.sharing}</p>
+          <p>
+            {data.partner.share
+              ? p.sharingOn(formatDate(todayISO(new Date(data.partner.share.connectedAt)), 'long'))
+              : partnerAvailable()
+                ? p.sharingOff
+                : p.sharing}
+          </p>
+          {partnerAvailable() && (
+            <div className="row">
+              <button type="button" className="btn btn-secondary btn-small" onClick={() => navigate('setari-partener')}>
+                {s.settings.sections.partner.title}
+              </button>
+            </div>
+          )}
         </Group>
 
         <Group title={p.consentTitle}>
@@ -793,7 +812,7 @@ function DataSettings() {
 
 // ---------------------------------------------------------------- appearance
 
-function AppearanceSettings() {
+export function AppearanceSettings() {
   const s = strings();
   const a = s.settings.appearance;
   const prefs = usePrefs();
@@ -839,7 +858,7 @@ function AppearanceSettings() {
 
 // ---------------------------------------------------------------- about & policy
 
-function About() {
+export function About() {
   const s = strings();
   const a = s.settings.about;
   const install = useInstallState();

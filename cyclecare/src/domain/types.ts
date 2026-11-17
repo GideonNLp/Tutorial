@@ -111,7 +111,52 @@ export interface UserProfile {
 
 export const NICKNAME_MAX = 30;
 
-export const CONSENT_TYPES = ['health_data_processing', 'age_confirmation'] as const;
+/** What the partner may see. Each switch is the person's choice; all on until changed. */
+export interface PartnerPermissions {
+  /** Current phase, cycle day, days until the next period. */
+  phase: boolean;
+  /** The calendar: phases, fertile days, estimated periods. */
+  calendar: boolean;
+  /** Symptoms, mood, energy and flow from the journal. */
+  journal: boolean;
+  /** Personal notes (only together with `journal`). */
+  notes: boolean;
+}
+export const DEFAULT_PARTNER_PERMISSIONS: PartnerPermissions = { phase: true, calendar: true, journal: true, notes: true };
+
+/** The owner's side of an active link. Secrets stay in the vault and never go into a backup file. */
+export interface PartnerShare {
+  /** 128-bit random id of the relay channel (base64url). */
+  channelId: string;
+  /** AES-256-GCM key for the shared summary (base64url); the relay never sees it. */
+  dataKey: string;
+  /** Proves to the relay that this device may update or delete the channel (base64url). */
+  writeToken: string;
+  connectedAt: ISOTimestamp;
+}
+
+export interface OwnerPartnerSettings {
+  permissions: PartnerPermissions;
+  share?: PartnerShare;
+  /** A stopped link whose server copy could not be deleted yet (offline); retried until it is. */
+  pendingRevoke?: { channelId: string; writeToken: string };
+}
+
+/** The partner's side: where to read, the key, and the last summary received (for offline use). */
+export interface PartnerView {
+  channelId: string;
+  dataKey: string;
+  connectedAt: ISOTimestamp;
+  /** Last summary received, already validated (see domain/partner.ts). */
+  snapshot?: unknown;
+  etag?: string;
+  /** When the relay was last reached. */
+  checkedAt?: ISOTimestamp;
+  /** The owner stopped sharing. */
+  revoked?: boolean;
+}
+
+export const CONSENT_TYPES = ['health_data_processing', 'age_confirmation', 'partner_sharing', 'partner_view'] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
 
 export interface ConsentRecord {
@@ -151,6 +196,8 @@ export interface ImportBatch {
 /** Everything that lives inside the encrypted vault. */
 export interface AppData {
   schemaVersion: 1;
+  /** `partner`: this device only views what someone shares with it (Partner mode). */
+  role: 'owner' | 'partner';
   onboardedAt?: ISOTimestamp;
   consents: ConsentRecord[];
   profile: Profile;
@@ -163,6 +210,10 @@ export interface AppData {
   dismissedFlags: Record<string, ISODate>;
   /** tip id → the day it was last marked "Am aplicat". */
   appliedTips: Record<string, ISODate>;
+  /** Owner side of Partner mode. */
+  partner: OwnerPartnerSettings;
+  /** Partner side of Partner mode (only when `role` is `partner`). */
+  partnerView?: PartnerView;
   importBatches: ImportBatch[];
 }
 
@@ -173,6 +224,7 @@ export function isPeriodFlow(flow: Flow | undefined): boolean {
 export function emptyAppData(): AppData {
   return {
     schemaVersion: 1,
+    role: 'owner',
     consents: [],
     profile: { goals: [], showFertility: true, showIntimacy: true },
     user: {},
@@ -186,6 +238,7 @@ export function emptyAppData(): AppData {
     firedReminders: {},
     dismissedFlags: {},
     appliedTips: {},
+    partner: { permissions: { ...DEFAULT_PARTNER_PERMISSIONS } },
     importBatches: [],
   };
 }

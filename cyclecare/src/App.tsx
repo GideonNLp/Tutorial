@@ -4,7 +4,7 @@ import { startLifecycle } from './app/lifecycle';
 import { warmUpHost } from './app/platform';
 import { applyUpdate, registerServiceWorker, requestPersistentStorage, useUpdateReady } from './app/pwa';
 import type { Route } from './app/router';
-import { flush, initApp, usePrefs, useStatus, useStorageMode } from './app/store';
+import { flush, initApp, usePrefs, useRole, useStatus, useStorageMode } from './app/store';
 import { toast } from './app/ui';
 import { strings } from './i18n';
 import { CalendarScreen } from './screens/Calendar';
@@ -16,6 +16,9 @@ import { SettingsScreen } from './screens/Settings';
 import { StatsScreen } from './screens/Stats';
 import { TipsScreen } from './screens/Tips';
 import { TodayScreen } from './screens/Today';
+import { OwnerSync } from './partner/OwnerSync';
+import { PartnerSync } from './partner/PartnerSync';
+import { PARTNER_TABS, partnerRoutes } from './screens/PartnerScreens';
 import { Navigator } from './ui/Navigator';
 import { TabBar, Toaster } from './ui/Shell';
 
@@ -44,6 +47,7 @@ export function App() {
   const status = useStatus();
   const storage = useStorageMode();
   const updateReady = useUpdateReady();
+  const role = useRole();
   // Re-render everything when the language changes (strings are read at render time).
   const { locale } = usePrefs();
 
@@ -106,7 +110,7 @@ export function App() {
   }
 
   return (
-    <div className="app with-tabbar view-enter" key={`ready-${locale}`}>
+    <div className="app with-tabbar view-enter" key={`ready-${locale}-${role}`}>
       <a
         className="skip-link"
         href="#main"
@@ -117,8 +121,10 @@ export function App() {
       >
         {s.common.skipToContent}
       </a>
-      <Navigator render={screenFor} />
-      <TabBar />
+      {/* A partner's device shows the same app, read-only, built from what is shared with it. */}
+      <Navigator render={role === 'partner' ? partnerRoutes : screenFor} />
+      <TabBar tabs={role === 'partner' ? PARTNER_TABS : undefined} />
+      {role === 'partner' ? <PartnerSync /> : <OwnerSync />}
       <Toaster />
     </div>
   );

@@ -35,6 +35,8 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  // Live data (the partner relay) always goes to the network, never into the cache.
+  if (request.cache === 'no-store' || new URL(request.url).pathname.includes('/api/')) return;
 
   // The page itself: the precached copy belongs to the same version as the scripts it names, so it
   // is what we serve. Other addresses (a mistyped path) go to the network and get the host's 404 page.

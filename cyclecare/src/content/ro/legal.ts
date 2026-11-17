@@ -15,7 +15,7 @@
 
 import { APP_NAME, LEGAL_REVIEWED, OPERATOR } from '../../app/config';
 
-export const LEGAL_VERSION = '2026-11-schita-4';
+export const LEGAL_VERSION = '2026-11-schita-5';
 export const LEGAL_UPDATED = '2026-11-17';
 
 export const consentText = {
@@ -32,7 +32,7 @@ export const consentText = {
     },
     {
       title: 'Cine le mai vede',
-      body: 'Nimeni. Nu le partajăm, nu le vindem și nu le folosim pentru reclame. Orice partajare viitoare ar avea nevoie de un acord separat din partea ta.',
+      body: 'Nimeni. Nu le partajăm, nu le vindem și nu le folosim pentru reclame. Dacă vrei, poți invita o persoană în Modul Partener; atunci îți cerem un acord separat și tu alegi ce vede.',
     },
     {
       title: 'Ce poți face oricând',
@@ -76,7 +76,7 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
       bullets: [
         `${APP_NAME} păstrează datele tale doar pe dispozitivul tău, criptate.`,
         'Nu îți cerem e-mail, număr de telefon sau cont. Numele (sau o poreclă) și poza de profil sunt opționale și rămân, și ele, doar pe dispozitiv.',
-        'Nu avem acces la datele tale și nu le transmitem nimănui.',
+        'Nu avem acces la datele tale și nu le transmitem nimănui. Dacă alegi Modul Partener, un rezumat ales de tine ajunge, criptat cap-coadă, doar pe telefonul persoanei invitate.',
         'Nu folosim reclame, instrumente de analiză sau alte servicii ale unor terți.',
         'Poți exporta sau șterge totul oricând.',
       ],
@@ -120,7 +120,7 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
         'Sunt criptate în repaus cu AES-256-GCM. Cheia de criptare este păstrată de sistemul dispozitivului și nu poate fi exportată.',
         'Dacă setezi un PIN, cheia de criptare este protejată suplimentar cu o cheie derivată din PIN (PBKDF2-HMAC-SHA-256, 600 000 de iterații). PIN-ul nu este stocat nicăieri și nu poate fi recuperat.',
         'Deblocarea biometrică folosește senzorul dispozitivului. Amprenta sau imaginea feței nu ajung la aplicație.',
-        'Aplicația nu transmite datele tale prin internet. Aplicația este livrată prin HTTPS și este configurată să nu poată comunica cu alte servere.',
+        'Aplicația nu transmite datele tale prin internet, cu o singură excepție pe care o alegi tu: Modul Partener (secțiunea 7). Aplicația este livrată prin HTTPS și este configurată să nu poată comunica decât cu propriul server.',
         'Dacă pe viitor apare o funcție care presupune transmiterea de date (de exemplu, o copie de siguranță în cloud), aceasta va fi opțională, criptată integral pe dispozitiv înainte de transmitere, transmisă numai prin conexiuni criptate (TLS) și activată doar cu acordul tău separat.',
       ],
     },
@@ -143,7 +143,9 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
       paragraphs: [
         'Cu nimeni. Nu vindem, nu închiriem și nu transmitem datele tale către terți, parteneri de publicitate, angajatori, asigurători sau autorități, pentru că nu le deținem.',
         'Raportul PDF și exportul de date sunt create pe dispozitivul tău și ajung doar la cine alegi tu să le arăți sau să le trimiți.',
-        'Orice partajare viitoare ar fi posibilă numai cu acordul tău explicit și separat, cerut pentru fiecare caz în parte, cu indicarea exactă a datelor, a destinatarului și a scopului.',
+        'Modul Partener, numai dacă îl pornești, cu acordul tău separat: telefonul tău calculează un rezumat cu ce ai ales să vadă persoana invitată (faza, calendarul cu estimările, simptomele și dispoziția din ultimele 14 zile, notițele). Contactele intime, temperatura, secreția cervicală și poza de profil nu sunt trimise niciodată. Rezumatul este criptat pe telefonul tău cu o cheie pe care o au doar cele două telefoane și trece prin serverul aplicației, care păstrează doar textul criptat, fără să îl poată citi. Serverul este găzduit de furnizorul de găzduire al aplicației [denumirea furnizorului și țara în care sunt păstrate datele].',
+        'Asocierea se face cu un cod de 6 caractere, valabil 10 minute, și cu șase cifre de verificare pe care le compari pe cele două ecrane. Poți schimba oricând ce vede partenerul sau poți opri partajarea; atunci copia criptată este ștearsă de pe server. Persoana invitată păstrează pe telefonul ei, criptat, ultimul rezumat primit, până se deconectează.',
+        'Orice altă partajare ar fi posibilă numai cu acordul tău explicit și separat, cerut pentru fiecare caz în parte, cu indicarea exactă a datelor, a destinatarului și a scopului.',
       ],
     },
     {
@@ -161,7 +163,7 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
     {
       heading: '10. Cât timp păstrăm datele',
       paragraphs: [
-        'Datele rămân pe dispozitivul tău până când le ștergi din aplicație, îți retragi acordul, ștergi datele site-ului din browser sau dezinstalezi aplicația. Noi nu păstrăm nicio copie.',
+        'Datele rămân pe dispozitivul tău până când le ștergi din aplicație, îți retragi acordul, ștergi datele site-ului din browser sau dezinstalezi aplicația. Noi nu păstrăm nicio copie, cu excepția rezumatului criptat al Modului Partener, care este șters când oprești partajarea sau ștergi toate datele.',
         'Atenție: dacă pierzi dispozitivul sau ștergi aplicația fără un export, datele nu pot fi recuperate.',
       ],
     },
@@ -215,6 +217,7 @@ export const legalReviewNotes: string[] = [
   'Notificările și ePrivacy. Stocarea locală este strict necesară serviciului cerut de utilizator; de confirmat că nu este nevoie de un acord separat de tip cookie (Legea nr. 506/2004).',
   'Versiunile din magazinele de aplicații. Apple și Google cer declarații proprii despre date („privacy nutrition labels”, „Data safety”) și au reguli speciale pentru aplicațiile de sănătate și pentru HealthKit / Health Connect. Textele trebuie aliniate cu acestea.',
   'Funcții viitoare. Copia în cloud, sincronizarea sau trimiterea raportului către medic schimbă fundamental analiza: apar persoane împuternicite, transferuri, durate de păstrare, obligații de securitate și de notificare a incidentelor. Fiecare are nevoie de acord separat (șablonul este inclus) și de o actualizare a declarației.',
+  'Modul Partener. Odată cu el, operatorul prelucrează date (criptate cap-coadă) pe un server, iar furnizorul de găzduire devine persoană împuternicită: de verificat contractul (art. 28 GDPR), locul în care sunt păstrate datele și eventualele transferuri în afara SEE, evaluarea impactului (DPIA) și dacă datele criptate cap-coadă, pe care operatorul nu le poate citi, sunt totuși date personale pentru operator (identificatorul canalului și momentele actualizărilor rămân vizibile). De analizat și riscul de control coercitiv (o persoană presată să partajeze): partajarea se poate opri oricând, fără ca partenerul să fie avertizat altfel decât prin oprirea actualizărilor; de decis dacă e nevoie de mai mult (de exemplu, o oprire discretă sau o amintire periodică a faptului că partajarea este activă). Persoana invitată primește date despre sănătatea altcuiva: de stabilit ce informare și ce acord i se cer.',
   'Viața intimă și riscul de sarcină. Datele despre viața sexuală sunt o categorie specială distinctă (art. 9 alin. (1) GDPR). Schița le include în acordul general, cu mențiune explicită în textul căsuței; de decis dacă este nevoie de un acord separat, cerut la prima notare a unui contact intim, și ce se întâmplă cu utilizatorii care și-au dat acordul pe o versiune anterioară a textului. Estimarea riscului de sarcină trebuie verificată față de Regulamentul (UE) 2017/745: aplicațiile care spun în ce zile se poate evita o sarcină sunt certificate ca dispozitive medicale. Formulările evită „zi sigură”, nivelul cel mai mic este „scăzut, dar nu zero”, iar fiecare afișare amintește că estimarea nu este o metodă de contracepție. Textele despre contracepția de urgență și testul de sarcină trebuie validate de un medic.',
   'Profilul. Numele și poza de profil sunt opționale, rămân pe dispozitiv și nu sunt folosite pentru identificare (poza nu este prelucrată ca dată biometrică). De confirmat că mențiunea din secțiunea 3 este suficientă și că poza poate înfățișa și alte persoane decât utilizatorul (de exemplu, o fotografie de grup).',
   'Datele celor apropiați. Notele libere pot conține informații despre alte persoane (de exemplu, partener). De decis dacă este nevoie de o mențiune.',

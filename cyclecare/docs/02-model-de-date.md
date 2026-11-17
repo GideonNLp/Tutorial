@@ -127,17 +127,33 @@ Opțional. Câmpul `user` din documentul-rădăcină. Este singura parte a datel
 
 La restaurarea unei copii care nu are profil personal (de exemplu, una mai veche), numele și poza de pe dispozitiv rămân.
 
+### 3.1.2 Modul Partener
+
+Pe telefonul proprietarei, câmpul `partner` din documentul-rădăcină:
+
+| Câmp | Tip | Rol |
+|---|---|---|
+| `permissions` | `phase`, `calendar`, `journal`, `notes` (boolean, toate `true` la început) | Ce intră în rezumatul partajat; `notes` contează doar împreună cu `journal` |
+| `share` | `channelId` (128 de biți), `dataKey` (AES-256), `writeToken` (256 de biți), `connectedAt` | Legătura activă; nu intră în copia de siguranță JSON |
+| `pendingRevoke` | `channelId`, `writeToken` | O legătură oprită fără internet, a cărei copie de pe server mai trebuie ștearsă |
+
+Pe telefonul partenerului, `role` este `partner`, iar `partnerView` ține `channelId`, `dataKey`, `connectedAt`, ultimul rezumat primit (`snapshot`, validat la citire), `etag`, `checkedAt` și `revoked`. Jurnalul acestui telefon rămâne gol.
+
+**Rezumatul partajat** (`src/domain/partner.ts`) este calculat pe telefonul proprietarei. Conține numele (dacă există) și permisiunile, apoi, după bife: faza curentă, ziua ciclului, starea estimării și intervalul următoarei menstruații (`phase`); zilele de la −42 la +84, cu faza, menstruația notată sau estimată, zilele fertile și ovulația (`calendar`, fără fertilitate dacă estimările sunt oprite); ultimele 14 zile cu flux, simptome, dispoziție, energie și, cu `notes`, nota (`journal`). Nu conține niciodată contactele intime, temperatura, secreția cervicală sau poza.
+
+**Pe server** (`server/relay.ts`, în Netlify Blobs): asocierea în curs (codul, cheile publice, hash-ul tokenului proprietarei, mesajul criptat cu datele canalului; expiră după 10 minute) și, pentru fiecare legătură, ultimul rezumat criptat, hash-ul tokenului de scriere și momentul actualizării. Serverul nu primește nicio cheie de decriptare.
+
 ### 3.2 Acord
 
 Dovada consimțământului. Se creează la prima configurare și nu se modifică.
 
 | Câmp | Tip | Reguli |
 |---|---|---|
-| `type` | `health_data_processing` sau `age_confirmation` | un rând pentru fiecare căsuță bifată |
+| `type` | `health_data_processing`, `age_confirmation`, `partner_sharing` (proprietara a acceptat Modul Partener), `partner_view` (pe telefonul partenerului) | un rând pentru fiecare acord |
 | `textVersion` | text | versiunea textului acceptat (`LEGAL_VERSION`) |
 | `grantedAt` | moment | data și ora acordului |
 
-Retragerea acordului șterge toate datele, inclusiv aceste rânduri; nu rămâne nimic de marcat ca „retras”. Un acord separat pentru o partajare viitoare ar adăuga un tip nou și un câmp `withdrawnAt`.
+Retragerea acordului șterge toate datele, inclusiv aceste rânduri; nu rămâne nimic de marcat ca „retras”. Acordul `partner_sharing` se dă la prima invitație; oprirea partajării șterge copia de pe server, iar o invitație nouă cere din nou acordul.
 
 ### 3.3 Zi de jurnal
 
@@ -231,7 +247,25 @@ Limite ale variantei web, de spus deschis: un PIN din cifre are puțină entropi
 
 ### 6.3 Criptarea în tranzit
 
-Aplicația nu transmite nimic: nu există server, iar politica de securitate a paginii (`connect-src 'self'`) blochează orice cerere către alt server. Dacă va exista vreodată o copie în cloud, datele trebuie criptate pe dispozitiv cu o cheie pe care serverul nu o cunoaște și transmise doar prin TLS 1.2 sau mai nou, după un acord separat.
+Jurnalul nu este transmis nicăieri, iar politica de securitate a paginii (`connect-src 'self'`) blochează orice cerere către alt server. Singura excepție este Modul Partener, pornit doar cu acord separat: rezumatul este criptat pe telefon (AES-256-GCM, cu identificatorul canalului ca date asociate) cu o cheie pe care serverul nu o are și trimis prin HTTPS pe același domeniu.
+
+```mermaid
+sequenceDiagram
+    participant P as Telefonul proprietarei
+    participant S as Server (/api/partner)
+    participant Q as Telefonul partenerului
+    P->>S: cod + cheie publică ECDH + hash(token)
+    Q->>S: cod + cheie publică ECDH
+    S-->>P: cheia publică a partenerului
+    Note over P,Q: ambele calculează aceeași cheie (ECDH + HKDF)<br/>și aceleași 6 cifre, comparate pe ecrane
+    P->>S: canal, cheie de date (criptate cu cheia comună)
+    S-->>Q: mesajul criptat
+    P->>S: rezumat criptat (la fiecare schimbare)
+    Q->>S: citire (la 20 s, la revenire)
+    S-->>Q: rezumat criptat
+```
+
+Un intermediar care ar înlocui cheile publice ar obține alte cifre de verificare; de aceea proprietara aprobă abia după ce le compară. Codul expiră după 10 minute, iar primul telefon care îl folosește îl blochează pentru oricine altcineva.
 
 ## 7. Export și restaurare
 
@@ -249,7 +283,8 @@ Fișierul JSON nu este criptat, iar aplicația spune asta înainte de salvare. L
 | Consimțământ | Se creează seiful, cu profilul și cele două acorduri |
 | Folosire | Fiecare schimbare actualizează documentul criptat, la cel mult un sfert de secundă după ultima atingere și înainte ca pagina să treacă în fundal |
 | Export | Persoana salvează un fișier pe dispozitivul ei; aplicația nu păstrează o copie |
-| Ștergere sau retragerea acordului | Seiful, cheile și preferințele sunt șterse; nu există copie de rezervă |
+| Modul Partener | Rezumatul criptat este înlocuit pe server la fiecare schimbare și șters la oprirea partajării; asocierile neterminate expiră după 10 minute |
+| Ștergere sau retragerea acordului | Seiful, cheile și preferințele sunt șterse; o partajare activă este oprită și copia ei de pe server ștearsă; nu există copie de rezervă |
 | Dezinstalare sau ștergerea datelor site-ului | La fel; datele nu pot fi recuperate |
 
 ## 9. Transpunere într-o bază de date relațională
