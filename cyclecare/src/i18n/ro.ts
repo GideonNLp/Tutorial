@@ -525,6 +525,19 @@ export const ro = {
     },
   },
 
+  mascot: {
+    /** The button in the middle of the dial; it starts with what is written on it (the day). */
+    show: 'Arată capibara',
+    hide: 'Înapoi la ziua ciclului',
+    messages: {
+      menstruation: ['Un ceai cald, o pauză.', 'Azi ai voie să încetinești.', 'Și odihna contează.'],
+      follicular: ['Energie nouă, idei noi!', 'Zi bună pentru mișcare.', 'Hai să încercăm ceva nou!'],
+      ovulation: ['Zâmbetul îți vine bine azi!', 'Strălucești azi!', 'Bea apă și bucură-te!'],
+      luteal: ['Pătură, ceai și liniște.', 'Încet și bine, azi.', 'O seară liniștită prinde bine.'],
+      hello: ['Mă bucur că ești aici!', 'Pas cu pas, împreună.', 'Te descurci minunat!'],
+    },
+  },
+
   calendar: {
     title: 'Calendar',
     prevMonth: 'Luna anterioară',

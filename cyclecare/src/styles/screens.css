@@ -131,16 +131,92 @@
   font-weight: 600;
   fill: var(--muted);
 }
+/* The middle of the dial: a round card that turns over (CycleDial.tsx). Only the card takes taps. */
 .dial-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.dial-flip {
+  position: relative;
+  width: 54%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  perspective: 44rem;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.dial-flip:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+.dial-card {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+  transition: transform 0.7s var(--ease-out);
+}
+.dial-flip[data-flipped] .dial-card {
+  transform: rotateY(180deg);
+}
+.dial-face {
   position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0 22%;
+  border-radius: 50%;
   text-align: center;
-  pointer-events: none;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* The face turned away is also hidden for real once the turn is over, for assistive technology too:
+     it disappears after the turn, and appears at once when it starts coming round. */
+  transition: visibility 0s linear 0.7s;
+}
+.dial-flip[data-flipped] .dial-front,
+.dial-flip:not([data-flipped]) .dial-back {
+  visibility: hidden;
+}
+.dial-flip:not([data-flipped]) .dial-front,
+.dial-flip[data-flipped] .dial-back {
+  transition-delay: 0s;
+}
+.dial-back {
+  justify-content: flex-start;
+  gap: 0.15rem;
+  padding: 9% 11% 0;
+  background: var(--surface-2);
+  transform: rotateY(180deg);
+}
+.dial-back[data-mood='menstruation'] {
+  background: var(--menstruation-tint);
+}
+.dial-back[data-mood='follicular'] {
+  background: var(--follicular-tint);
+}
+.dial-back[data-mood='ovulation'] {
+  background: var(--ovulation-tint);
+}
+.dial-back[data-mood='luteal'] {
+  background: var(--luteal-tint);
+}
+.dial-say {
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-size: min(0.95rem, 5.1cqw);
+  font-weight: 650;
+  line-height: 1.2;
+  text-wrap: balance;
 }
 /* The text inside the ring is sized from the ring, so it fits at any text-size setting;
    the same information is repeated as ordinary, scalable text right below the dial. */
@@ -152,6 +228,12 @@
   line-height: 1;
   letter-spacing: -0.02em;
   white-space: nowrap;
+}
+/* The number the capybara hides behind: its own stacking context, so the head sits under the digits. */
+.dial-num {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
 }
 .dial-phase {
   margin-top: 0.4rem;
@@ -1127,4 +1209,239 @@ details.table-view > summary {
   font-size: var(--fs-h2);
   font-weight: 650;
   line-height: 1.2;
+}
+
+/* ---------------------------------------------------------------- the capybara (Capybara.tsx) */
+
+.capy {
+  display: block;
+  forced-color-adjust: none;
+}
+/* Peeking over the top edge of the day number, from behind it. The digits of the display font rise
+   to about 0.85em above the bottom of their line, so the cut under the eyes sits just below that. */
+.capy-peek {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: 0.82em;
+  width: max(1.1em, 110%);
+  aspect-ratio: 80 / 35;
+  height: auto;
+  transform: translateX(-50%);
+}
+/* No cycle yet: the dash sits much lower than digits do. */
+.dial-day.muted .capy-peek {
+  bottom: 0.44em;
+}
+.capy-full {
+  width: 62%;
+  flex: none;
+}
+.capy-fur {
+  fill: var(--capy-fur);
+}
+.capy-shade {
+  fill: var(--capy-shade);
+}
+.capy-muzzle {
+  fill: var(--capy-muzzle);
+}
+.capy-ear {
+  fill: var(--capy-ear);
+}
+.capy-ink {
+  fill: var(--capy-ink);
+}
+.capy-nostril {
+  opacity: 0.55;
+}
+.capy-shine {
+  fill: var(--capy-shine);
+}
+.capy-blush {
+  fill: var(--capy-blush);
+  opacity: 0.6;
+}
+.capy-tongue {
+  fill: var(--capy-blush);
+}
+.capy-line,
+.capy-tuft,
+.capy-arm,
+.capy-mug-handle,
+.capy-steam,
+.capy-blanket-stripe,
+.capy-sprout-stem,
+.capy-z {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.capy-line {
+  stroke: var(--capy-ink);
+  stroke-width: 2.2;
+}
+.capy-tuft {
+  stroke: var(--capy-shade);
+  stroke-width: 2.2;
+}
+.capy-philtrum {
+  stroke-width: 1.6;
+}
+.capy-arm {
+  stroke: var(--capy-fur);
+  stroke-width: 10;
+}
+.capy-mug {
+  fill: var(--menstruation);
+}
+.capy-mug-handle {
+  stroke: var(--menstruation);
+  stroke-width: 3.2;
+}
+.capy-tea-top {
+  fill: var(--capy-shade);
+}
+.capy-steam {
+  stroke: var(--capy-steam);
+  stroke-width: 2;
+}
+.capy-blanket {
+  fill: var(--luteal);
+}
+.capy-blanket-stripe {
+  stroke: var(--luteal-tint);
+  stroke-width: 2.5;
+  opacity: 0.7;
+}
+.capy-sprout-stem {
+  stroke: var(--follicular);
+  stroke-width: 2.4;
+}
+.capy-sprout,
+.capy-sparkle-follicular,
+.capy-yuzu-leaf {
+  fill: var(--follicular);
+}
+.capy-yuzu-fruit,
+.capy-sparkle-ovulation {
+  fill: var(--ovulation);
+}
+.capy-z {
+  stroke: var(--luteal);
+  stroke-width: 2;
+}
+
+/* Small, slow movements: breathing and blinking while hiding, a little life while in front. */
+@media (prefers-reduced-motion: no-preference) {
+  .capy-bob {
+    animation: capy-breathe 4.8s ease-in-out infinite;
+  }
+  .capy-eye {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: capy-blink 5.5s ease-in-out infinite;
+  }
+  .dial-flip[data-flipped] .capy-steam {
+    animation: capy-steam 2.4s ease-in-out infinite;
+  }
+  .dial-flip[data-flipped] .capy-steam-2 {
+    animation-delay: 1.2s;
+  }
+  .dial-flip[data-flipped] .capy-wave {
+    transform-box: view-box;
+    transform-origin: 80px 82px;
+    animation: capy-wave 1.4s ease-in-out infinite;
+  }
+  .dial-flip[data-flipped] .capy-sparkles > path {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: capy-twinkle 1.8s ease-in-out infinite;
+  }
+  .dial-flip[data-flipped] .capy-sparkles > path:nth-child(2) {
+    animation-delay: 0.6s;
+  }
+  .dial-flip[data-flipped] .capy-sparkles > path:nth-child(3) {
+    animation-delay: 1.2s;
+  }
+  .dial-flip[data-flipped] .capy-yuzu {
+    animation: capy-hop 1.6s ease-in-out infinite;
+  }
+  .dial-flip[data-flipped] .capy-z {
+    animation: capy-float 3s ease-in-out infinite;
+  }
+  .dial-flip[data-flipped] .capy-z-2 {
+    animation-delay: 1.5s;
+  }
+}
+@keyframes capy-breathe {
+  50% {
+    transform: translateY(2.5px);
+  }
+}
+@keyframes capy-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.12);
+  }
+}
+@keyframes capy-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+@keyframes capy-wave {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+}
+@keyframes capy-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.6);
+  }
+}
+@keyframes capy-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+@keyframes capy-float {
+  0% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }

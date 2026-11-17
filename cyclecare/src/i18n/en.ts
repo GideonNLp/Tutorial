@@ -525,6 +525,19 @@ export const en: Dictionary = {
     },
   },
 
+  mascot: {
+    /** The button in the middle of the dial; it starts with what is written on it (the day). */
+    show: 'Show the capybara',
+    hide: 'Back to the cycle day',
+    messages: {
+      menstruation: ['A warm tea, a pause.', 'Slowing down is allowed today.', 'Rest counts too.'],
+      follicular: ['Fresh energy, fresh ideas!', 'A good day to move.', 'Let’s try something new!'],
+      ovulation: ['That smile suits you today!', 'You’re glowing today!', 'Drink water and enjoy!'],
+      luteal: ['Blanket, tea and quiet.', 'Slow and steady today.', 'A calm evening helps.'],
+      hello: ['Glad you’re here!', 'Step by step, together.', 'You’re doing great!'],
+    },
+  },
+
   calendar: {
     title: 'Calendar',
     prevMonth: 'Previous month',
