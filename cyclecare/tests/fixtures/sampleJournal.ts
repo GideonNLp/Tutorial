@@ -32,7 +32,7 @@ const PAST_PERIOD_LENGTHS = [5, 4, 5, 6, 5, 4, 5];
 const CURRENT_CYCLE_DAY = 12;
 const CURRENT_PERIOD_LENGTH = 5;
 
-const NOTES = [
+export const NOTES = [
   'Zi aglomerată, somn puțin. Seara am făcut o plimbare scurtă.',
   'Crampe puternice dimineața, au cedat după o sticlă cu apă caldă.',
   'Multă energie azi, antrenament bun.',

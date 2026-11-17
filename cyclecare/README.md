@@ -1,6 +1,6 @@
 # CycleCare
 
-Aplicație web pentru urmărirea ciclului menstrual: jurnal zilnic, calendar pe faze, estimări cu interval, sfaturi, memento-uri, statistici și raport PDF pentru medic. Interfața este în română. Datele rămân criptate pe dispozitiv și nu există cont; singura excepție, la alegere, este Modul Partener, criptat cap-coadă.
+Aplicație web pentru urmărirea ciclului menstrual: jurnal zilnic, calendar pe faze, estimări cu interval, sfaturi, memento-uri, statistici și raport PDF pentru medic. Interfața este în română și engleză. Datele rămân criptate pe dispozitiv și nu există cont; singura excepție, la alegere, este Modul Partener, criptat cap-coadă.
 
 Este o aplicație web instalabilă (PWA): se deschide în browserul telefonului, se adaugă pe ecranul principal pe iOS și Android și pornește apoi și fără internet. Navigarea se poartă ca într-o aplicație de telefon: ecrane care se împing și se retrag, glisare de la margine pentru înapoi, ferestre care urcă de jos. „CycleCare” este un nume provizoriu și poate fi schimbat din configurare.
 
@@ -123,7 +123,7 @@ Fluxul din `.github/workflows/cyclecare-pages.yml` rulează verificările și pu
 | 5. Memento-uri                     | Menstruație, zile fertile, pilulă și alte medicamente; ore, zile și repetare alese de persoană; text discret                                         | `src/domain/reminders.ts`, `src/app/lifecycle.ts`, `src/screens/Settings.tsx`                          | `tests/reminders.test.ts`, `e2e/data.spec.ts`                             |
 | 6. Statistici și rapoarte          | Grafice pentru durata ciclurilor, simptome și dispoziție, fiecare cu tabel; raport PDF generat pe dispozitiv                                         | `src/domain/stats.ts`, `src/ui/charts.tsx`, `src/pdf/`                                                 | `tests/stats.test.ts`, `tests/pdf.test.ts`, `e2e/data.spec.ts`            |
 | 7. Confidențialitate și securitate | AES-256-GCM în repaus, PIN, biometrie, blocare automată, ștergerea tuturor datelor, partajare doar cu partenerul ales, criptată cap-coadă            | `src/storage/`, `src/app/store.ts`                                                                     | `tests/vault.test.ts`, `e2e/security.spec.ts`, `e2e/quality.spec.ts`      |
-| 8. Design și accesibilitate        | Paletă calmă verificată pentru contrast și daltonism, mod întunecat, text scalabil, cititoare de ecran, română cu loc pentru alte limbi              | `src/styles/`, `src/i18n/`                                                                             | `tests/tokens.test.ts`, `e2e/quality.spec.ts`                             |
+| 8. Design și accesibilitate        | Paletă calmă verificată pentru contrast și daltonism, mod întunecat, text scalabil, cititoare de ecran, română și engleză, cu loc pentru alte limbi  | `src/styles/`, `src/i18n/`                                                                             | `tests/tokens.test.ts`, `e2e/quality.spec.ts`                             |
 | Viață intimă și risc de sarcină    | Contact intim în jurnal (fel, contracepție, prezervativ rupt), inimioare în calendar, risc de sarcină pe „Azi”, cu contracepția de urgență și testul | `src/domain/pregnancyRisk.ts`, `src/screens/Journal.tsx`, `src/ui/PregnancyRisk.tsx`                   | `tests/pregnancyRisk.test.ts`, `e2e/intimacy.spec.ts`                     |
 | Profil                             | Nume sau poreclă întrebat la prima deschidere (opțional), poză rotundă în colțul din dreapta sus, ecran pentru nume și poză                          | `src/screens/Profile.tsx`, `src/ui/Avatar.tsx`, `src/app/photo.ts`, `src/domain/user.ts`               | `tests/user.test.ts`, `e2e/profile.spec.ts`                               |
 | Modul Partener                     | Invitație cu cod și cifre de verificare, permisiuni, sincronizare criptată cap-coadă, vizualizare doar pentru citire pe telefonul partenerului       | `src/partner/`, `src/domain/partner.ts`, `src/screens/PartnerScreens.tsx`, `server/relay.ts`           | `tests/partner.test.ts`, `tests/relay.test.ts`, `e2e/partner.spec.ts`     |
@@ -174,13 +174,20 @@ scripts/       generatoare: culori, documente, pictograme, previzualizare într-
 docs/          livrabilele
 ```
 
-## Adăugarea unei limbi
+## Limbi
 
-1. Copiază `src/i18n/ro.ts` în `src/i18n/<limbă>.ts` și tradu-l; adaugă-l în `dictionaries` din `src/i18n/index.ts`. Verificarea de tipuri semnalează orice text lipsă.
-2. Copiază `src/content/ro/` în `src/content/<limbă>/`, tradu textele și înregistrează-le în `src/content/index.ts`.
-3. Limba apare în „Setări → Aspect și accesibilitate”.
+Aplicația vorbește română și engleză. La prima pornire alege limba telefonului, dacă o are; altfel pornește în engleză. Limba se poate schimba de pe primul ecran și din „Setări → Aspect și accesibilitate”, și este ținută minte. Jurnalele începute înainte de engleză, fără o limbă salvată, rămân în română.
 
-Pluralul și formatul datelor vin din `Intl`, deci urmează regulile fiecărei limbi.
+| Ce                                         | Română (originalul)                      | Engleză                                                           |
+| ------------------------------------------ | ---------------------------------------- | ----------------------------------------------------------------- |
+| Textele interfeței                         | `src/i18n/ro.ts`                         | `src/i18n/en.ts`                                                  |
+| Sfaturi pe faze și pe simptome, observații | `src/content/ro/tips.ts`, `phaseTips.ts` | `src/content/en/tips.ts`, `phaseTips.ts`                          |
+| Sfaturi pentru partener                    | `src/content/ro/partnerTips.ts`          | `src/content/en/partnerTips.ts`                                   |
+| Acordul și declarația de confidențialitate | `src/content/ro/legal.ts`                | `src/content/en/legal.ts` (versiunea `…-en`, păstrată cu acordul) |
+
+Sfaturile au aceiași identificatori în ambele limbi, așa că „Am aplicat ✓” rămâne marcat după schimbarea limbii. Traducerea textelor medicale și juridice este, ca și originalul, o schiță: trebuie verificată de un medic și de un jurist, iar orice schimbare în română trebuie făcută și în engleză. `tests/i18n.test.ts` verifică faptul că nu lipsește niciun text, că identificatorii coincid și că în engleză nu a rămas nimic în română; `e2e/english.spec.ts` parcurge aplicația pe un telefon setat în engleză.
+
+**O limbă nouă:** copiază `src/i18n/en.ts` și `src/content/en/` sub codul limbii, tradu textele și înregistrează-le în `src/i18n/index.ts` și `src/content/index.ts`. Verificarea de tipuri semnalează orice text lipsă, iar limba apare singură în listă și pe primul ecran. Pluralul și formatul datelor vin din `Intl`, deci urmează regulile fiecărei limbi.
 
 ## Licențe
 

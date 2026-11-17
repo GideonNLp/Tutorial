@@ -66,7 +66,7 @@ Opt ecrane, dintre care doar consimțământul este obligatoriu. Un indicator �
 
 | Pas | Ecran | Ce cere | Poate fi sărit | Validare |
 |---|---|---|---|---|
-| – | Bun venit | Ce face aplicația, pe scurt, butonul „Începe” și, unde se poate, „Instalează aplicația” | – | – |
+| – | Bun venit | Ce face aplicația, pe scurt, butonul „Începe” și, unde se poate, „Instalează aplicația”; jos, celelalte limbi, fiecare scrisă în limba ei („English” / „Română”) | – | – |
 | 1 | Consimțământ | Două căsuțe nebifate: prelucrarea datelor privind sănătatea; vârsta de cel puțin 16 ani sau acordul unui părinte. Legătură către declarația de confidențialitate | nu | Fără ambele bife apare o eroare lângă căsuțe. „Nu sunt de acord” explică faptul că nu s-a salvat nimic |
 | 2 | Nume sau poreclă | „Cum să-ți spunem?”: un prenume sau o poreclă, cel mult 30 de caractere | da: „Sari peste” | Trebuie să conțină cel puțin o literă, o cifră sau un emoji; mesajul apare sub câmp |
 | 3 | Ultima menstruație | Data primei zile (selector nativ de dată, cel mult azi) | da: „Nu-mi amintesc” | Data din viitor este refuzată; o dată mai veche de 90 de zile primește o notă că estimările vor fi nesigure |
@@ -218,7 +218,7 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 | Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; discreție (inimioarele din calendar); unde sunt datele; partajarea cu terți (ce se partajează prin Modul Partener, cu legătură către Setări → Partener); acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
 | Partener | Ce poate vedea partenerul, invitația și oprirea partajării (secțiunea 5.1) |
 | Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor |
-| Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba |
+| Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba (română sau engleză; la prima pornire, limba telefonului) |
 | Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal, actualizarea la o versiune nouă, licențe |
 
 <p>

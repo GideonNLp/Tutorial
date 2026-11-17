@@ -8,15 +8,17 @@
  * Întrebările deschise pentru jurist sunt în docs/05-consimtamant-si-confidentialitate.md,
  * generat din acest fișier (`npm run docs:content`).
  *
- * Textele descriu exact ce face aplicația: totul rămâne pe dispozitiv, criptat, fără cont și fără server.
- * Dacă produsul primește funcții online (copie în cloud, sincronizare), textele trebuie rescrise,
- * iar utilizatorii trebuie să își dea din nou acordul.
+ * Textele descriu exact ce face aplicația: totul rămâne pe dispozitiv, criptat, fără cont; singura
+ * excepție, la alegere și cu acord separat, este rezumatul criptat cap-coadă al Modului Partener.
+ * Dacă produsul primește alte funcții online (copie în cloud, sincronizare), textele trebuie rescrise,
+ * iar utilizatorii trebuie să își dea din nou acordul. Traducerea în engleză este în `../en/legal.ts`
+ * și trebuie ținută la zi odată cu acest fișier.
  */
 
 import { APP_NAME, LEGAL_REVIEWED, OPERATOR } from '../../app/config';
 
-export const LEGAL_VERSION = '2026-11-schita-5';
-export const LEGAL_UPDATED = '2026-11-17';
+export const LEGAL_VERSION: string = '2026-11-schita-5';
+export const LEGAL_UPDATED: string = '2026-11-17';
 
 export const consentText = {
   title: 'Datele tale rămân la tine',
@@ -182,7 +184,7 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
     {
       heading: '12. Plângeri',
       paragraphs: [
-        'Dacă crezi că drepturile tale au fost încălcate, te poți adresa Autorității Naționale de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP), www.dataprotection.ro. Ne-ar ajuta să ne scrii mai întâi nouă, ca să putem rezolva problema.',
+        'Dacă crezi că drepturile tale au fost încălcate, te poți adresa Autorității Naționale de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP), www.dataprotection.ro, sau autorității de protecție a datelor din țara UE în care locuiești. Ne-ar ajuta să ne scrii mai întâi nouă, ca să putem rezolva problema.',
       ],
     },
     {

@@ -153,7 +153,7 @@ export const ro = {
       points: [
         'Estimări cu interval, nu o singură dată promisă',
         'Jurnal zilnic pentru flux, simptome, dispoziție și energie',
-        'Fără cont și fără server: datele rămân criptate pe acest dispozitiv',
+        'Fără cont: datele rămân criptate pe acest dispozitiv',
       ],
       start: 'Începe',
       previewNote: 'Versiune de previzualizare. Ce notezi rămâne doar în acest browser și dispare dacă ștergi datele de navigare.',
@@ -938,7 +938,7 @@ export const ro = {
       textSizeHint: 'Se adaugă peste dimensiunea aleasă în setările dispozitivului sau ale browserului.',
       sample: 'Următoarea menstruație: probabil între 30 noiembrie și 6 decembrie.',
       language: 'Limbă',
-      languageHint: 'Alte limbi apar aici pe măsură ce sunt adăugate.',
+      languageHint: 'Aplicația pornește în limba dispozitivului, dacă este disponibilă.',
       motion: 'Animațiile respectă setarea „Reducere mișcare” a dispozitivului.',
     },
     about: {

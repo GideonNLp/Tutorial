@@ -15,7 +15,7 @@ import type { SymptomId } from '../../domain/types';
  *  - formulări neutre ca gen.
  */
 
-export const TIPS_VERSION = '2026-11-schita-2';
+export const TIPS_VERSION: string = '2026-11-schita-2';
 
 export { phaseTips, TIP_CATEGORIES } from './phaseTips';
 export type { PhaseTips, Tip, TipCategory } from './phaseTips';

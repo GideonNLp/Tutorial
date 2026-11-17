@@ -153,7 +153,7 @@ Potrivit GDPR ai următoarele drepturi, pe care le poți exercita direct din apl
 
 ### 12. Plângeri
 
-Dacă crezi că drepturile tale au fost încălcate, te poți adresa Autorității Naționale de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP), www.dataprotection.ro. Ne-ar ajuta să ne scrii mai întâi nouă, ca să putem rezolva problema.
+Dacă crezi că drepturile tale au fost încălcate, te poți adresa Autorității Naționale de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP), www.dataprotection.ro, sau autorității de protecție a datelor din țara UE în care locuiești. Ne-ar ajuta să ne scrii mai întâi nouă, ca să putem rezolva problema.
 
 ### 13. Vârsta minimă
 

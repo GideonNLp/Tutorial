@@ -843,7 +843,7 @@ export function AppearanceSettings() {
           </label>
           <select id="language" className="select" value={prefs.locale} onChange={(e) => setPrefs({ locale: e.target.value as Locale })}>
             {(Object.keys(dictionaries) as Locale[]).map((code) => (
-              <option key={code} value={code}>
+              <option key={code} value={code} lang={dictionaries[code].meta.htmlLang}>
                 {dictionaries[code].meta.name}
               </option>
             ))}

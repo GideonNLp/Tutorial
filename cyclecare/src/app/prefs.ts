@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, dictionaries, setLocale, type Locale } from '../i18n';
+import { DEFAULT_LOCALE, isLocale, setLocale, type Locale } from '../i18n';
 
 /**
  * Display preferences. They are not health data and must be readable before the vault is
@@ -30,11 +30,20 @@ export function loadPrefs(): Prefs {
       theme: raw.theme === 'light' || raw.theme === 'dark' ? raw.theme : 'system',
       textSize: raw.textSize && raw.textSize in TEXT_SCALE ? raw.textSize : 'normal',
       autoLock: raw.autoLock === 0 || raw.autoLock === 5 || raw.autoLock === 'never' ? raw.autoLock : 1,
-      locale: raw.locale && raw.locale in dictionaries ? raw.locale : DEFAULT_LOCALE,
+      locale: isLocale(raw.locale) ? raw.locale : DEFAULT_LOCALE,
       installHintDismissed: raw.installHintDismissed === true,
     };
   } catch {
     return DEFAULT_PREFS;
+  }
+}
+
+/** Whether a language was ever saved on this device (chosen by the person, or taken from the device at first run). */
+export function hasSavedLocale(): boolean {
+  try {
+    return isLocale((JSON.parse(localStorage.getItem(KEY) ?? '{}') as Partial<Prefs>).locale);
+  } catch {
+    return false;
   }
 }
 

@@ -1,8 +1,8 @@
-import { Check, ChevronLeft, Info } from 'lucide-react';
+import { Check, ChevronLeft, Info, Languages } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { requestNotifications } from '../app/platform';
 import { partnerAvailable } from '../app/config';
-import { completeOnboarding, startPartnerDevice, useStorageMode, useToday } from '../app/store';
+import { completeOnboarding, setPrefs, startPartnerDevice, usePrefs, useStorageMode, useToday } from '../app/store';
 import { isPairingCode, normalizePairingCode } from '../partner/crypto';
 import { collectCredentials, joinPairing, type PartnerJoin } from '../partner/flows';
 import { takeInviteCode } from '../partner/invite';
@@ -11,7 +11,7 @@ import { diffDays, isValidISODate } from '../domain/dates';
 import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/prediction';
 import { GOALS, NICKNAME_MAX, type Goal, type ISODate } from '../domain/types';
 import { normalizeNickname } from '../domain/user';
-import { strings } from '../i18n';
+import { dictionaries, strings, type Locale } from '../i18n';
 import { ErrorText, MultiChips, Stepper, Switch } from '../ui/controls';
 import { InstallButton } from '../ui/InstallApp';
 import { PinFields, validateNewPin, type PinError } from '../ui/PinFields';
@@ -294,6 +294,7 @@ export function Onboarding() {
                 </button>
               </div>
             )}
+            <LanguageSwitch />
             {__PREVIEW__ && (
               <p className="caption" style={{ textAlign: 'center' }}>
                 {o.welcome.previewNote}
@@ -679,5 +680,28 @@ export function BrandMark({ size = 72 }: { size?: number }) {
       </g>
       <circle cx="61.9" cy="34" r="6.5" fill="var(--surface)" stroke="var(--ink)" strokeWidth="3" />
     </svg>
+  );
+}
+
+/** The other languages, each named in itself, so someone who doesn't read the current one can still find theirs. */
+function LanguageSwitch() {
+  const { locale } = usePrefs();
+  const others = (Object.keys(dictionaries) as Locale[]).filter((code) => code !== locale);
+  if (others.length === 0) return null;
+  return (
+    <div className="row onb-lang">
+      <Languages size={18} aria-hidden="true" />
+      {others.map((code) => (
+        <button
+          key={code}
+          type="button"
+          className="btn btn-quiet btn-small"
+          lang={dictionaries[code].meta.htmlLang}
+          onClick={() => setPrefs({ locale: code })}
+        >
+          {dictionaries[code].meta.name}
+        </button>
+      ))}
+    </div>
   );
 }

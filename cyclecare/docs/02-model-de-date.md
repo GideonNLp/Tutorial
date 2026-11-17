@@ -150,7 +150,7 @@ Dovada consimțământului. Se creează la prima configurare și nu se modifică
 | Câmp | Tip | Reguli |
 |---|---|---|
 | `type` | `health_data_processing`, `age_confirmation`, `partner_sharing` (proprietara a acceptat Modul Partener), `partner_view` (pe telefonul partenerului) | un rând pentru fiecare acord |
-| `textVersion` | text | versiunea textului acceptat (`LEGAL_VERSION`) |
+| `textVersion` | text | versiunea textului acceptat (`LEGAL_VERSION`), cu limba: `2026-11-schita-5` în română, `2026-11-draft-5-en` în engleză |
 | `grantedAt` | moment | data și ora acordului |
 
 Retragerea acordului șterge toate datele, inclusiv aceste rânduri; nu rămâne nimic de marcat ca „retras”. Acordul `partner_sharing` se dă la prima invitație; oprirea partajării șterge copia de pe server, iar o invitație nouă cere din nou acordul.
@@ -221,7 +221,7 @@ Baza de date IndexedDB `cyclecare` are un singur depozit cu trei chei:
 | `meta` | Versiunea seifului, data creării, „sloturile de chei” (cheia de date împachetată, săruri, număr de iterații), contorul de PIN-uri greșite și pauza curentă | nu conține date despre sănătate |
 | `deviceKey` | O cheie AES neexportabilă, păstrată de browser; există doar cât timp nu este setat un PIN | – |
 
-În afara seifului, în `localStorage`, sunt doar preferințele de afișare (temă, dimensiunea textului, blocarea automată, limba). Trebuie citite înainte de deblocare, ca ecranul de blocare să respecte tema și dimensiunea textului.
+În afara seifului, în `localStorage`, sunt doar preferințele de afișare (temă, dimensiunea textului, blocarea automată, limba). Limba este salvată la prima pornire, după limba telefonului; preferințele fără limbă, rămase de la versiunile de dinainte de engleză, înseamnă română. Trebuie citite înainte de deblocare, ca ecranul de blocare să respecte tema și dimensiunea textului.
 
 ### 6.2 Ierarhia de chei
 
