@@ -40,6 +40,9 @@ test('first run', async ({ page }) => {
   await page.getByRole('button', { name: 'Începe' }).click();
   await tallShot(page, '02-consimtamant');
   await acceptConsent(page);
+  await page.getByLabel('Nume sau poreclă').fill('Ana Maria');
+  await shot(page, '23-nume');
+  await page.getByRole('button', { name: 'Continuă' }).click();
   await page.getByLabel('Prima zi a ultimei menstruații').fill('2026-11-04');
   await shot(page, '03-ultima-menstruatie');
   await page.getByRole('button', { name: 'Continuă' }).click();
@@ -74,6 +77,13 @@ test('the app with a filled journal', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Raport pentru medic' })).toBeVisible();
   await shot(page, '20-foaie-raport');
   await page.keyboard.press('Escape');
+
+  await page.getByRole('button', { name: 'Profil', exact: true }).click();
+  await page.getByLabel('Nume sau poreclă').fill('Ana Maria');
+  await page.getByRole('button', { name: 'Salvează' }).click();
+  await clearToasts(page);
+  await shot(page, '22-profil');
+  await page.getByRole('button', { name: 'Înapoi' }).click();
 
   await page.getByRole('button', { name: 'Setări', exact: true }).click();
   await shot(page, '13-setari');

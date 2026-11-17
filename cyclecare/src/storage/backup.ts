@@ -13,6 +13,8 @@ import {
   type ImportBatch,
   type MedicationReminder,
   type SymptomId,
+  type UserProfile,
+  NICKNAME_MAX,
 } from '../domain/types';
 import { isEmptyLog } from '../domain/journal';
 
@@ -26,6 +28,18 @@ export const BACKUP_FORMAT = 1;
 const APP_ID = 'CycleCare';
 const MAX_NOTE = 2000;
 const MAX_TEXT = 60;
+/** A 256 × 256 JPEG is about 20–40 kB; anything far larger was not made by the app. */
+const MAX_PHOTO = 400_000;
+const PHOTO_URL = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+export function sanitizeUser(raw: unknown): UserProfile {
+  if (!isObject(raw)) return {};
+  const user: UserProfile = {};
+  const nickname = typeof raw.nickname === 'string' ? raw.nickname.replace(/\s+/g, ' ').trim().slice(0, NICKNAME_MAX) : '';
+  if (nickname) user.nickname = nickname;
+  if (typeof raw.photo === 'string' && raw.photo.length <= MAX_PHOTO && PHOTO_URL.test(raw.photo)) user.photo = raw.photo;
+  return user;
+}
 
 export interface BackupFile {
   app: typeof APP_ID;
@@ -106,6 +120,8 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
     data.profile.typicalPeriodLength = intIn(p.typicalPeriodLength, 2, 10);
     data.profile.showFertility = p.showFertility !== false;
   }
+
+  data.user = sanitizeUser(raw.user);
 
   if (isObject(raw.logs)) {
     for (const [date, value] of Object.entries(raw.logs)) {

@@ -158,6 +158,11 @@ export const ro = {
       start: 'Începe',
       previewNote: 'Versiune de previzualizare. Ce notezi rămâne doar în acest browser și dispare dacă ștergi datele de navigare.',
     },
+    nickname: {
+      title: 'Cum să-ți spunem?',
+      hint: 'Un prenume sau o poreclă. Apare în profilul tău, rămâne pe acest dispozitiv, iar mai târziu poți adăuga și o poză.',
+      label: 'Nume sau poreclă',
+    },
     lastPeriod: {
       title: 'Când a început ultima ta menstruație?',
       hint: 'Alege prima zi. Dacă nu ții minte exact, o dată aproximativă e de ajuns: o poți corecta mai târziu.',
@@ -199,6 +204,32 @@ export const ro = {
       summaryPeriod: (n: number) => `Menstruație: ${zile(n)}`,
       summaryDefault: 'Pornim de la valorile obișnuite (28 și 5 zile) și le ajustăm după ce înregistrezi.',
     },
+  },
+
+  profile: {
+    title: 'Profil',
+    open: 'Profil',
+    photoTitle: 'Poza de profil',
+    noName: 'Fără nume',
+    nameLabel: 'Nume sau poreclă',
+    nameHint: 'Cum vrei să-ți spunem. Poate rămâne gol.',
+    namePlaceholder: 'de exemplu: Ana',
+    nameInvalid: 'Folosește cel puțin o literă sau o cifră.',
+    save: 'Salvează',
+    saved: 'Numele a fost salvat.',
+    nameRemoved: 'Numele a fost șters.',
+    photoAdd: 'Adaugă o poză',
+    photoChange: 'Schimbă poza',
+    photoRemove: 'Elimină poza',
+    photoWorking: 'Pregătim poza…',
+    photoSaved: 'Poza de profil a fost schimbată.',
+    photoRemoved: 'Poza a fost eliminată.',
+    photoErrors: {
+      unreadable: 'Fișierul nu este o imagine pe care o putem deschide. Încearcă o poză JPEG sau PNG.',
+      tooBig: 'Poza este prea mare: alege una de cel mult 25 MB.',
+    },
+    privacy:
+      'Numele și poza rămân criptate pe acest dispozitiv, împreună cu jurnalul. Nu apar pe ecranul de blocare, în notificări sau în raportul PDF. Poza este micșorată la 256 × 256 de pixeli, iar fișierul original nu este păstrat.',
   },
 
   lock: {

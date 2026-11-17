@@ -82,3 +82,13 @@ describe('navigation stack', () => {
     expect(nextNav(inSettings, 'azi', 3, 'none').transition?.kind).toBe('none');
   });
 });
+
+describe('profile route', () => {
+  it('is pushed over a tab and pops back to it', () => {
+    const open = nextNav(initialNav('calendar'), 'profil', 1);
+    expect(open.transition?.kind).toBe('push');
+    expect(open.stack).toEqual(['calendar', 'profil']);
+    expect(nextNav(settleNav(open), 'calendar', 2).transition?.kind).toBe('pop');
+    expect(parentOf('profil')).toBe('azi');
+  });
+});

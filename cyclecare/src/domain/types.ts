@@ -73,6 +73,19 @@ export interface Profile {
   showFertility: boolean;
 }
 
+/**
+ * How the person appears inside the app. Both fields are optional and live in the encrypted
+ * vault with the journal; they never appear on the lock screen, in notifications or in the PDF report.
+ */
+export interface UserProfile {
+  /** First name or nickname, as typed (trimmed, at most `NICKNAME_MAX` characters). */
+  nickname?: string;
+  /** Profile picture as a small square JPEG `data:` URL (256 × 256 px). */
+  photo?: string;
+}
+
+export const NICKNAME_MAX = 30;
+
 export const CONSENT_TYPES = ['health_data_processing', 'age_confirmation'] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
 
@@ -116,6 +129,7 @@ export interface AppData {
   onboardedAt?: ISOTimestamp;
   consents: ConsentRecord[];
   profile: Profile;
+  user: UserProfile;
   logs: DayLogs;
   reminders: ReminderSettings;
   /** occurrence id → when it was shown, so a reminder is never delivered twice. */
@@ -134,6 +148,7 @@ export function emptyAppData(): AppData {
     schemaVersion: 1,
     consents: [],
     profile: { goals: [], showFertility: true },
+    user: {},
     logs: {},
     reminders: {
       discreet: true,

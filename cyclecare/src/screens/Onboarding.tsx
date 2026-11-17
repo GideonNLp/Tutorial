@@ -5,7 +5,8 @@ import { completeOnboarding, useStorageMode, useToday } from '../app/store';
 import { content } from '../content';
 import { diffDays, isValidISODate } from '../domain/dates';
 import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/prediction';
-import { GOALS, type Goal, type ISODate } from '../domain/types';
+import { GOALS, NICKNAME_MAX, type Goal, type ISODate } from '../domain/types';
+import { normalizeNickname } from '../domain/user';
 import { strings } from '../i18n';
 import { ErrorText, MultiChips, Stepper, Switch } from '../ui/controls';
 import { InstallButton } from '../ui/InstallApp';
@@ -16,8 +17,14 @@ import { StepStack } from '../ui/StepStack';
 import { Notice } from '../ui/Shell';
 import { haptic } from '../ui/haptics';
 
-type Step = 'welcome' | 'consent' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goals' | 'finish';
-const QUESTION_STEPS: Step[] = ['consent', 'lastPeriod', 'cycleLength', 'periodLength', 'goals', 'finish'];
+type Step = 'welcome' | 'consent' | 'nickname' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goals' | 'finish';
+const QUESTION_STEPS: Step[] = ['consent', 'nickname', 'lastPeriod', 'cycleLength', 'periodLength', 'goals', 'finish'];
+
+/** The name to keep, if any (the step itself refuses names it cannot keep). */
+function nicknameValue(raw: string): string | undefined {
+  const result = normalizeNickname(raw);
+  return result.ok ? result.value : undefined;
+}
 
 export function Onboarding() {
   const s = strings();
@@ -27,6 +34,8 @@ export function Onboarding() {
   const [step, setStep] = useState<Step>('welcome');
   const [busy, setBusy] = useState(false);
 
+  const [nickname, setNickname] = useState('');
+  const [nicknameError, setNicknameError] = useState(false);
   const [lastPeriod, setLastPeriod] = useState<ISODate | ''>('');
   const [lastPeriodError, setLastPeriodError] = useState(false);
   const [cycleLength, setCycleLength] = useState<number | undefined>(undefined);
@@ -59,6 +68,7 @@ export function Onboarding() {
     setBusy(true);
     try {
       await completeOnboarding({
+        nickname: nicknameValue(nickname),
         lastPeriodStart: lastPeriod || undefined,
         cycleLength,
         periodLength,
@@ -131,7 +141,61 @@ export function Onboarding() {
     }
 
     if (step === 'consent') {
-      return <ConsentStep shell={shell} busy={busy} onAccept={() => go('lastPeriod')} />;
+      return <ConsentStep shell={shell} busy={busy} onAccept={() => go('nickname')} />;
+    }
+
+    if (step === 'nickname') {
+      const next = () => {
+        if (!normalizeNickname(nickname).ok) return setNicknameError(true);
+        go('lastPeriod');
+      };
+      return shell(
+        o.nickname.title,
+        <div className="field">
+          <label className="field-label" htmlFor="nickname">
+            {o.nickname.label}
+          </label>
+          <p className="field-hint" id="nickname-hint">
+            {o.nickname.hint}
+          </p>
+          <input
+            id="nickname"
+            className="input"
+            value={nickname}
+            maxLength={NICKNAME_MAX}
+            autoComplete="nickname"
+            autoCapitalize="words"
+            enterKeyHint="next"
+            placeholder={s.profile.namePlaceholder}
+            aria-invalid={nicknameError || undefined}
+            aria-describedby={`nickname-hint${nicknameError ? ' nickname-error' : ''}`}
+            onChange={(e) => {
+              setNickname(e.target.value);
+              setNicknameError(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') next();
+            }}
+          />
+          {nicknameError && <ErrorText id="nickname-error">{s.profile.nameInvalid}</ErrorText>}
+        </div>,
+        <>
+          <button type="button" className="btn btn-primary btn-block" onClick={next}>
+            {s.common.next}
+          </button>
+          <button
+            type="button"
+            className="btn btn-quiet btn-block"
+            onClick={() => {
+              setNickname('');
+              setNicknameError(false);
+              go('lastPeriod');
+            }}
+          >
+            {s.common.skip}
+          </button>
+        </>,
+      );
     }
 
     if (step === 'lastPeriod') {

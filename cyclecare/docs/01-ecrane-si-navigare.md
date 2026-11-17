@@ -21,7 +21,8 @@ flowchart TD
     exista -- da, fără PIN --> today
 
     welcome -- Începe --> consent[Consimțământ]
-    consent --> q1[Ultima menstruație]
+    consent --> q0[Nume sau poreclă]
+    q0 --> q1[Ultima menstruație]
     q1 --> q2[Durata ciclului]
     q2 --> q3[Durata menstruației]
     q3 --> q4[Obiective]
@@ -44,6 +45,7 @@ flowchart TD
     jur -- Importă din fișier --> imp[[Import temperaturi]]
     stats -- Creează raportul PDF --> pdf[[Raport pentru medic]]
 
+    tabs -- poza rotundă din colț --> prof[Profil]
     tabs -- rotița din antet --> set[Setări]
     set --> s1[Ciclul meu]
     set --> s2[Memento-uri]
@@ -60,17 +62,18 @@ Dreptunghiurile duble sunt ferestre deschise peste ecran (foaie de jos pe telefo
 
 ## 3. Prima deschidere
 
-Șapte ecrane, dintre care doar consimțământul este obligatoriu. Un indicator „Pasul n din 6” și butonul „Înapoi” sunt prezente de la consimțământ încolo.
+Opt ecrane, dintre care doar consimțământul este obligatoriu. Un indicator „Pasul n din 7” și butonul „Înapoi” sunt prezente de la consimțământ încolo.
 
 | Pas | Ecran | Ce cere | Poate fi sărit | Validare |
 |---|---|---|---|---|
 | – | Bun venit | Ce face aplicația, pe scurt, butonul „Începe” și, unde se poate, „Instalează aplicația” | – | – |
 | 1 | Consimțământ | Două căsuțe nebifate: prelucrarea datelor privind sănătatea; vârsta de cel puțin 16 ani sau acordul unui părinte. Legătură către declarația de confidențialitate | nu | Fără ambele bife apare o eroare lângă căsuțe. „Nu sunt de acord” explică faptul că nu s-a salvat nimic |
-| 2 | Ultima menstruație | Data primei zile (selector nativ de dată, cel mult azi) | da: „Nu-mi amintesc” | Data din viitor este refuzată; o dată mai veche de 90 de zile primește o notă că estimările vor fi nesigure |
-| 3 | Durata ciclului | 21–45 de zile, pornind de la 28 | da: „Nu știu” | Valoarea este ținută în interval |
-| 4 | Durata menstruației | 2–10 zile, pornind de la 5 | da: „Nu știu” | Valoarea este ținută în interval |
-| 5 | Obiective | Contracepție, planificarea unei sarcini, urmărire generală, înțelegerea simptomelor (alegere multiplă) | da: „Sari peste” | La „Contracepție” apare imediat avertismentul că aplicația nu este un mijloc de contracepție |
-| 6 | Aproape gata | Opțional: PIN (de două ori) și un memento cu două zile înainte de menstruație | da: „Deschide CycleCare” | PIN de 4–8 cifre, identic în ambele câmpuri |
+| 2 | Nume sau poreclă | „Cum să-ți spunem?”: un prenume sau o poreclă, cel mult 30 de caractere | da: „Sari peste” | Trebuie să conțină cel puțin o literă, o cifră sau un emoji; mesajul apare sub câmp |
+| 3 | Ultima menstruație | Data primei zile (selector nativ de dată, cel mult azi) | da: „Nu-mi amintesc” | Data din viitor este refuzată; o dată mai veche de 90 de zile primește o notă că estimările vor fi nesigure |
+| 4 | Durata ciclului | 21–45 de zile, pornind de la 28 | da: „Nu știu” | Valoarea este ținută în interval |
+| 5 | Durata menstruației | 2–10 zile, pornind de la 5 | da: „Nu știu” | Valoarea este ținută în interval |
+| 6 | Obiective | Contracepție, planificarea unei sarcini, urmărire generală, înțelegerea simptomelor (alegere multiplă) | da: „Sari peste” | La „Contracepție” apare imediat avertismentul că aplicația nu este un mijloc de contracepție |
+| 7 | Aproape gata | Opțional: PIN (de două ori) și un memento cu două zile înainte de menstruație | da: „Deschide CycleCare” | PIN de 4–8 cifre, identic în ambele câmpuri |
 
 Pașii se succed cu aceeași mișcare ca restul aplicației: următorul intră din dreapta, iar „Înapoi” îl retrage.
 
@@ -95,7 +98,7 @@ Ce se întâmplă cu răspunsurile:
 
 Răspunde la „unde sunt în ciclu și ce urmează?”.
 
-1. Antet: titlu, data de azi, rotița pentru setări.
+1. Antet: titlu, data de azi, rotița pentru setări și, în colțul din dreapta sus, poza de profil (vezi 4.6).
 2. Doar dacă este cazul: anunțul de stocare indisponibilă; invitația „Instalează aplicația” (până la instalare sau până la „Nu acum”).
 3. **Cadranul ciclului.** Ziua 1 este sus, sensul este cel al acelor de ceas. Arcele sunt cele patru faze estimate, bila marchează ziua de azi, arcul întrerupt de sus este intervalul în care este așteptată următoarea menstruație, iar arcul punctat din exterior marchează zilele fertile estimate. În centru: „Ziua 12” și faza. Dedesubt, legenda cu zilele fiecărei faze.
 4. **Următoarea menstruație**: intervalul („Probabil între 29 noiembrie și 5 decembrie”), data cea mai probabilă, peste câte zile, precizia estimării și pe ce se bazează.
@@ -177,6 +180,21 @@ Fiecare grafic are și varianta „Vezi datele ca tabel”, iar valorile pot fi 
 <img src="screenshots/19-raport-pdf.png" width="230" alt="Prima pagină a raportului PDF">
 </p>
 
+### 4.6 Profil
+
+Se deschide din poza mică și rotundă din colțul din dreapta sus al fiecărei file. Poza arată fotografia aleasă, inițialele numelui (de exemplu „AM” pentru „Ana Maria”) sau, fără nume, o siluetă neutră.
+
+1. Poza mare, numele (sau „Fără nume”), „Adaugă o poză” / „Schimbă poza” și „Elimină poza” (cu „Anulează” în mesajul de confirmare).
+2. Câmpul „Nume sau poreclă”, cu „Salvează”. Golit și salvat, numele este șters.
+3. O notă despre confidențialitate: numele și poza rămân criptate pe dispozitiv și nu apar pe ecranul de blocare, în notificări sau în raportul PDF.
+
+Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijloc; la pozele verticale, puțin mai sus, unde este de obicei fața), micșorată la 256 × 256 de pixeli și păstrată ca JPEG; fișierul original nu este păstrat. Un fișier care nu este imagine sau mai mare de 25 MB primește un mesaj sub buton.
+
+<p>
+<img src="screenshots/22-profil.png" width="230" alt="Ecranul Profil: poza rotundă cu inițialele AM, numele Ana Maria și câmpul pentru nume">
+<img src="screenshots/23-nume.png" width="230" alt="Pasul din prima deschidere care întreabă numele sau porecla">
+</p>
+
 ## 5. Setări
 
 | Ecran | Conținut |
@@ -234,6 +252,7 @@ Fiecare ecran are o adresă simplă, astfel încât butonul „înapoi” al tel
 | `#jurnal` | Jurnal |
 | `#sfaturi` | Sfaturi |
 | `#statistici` | Statistici |
+| `#profil` | Profil |
 | `#setari` | Setări |
 | `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
 | `#politica` | Declarația de confidențialitate |

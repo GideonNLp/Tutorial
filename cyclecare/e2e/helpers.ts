@@ -24,6 +24,7 @@ export async function startEmpty(page: Page): Promise<void> {
   await openApp(page);
   await page.getByRole('button', { name: 'Începe' }).click();
   await acceptConsent(page);
+  await page.getByRole('button', { name: 'Sari peste' }).click(); // no name
   await page.getByRole('button', { name: 'Nu-mi amintesc' }).click();
   await page.getByRole('button', { name: 'Nu știu' }).click();
   await page.getByRole('button', { name: 'Nu știu' }).click();
