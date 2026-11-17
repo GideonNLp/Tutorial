@@ -13,7 +13,7 @@ export { legalReviewNotes } from '../ro/legal';
 export type { PolicySection } from '../ro/legal';
 
 /** The same text version as Romanian, marked as the English translation (it is stored with the consent). */
-export const LEGAL_VERSION: string = '2026-11-draft-5-en';
+export const LEGAL_VERSION: string = '2026-11-draft-6-en';
 export const LEGAL_UPDATED: string = '2026-11-17';
 
 export const consentText = {
@@ -30,7 +30,7 @@ export const consentText = {
     },
     {
       title: 'Who else sees it',
-      body: 'No one. We don’t share it, sell it or use it for advertising. If you want, you can invite one person in Partner mode; we then ask for your separate consent and you choose what they see.',
+      body: 'No one. We don’t share it, sell it or use it for advertising. If you want, you can invite one person in Partner mode or keep an encrypted copy of your journal on the app’s server, which we cannot read; for each we ask for your separate consent.',
     },
     {
       title: 'What you can do at any time',
@@ -66,9 +66,9 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
     {
       heading: '1. In short',
       bullets: [
-        `${APP_NAME} keeps your data only on your device, encrypted.`,
+        `${APP_NAME} keeps your data on your device, encrypted; an encrypted copy on the server exists only if you turn it on.`,
         'We don’t ask for your email, phone number or an account. Your name (or a nickname) and profile photo are optional and also stay only on the device.',
-        'We have no access to your data and we don’t pass it to anyone. If you choose Partner mode, a summary you pick reaches, end-to-end encrypted, only the phone of the person you invited.',
+        'We have no access to your data and we don’t pass it to anyone. If you choose Partner mode, a summary you pick reaches, end-to-end encrypted, only the phone of the person you invited. If you choose the backup, an encrypted copy of your journal is kept on the app’s server, and we cannot read it.',
         'We don’t use advertising, analytics tools or other third-party services.',
         'You can export or delete everything at any time.',
       ],
@@ -108,11 +108,12 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
     {
       heading: '5. Where it is kept and how it is protected',
       bullets: [
-        'The data is kept only on your device, in the app’s storage.',
+        'The data is kept on your device, in the app’s storage (and, only if you turn on the backup, in an encrypted copy on the app’s server).',
         'It is encrypted at rest with AES-256-GCM. The encryption key is kept by the device’s system and cannot be exported.',
         'If you set a PIN, the encryption key is additionally protected with a key derived from the PIN (PBKDF2-HMAC-SHA-256, 600,000 iterations). The PIN is not stored anywhere and cannot be recovered.',
         'Biometric unlock uses the device’s sensor. Your fingerprint or face image never reaches the app.',
-        'The app doesn’t send your data over the internet, with one exception that you choose: Partner mode (section 7). The app is delivered over HTTPS and is set up so that it can only communicate with its own server.',
+        'The app doesn’t send your data over the internet, with two exceptions that you choose: Partner mode and the backup (section 7). The app is delivered over HTTPS and is set up so that it can only communicate with its own server.',
+        'The recovery code is generated on your phone and kept only in the encrypted journal on it; it is not sent anywhere. The key that encrypts the copy is derived from it, so without it nobody can open the copy, not even us, and the code cannot be remade.',
         'If a feature that involves sending data (for example, a cloud backup) appears in the future, it will be optional, fully encrypted on the device before it is sent, sent only over encrypted connections (TLS), and turned on only with your separate consent.',
       ],
     },
@@ -136,6 +137,8 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
         'No one. We don’t sell, rent or pass your data to third parties, advertising partners, employers, insurers or authorities, because we don’t hold it.',
         'The PDF report and the data export are created on your device and reach only whoever you choose to show or send them to.',
         'Partner mode, only if you turn it on, with your separate consent: your phone works out a summary of what you chose to let the invited person see (the phase, the calendar with estimates, symptoms and mood from the last 14 days, your notes). Sex, temperature, cervical mucus and your profile photo are never sent. The summary is encrypted on your phone with a key that only the two phones have, and passes through the app’s server, which keeps only the encrypted text and cannot read it. The server is hosted by the app’s hosting provider [name of the provider and the country where the data is kept].',
+        'The backup on the server, only if you turn it on, with your separate consent: your phone encrypts the whole journal (the logged days, including sex, notes and profile) with a key made from the recovery code, which only you have, and sends the copy to the app’s server, the one described above. The server keeps at most three versions (the latest, one at least a day older and one at least a week older), cannot read them, and sees only their size and the time of the update.',
+        'You can turn the copy off at any time: it is deleted from the server, with all its versions. “Delete all data” and withdrawing your consent delete it too. If you forgot your PIN and started from scratch, the copy stays on the server, so you can restore it with the recovery code; you can then delete it in Settings → Backup.',
         'Pairing uses a 6-character code, valid for 10 minutes, and six verification digits that you compare on the two screens. You can change what your partner sees or stop sharing at any time; the encrypted copy is then deleted from the server. The invited person keeps the last summary received, encrypted on their phone, until they disconnect.',
         'Any other sharing would only be possible with your explicit, separate consent, asked for each case, stating exactly the data, the recipient and the purpose.',
       ],
@@ -155,7 +158,7 @@ export const privacyPolicy: { title: string; draftNotice: string | undefined; se
     {
       heading: '10. How long we keep the data',
       paragraphs: [
-        'The data stays on your device until you delete it in the app, withdraw your consent, clear the site data in your browser or uninstall the app. We keep no copy, except for the encrypted Partner mode summary, which is deleted when you stop sharing or delete all data.',
+        `The data stays on your device until you delete it in the app, withdraw your consent, clear the site data in your browser or uninstall the app. We keep no copy, except for the encrypted Partner mode summary and the encrypted backup, which are deleted when you turn them off or delete all data.${reviewNote('The longest time an out-of-date copy may be kept, for example after a lost phone.')}`,
         'Please note: if you lose the device or delete the app without an export, the data cannot be recovered.',
       ],
     },

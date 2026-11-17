@@ -113,7 +113,9 @@ export function LockScreen() {
       </main>
 
       <Sheet open={forgot} onClose={() => setForgot(false)} title={l.forgotTitle}>
-        <p>{l.forgotBody}</p>
+        <p>
+          {l.forgotBody} {l.keepsServerCopy}
+        </p>
         <div className="sheet-actions">
           <button type="button" className="btn btn-secondary" onClick={() => setForgot(false)}>
             {s.common.cancel}
@@ -133,11 +135,11 @@ export function LockScreen() {
       <ConfirmSheet
         open={confirmWipe}
         title={s.settings.privacy.deleteConfirmTitle}
-        body={s.settings.privacy.deleteBody}
+        body={`${s.settings.privacy.deleteBody} ${s.lock.keepsServerCopy}`}
         confirmLabel={s.settings.privacy.deleteConfirm}
         danger
         onCancel={() => setConfirmWipe(false)}
-        onConfirm={() => void wipeEverything()}
+        onConfirm={() => void wipeEverything({ keepServerCopy: true })}
       />
     </div>
   );
@@ -159,11 +161,11 @@ export function BrokenVaultScreen() {
       <ConfirmSheet
         open={confirm}
         title={s.settings.privacy.deleteConfirmTitle}
-        body={s.settings.privacy.deleteBody}
+        body={`${s.settings.privacy.deleteBody} ${s.lock.keepsServerCopy}`}
         confirmLabel={s.settings.privacy.deleteConfirm}
         danger
         onCancel={() => setConfirm(false)}
-        onConfirm={() => void wipeEverything()}
+        onConfirm={() => void wipeEverything({ keepServerCopy: true })}
       />
     </div>
   );

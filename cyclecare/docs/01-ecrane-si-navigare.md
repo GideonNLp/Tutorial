@@ -219,6 +219,7 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 | Memento-uri | Starea permisiunii de notificare; text discret; începutul menstruației estimate și zilele fertile (cu câte zile înainte, ora, repetare zilnică); pilulă și alte medicamente (denumire, oră, în fiecare zi sau în anumite zile) |
 | Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; discreție (inimioarele din calendar); unde sunt datele; partajarea cu terți (ce se partajează prin Modul Partener, cu legătură către Setări → Partener); acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
 | Partener | Ce poate vedea partenerul, invitația și oprirea partajării (secțiunea 5.1) |
+| Copie de siguranță | Codul de recuperare, fișierul criptat și copia automată pe server (secțiunea 5.2) |
 | Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor |
 | Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba (română sau engleză; la prima pornire, limba telefonului) |
 | Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal, actualizarea la o versiune nouă, licențe |
@@ -243,6 +244,18 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 | Istoric | Zilele notate din ultimele 14, cu etichete și note, după permisiuni |
 
 Sus, pe fiecare filă: „Actualizat acum” și „Actualizează”; fără internet, momentul ultimei actualizări primite; după oprirea partajării, „Partajarea a fost oprită”. Ce nu este împărtășit apare ca atare („Jurnalul nu este împărtășit.”). Avatarul din colț deschide setările partenerului: conexiunea și „Deconectează-te” (care șterge tot de pe telefonul lui), PIN, aspect, despre.
+
+
+### 5.2 Copia de siguranță
+
+**Setări → Copie de siguranță** (și un rând scurt în Setări → Datele mele). Ecranul are patru părți:
+
+1. **Codul de recuperare.** „Creează codul” îl generează pe telefon și îl arată o singură dată, în șase grupe de câte patru caractere, cu „Copiază” și sfatul de a-l nota pe hârtie. Ca să continue, persoana rescrie o grupă cerută din cod; abia atunci codul este considerat notat. După aceea se vede doar „Arată codul” (cu confirmare), „Înlocuiește codul” (copia nouă se creează întâi, cea veche se șterge după) și starea. Codul nu poate fi refăcut: cine îl pierde împreună cu telefonul nu își mai poate deschide copia.
+2. **Fișier criptat.** „Salvează un fișier” descarcă `.cyclecare`, criptat cu aceeași cheie, care se poate păstra oriunde. Funcționează și fără server.
+3. **Copia automată pe server** (doar unde aplicația are server, adică pe Netlify). Comutatorul cere întâi un acord separat. Apoi aplicația trimite o copie criptată la 45 de secunde după ultima schimbare, la ieșire și la revenire; ecranul arată ultima trimitere, versiunile păstrate (ultima, de ieri, de săptămâna trecută) și, fără internet, că trimiterea pleacă de îndată ce revii online. Dacă alt telefon a scris între timp cu același cod, apare „Altă copie a luat locul” cu alegerea: continuă de aici (înlocuiește copia) sau oprește. „Oprește și șterge copia” o scoate de pe server cu toate versiunile.
+4. **Restaurare** („Am deja o copie”, și pe primul ecran, la „Am deja un cont de recuperare”). Codul (litere mici, spații și cratime sunt acceptate) aduce copia de pe server; un fișier `.cyclecare` cere codul, apoi arată data copiei, câte zile conține și un avertisment că înlocuiește ce este pe telefon. Greșelile se spun pe înțelesul persoanei: cod greșit, caracter de control nepotrivit, nicio copie găsită, fără internet, format necunoscut.
+
+La „Am uitat PIN-ul” fereastra spune că o copie de pe server rămâne acolo și poate fi restaurată cu codul după ce se pornește de la zero; „Șterge toate datele” din Setări și retragerea acordului șterg însă și copia de pe server.
 
 ## 6. Blocare
 
@@ -285,7 +298,7 @@ Fiecare ecran are o adresă simplă, astfel încât butonul „înapoi” al tel
 | `#statistici` | Statistici |
 | `#profil` | Profil |
 | `#setari` | Setări |
-| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-partener`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
+| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-partener`, `#setari-copie`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
 | `#partener=COD` | Linkul de invitație: deschide conectarea partenerului cu codul completat, apoi adresa revine la `#azi` |
 | `#politica` | Declarația de confidențialitate |
 

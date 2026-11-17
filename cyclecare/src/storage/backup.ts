@@ -50,11 +50,17 @@ export interface BackupFile {
   data: AppData;
 }
 
+/**
+ * What leaves the device in a backup: the journal, without the keys of a partner link and without the
+ * recovery code. Whoever holds a copy must not be able to read along, or open the next copy.
+ */
+export function portableData(data: AppData): AppData {
+  const { partnerView: _view, backup: _backup, ...rest } = data;
+  return { ...rest, partner: { permissions: data.partner.permissions } };
+}
+
 export function exportBackup(data: AppData, now: Date): string {
-  // A backup carries the journal, not the keys of a partner link: whoever holds the file must not be able to read along.
-  const { partnerView: _view, ...rest } = data;
-  const portable: AppData = { ...rest, partner: { permissions: data.partner.permissions } };
-  const file: BackupFile = { app: APP_ID, format: BACKUP_FORMAT, exportedAt: now.toISOString(), data: portable };
+  const file: BackupFile = { app: APP_ID, format: BACKUP_FORMAT, exportedAt: now.toISOString(), data: portableData(data) };
   return JSON.stringify(file, null, 2);
 }
 

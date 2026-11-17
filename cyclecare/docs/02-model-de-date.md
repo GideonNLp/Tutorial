@@ -143,17 +143,34 @@ Pe telefonul partenerului, `role` este `partner`, iar `partnerView` ține `chann
 
 **Pe server** (`server/relay.ts`, în Netlify Blobs): asocierea în curs (codul, cheile publice, hash-ul tokenului proprietarei, mesajul criptat cu datele canalului; expiră după 10 minute) și, pentru fiecare legătură, ultimul rezumat criptat, hash-ul tokenului de scriere și momentul actualizării. Serverul nu primește nicio cheie de decriptare.
 
+### 3.1.3 Copia de siguranță
+
+Câmpul `backup` din documentul-rădăcină (`BackupSettings`), doar în seiful criptat al telefonului:
+
+| Câmp | Tip | Rol |
+|---|---|---|
+| `code` | 24 de caractere (23 aleatoare și un caracter de control, circa 115 de biți) | Codul de recuperare; din el se derivă tot ce urmează |
+| `createdAt`, `confirmed` | moment, boolean | Când a fost creat; dacă persoana a rescris o grupă din cod, ca dovadă că l-a notat |
+| `auto` | `since`, `etag`, `digest`, `lastAt`, `taken` | Copia automată pe server este pornită (acord separat); versiunea de pe server scrisă ultima oară, rezumatul a ceea ce s-a trimis, momentul și starea „altă copie a luat locul” |
+| `pendingDelete` | listă de `id`, `token` | Copii oprite sau înlocuite de un cod nou, pe care serverul nu a putut fi rugat să le șteargă (fără internet) |
+
+Câmpul `backup` nu intră niciodată în exportul JSON, în fișierul criptat sau în copia de pe server: cine ar avea copia ar avea și cheia ei. Tot așa, `partnerView` și `partner.share` nu sunt incluse.
+
+Din cod, cu HKDF-SHA-256 și etichete diferite, se derivă trei valori: `id` (128 de biți, locul copiei pe server), `token` (256 de biți, dovada dreptului de a citi, scrie și șterge; serverul păstrează doar hash-ul) și cheia AES-256-GCM. Conținutul este JSON-ul portabil al jurnalului, comprimat cu gzip acolo unde browserul poate, apoi sigilat; `id`-ul și felul împachetării sunt legate de criptare (date asociate). Plicul este `{ v: 1, z: 'gzip' | 'none', iv, ct }`; fișierul `.cyclecare` este același plic, cu `app`, `kind` și `savedAt`.
+
+**Pe server** (`/api/partner/backup/<id>`, în Netlify Blobs): hash-ul tokenului și, pentru cel mult trei versiuni (cea mai recentă, una cu cel puțin o zi mai veche, una cu cel puțin o săptămână mai veche), textul criptat, `etag`-ul și momentul. Fiecare cerere, și citirile, cere tokenul. Prima scriere cere `If-None-Match: *`, cele următoare `If-Match: <etag>`; un `412` înseamnă că alt telefon a scris între timp cu același cod. Mărimea unei copii este limitată la 3 000 000 de caractere criptate.
+
 ### 3.2 Acord
 
 Dovada consimțământului. Se creează la prima configurare și nu se modifică.
 
 | Câmp | Tip | Reguli |
 |---|---|---|
-| `type` | `health_data_processing`, `age_confirmation`, `partner_sharing` (proprietara a acceptat Modul Partener), `partner_view` (pe telefonul partenerului) | un rând pentru fiecare acord |
-| `textVersion` | text | versiunea textului acceptat (`LEGAL_VERSION`), cu limba: `2026-11-schita-5` în română, `2026-11-draft-5-en` în engleză |
+| `type` | `health_data_processing`, `age_confirmation`, `partner_sharing` (proprietara a acceptat Modul Partener), `partner_view` (pe telefonul partenerului), `cloud_backup` (copia criptată pe server) | un rând pentru fiecare acord |
+| `textVersion` | text | versiunea textului acceptat (`LEGAL_VERSION`), cu limba: `2026-11-schita-6` în română, `2026-11-draft-6-en` în engleză |
 | `grantedAt` | moment | data și ora acordului |
 
-Retragerea acordului șterge toate datele, inclusiv aceste rânduri; nu rămâne nimic de marcat ca „retras”. Acordul `partner_sharing` se dă la prima invitație; oprirea partajării șterge copia de pe server, iar o invitație nouă cere din nou acordul.
+Retragerea acordului șterge toate datele, inclusiv aceste rânduri; nu rămâne nimic de marcat ca „retras”. Acordul `partner_sharing` se dă la prima invitație; oprirea partajării șterge copia de pe server, iar o invitație nouă cere din nou acordul. La fel, acordul `cloud_backup` se dă la pornirea copiei pe server; oprirea ei șterge copia, iar pornirea din nou cere acordul din nou.
 
 ### 3.3 Zi de jurnal
 

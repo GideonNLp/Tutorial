@@ -1773,3 +1773,26 @@ details.table-view > summary {
     transform: translateY(-6px);
   }
 }
+
+/* ---------------------------------------------------------------- backup */
+
+/* The recovery code: six groups of four, easy to copy by hand. */
+.recovery-code {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2) var(--s3);
+  padding: var(--s4);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  user-select: all;
+}
+.recovery-input {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

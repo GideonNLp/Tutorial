@@ -2,9 +2,10 @@ import { Check, ChevronLeft, Info, Languages } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { requestNotifications } from '../app/platform';
 import { partnerAvailable } from '../app/config';
-import { completeOnboarding, setPrefs, startPartnerDevice, usePrefs, useStorageMode, useToday } from '../app/store';
+import { completeOnboarding, completeRestore, setPrefs, startPartnerDevice, usePrefs, useStorageMode, useToday } from '../app/store';
 import { isPairingCode, normalizePairingCode } from '../partner/crypto';
 import { collectCredentials, joinPairing, type PartnerJoin } from '../partner/flows';
+import { RestorePanel, type RestoreChoice } from '../backup/RestorePanel';
 import { takeInviteCode } from '../partner/invite';
 import { content } from '../content';
 import { diffDays, isValidISODate } from '../domain/dates';
@@ -21,7 +22,19 @@ import { StepStack } from '../ui/StepStack';
 import { Notice } from '../ui/Shell';
 import { haptic } from '../ui/haptics';
 
-type Step = 'welcome' | 'partnerJoin' | 'partnerVerify' | 'consent' | 'nickname' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goals' | 'finish';
+type Step =
+  | 'welcome'
+  | 'partnerJoin'
+  | 'partnerVerify'
+  | 'restore'
+  | 'restoreConsent'
+  | 'consent'
+  | 'nickname'
+  | 'lastPeriod'
+  | 'cycleLength'
+  | 'periodLength'
+  | 'goals'
+  | 'finish';
 const QUESTION_STEPS: Step[] = ['consent', 'nickname', 'lastPeriod', 'cycleLength', 'periodLength', 'goals', 'finish'];
 
 /** The name to keep, if any (the step itself refuses names it cannot keep). */
@@ -42,6 +55,8 @@ export function Onboarding() {
   const [partnerError, setPartnerError] = useState<string | undefined>(undefined);
   const [partnerBusy, setPartnerBusy] = useState(false);
   const [join, setJoin] = useState<PartnerJoin | undefined>(undefined);
+  // A copy found on the way in: it becomes this phone's journal once the usual consent is given.
+  const [restoreChoice, setRestoreChoice] = useState<RestoreChoice | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
   const [nickname, setNickname] = useState('');
@@ -164,7 +179,7 @@ export function Onboarding() {
     };
   }, [step, join, pm]);
 
-  /** First-run screens for the partner: no progress bar, a way back to the welcome screen. */
+  /** First-run screens outside the questions (the partner's, the restore's): no progress bar, a way back. */
   const partnerShell = (title: string, body: ReactNode, actions: ReactNode) => (
     <div className="onb">
       <header className="onb-top">
@@ -176,7 +191,7 @@ export function Onboarding() {
             setJoin(undefined);
             setPartnerError(undefined);
             setForward(false);
-            setStep(step === 'partnerVerify' ? 'partnerJoin' : 'welcome');
+            setStep(step === 'partnerVerify' ? 'partnerJoin' : step === 'restoreConsent' ? 'restore' : 'welcome');
           }}
         >
           <ChevronLeft size={22} aria-hidden="true" />
@@ -193,6 +208,33 @@ export function Onboarding() {
   );
 
   const renderStep = (): ReactNode => {
+    if (step === 'restore') {
+      return partnerShell(
+        o.welcome.restoreAction,
+        <RestorePanel
+          confirmLabel={s.backup.restore.confirm}
+          onChoose={(choice) => {
+            setRestoreChoice(choice);
+            go('restoreConsent');
+          }}
+        />,
+        null,
+      );
+    }
+
+    if (step === 'restoreConsent' && restoreChoice) {
+      return (
+        <ConsentStep
+          shell={partnerShell}
+          busy={busy}
+          onAccept={() => {
+            setBusy(true);
+            void completeRestore(restoreChoice.data, restoreChoice.code).catch(() => setBusy(false));
+          }}
+        />
+      );
+    }
+
     if (step === 'partnerJoin') {
       return partnerShell(
         pm.join.title,
@@ -286,6 +328,12 @@ export function Onboarding() {
               {o.welcome.start}
             </button>
             <InstallButton className="btn btn-secondary btn-block" />
+            <div className="stack stack-1 onb-partner">
+              <p className="caption">{o.welcome.restoreHint}</p>
+              <button type="button" className="btn btn-quiet btn-block" onClick={() => go('restore')}>
+                {o.welcome.restoreAction}
+              </button>
+            </div>
             {partnerAvailable() && (
               <div className="stack stack-1 onb-partner">
                 <p className="caption">{pm.welcomeHint}</p>

@@ -81,7 +81,7 @@ test('a phone set to English gets the whole app in English', async ({ page }) =>
     await page.getByRole('link', { name: new RegExp(section) }).click();
     await expect(page.getByRole('heading', { level: 1, name: section })).toBeVisible();
     expect(await romanianLeftovers(page), section).toEqual([]);
-    await page.getByRole('button', { name: 'Back' }).click();
+    await page.getByRole('button', { name: 'Back', exact: true }).click();
   }
   await page.getByRole('link', { name: /Privacy and security/ }).click();
   await page.getByRole('button', { name: 'Read the privacy notice' }).click();

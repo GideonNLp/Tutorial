@@ -4,6 +4,7 @@ import {
   CircleDot,
   CircleHelp,
   Database,
+  DatabaseBackup,
   FileUp,
   Info,
   Palette,
@@ -49,6 +50,7 @@ import { ImportTempsSheet } from '../ui/ImportTempsSheet';
 import { InstallButton } from '../ui/InstallApp';
 import { PinFields, validateNewPin } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
+import { BackupSettings } from './BackupSettings';
 import { PartnerShareSettings } from './PartnerShareSettings';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
 import { Notice, Screen } from '../ui/Shell';
@@ -67,6 +69,8 @@ export function SettingsScreen({ route }: { route: Route }) {
       return <DataSettings />;
     case 'setari-partener':
       return <PartnerShareSettings />;
+    case 'setari-copie':
+      return <BackupSettings />;
     case 'setari-aspect':
       return <AppearanceSettings />;
     case 'setari-despre':
@@ -97,6 +101,7 @@ function SettingsIndex() {
     { route: 'setari-memento', icon: Bell, text: s.sections.reminders },
     { route: 'setari-confidentialitate', icon: ShieldCheck, text: s.sections.privacy },
     { route: 'setari-date', icon: Database, text: s.sections.data },
+    { route: 'setari-copie', icon: DatabaseBackup, text: s.sections.backup },
     { route: 'setari-partener', icon: Users, text: s.sections.partner },
     { route: 'setari-aspect', icon: Palette, text: s.sections.appearance },
     { route: 'setari-despre', icon: CircleHelp, text: s.sections.about },
@@ -635,7 +640,7 @@ function PrivacySettings() {
         </Group>
 
         <Group title={p.storageTitle}>
-          <p>{p.storage[storage]}</p>
+          <p>{storage === 'encrypted' && data.backup?.auto ? p.storage.encryptedWithBackup : p.storage[storage]}</p>
           {storage === 'encrypted' && persisted === false && <p className="small ink-2">{p.storageNotPersistent}</p>}
         </Group>
 
@@ -647,10 +652,14 @@ function PrivacySettings() {
                 ? p.sharingOff
                 : p.sharing}
           </p>
+          {data.backup?.auto && <p>{p.backupOn}</p>}
           {partnerAvailable() && (
             <div className="row">
               <button type="button" className="btn btn-secondary btn-small" onClick={() => navigate('setari-partener')}>
                 {s.settings.sections.partner.title}
+              </button>
+              <button type="button" className="btn btn-secondary btn-small" onClick={() => navigate('setari-copie')}>
+                {s.settings.sections.backup.title}
               </button>
             </div>
           )}
@@ -669,7 +678,7 @@ function PrivacySettings() {
         </Group>
 
         <Group title={p.deleteTitle}>
-          <p>{p.deleteBody}</p>
+          <p>{data.backup?.auto ? `${p.deleteBody} ${p.deleteWithBackup}` : p.deleteBody}</p>
           <div>
             <button type="button" className="btn btn-danger" onClick={() => setConfirm('delete')}>
               <Trash2 size={18} aria-hidden="true" />
@@ -683,7 +692,7 @@ function PrivacySettings() {
       <ConfirmSheet
         open={confirm !== null}
         title={p.deleteConfirmTitle}
-        body={confirm === 'withdraw' ? `${p.withdrawBody} ${p.deleteConfirmBody}` : p.deleteConfirmBody}
+        body={`${confirm === 'withdraw' ? `${p.withdrawBody} ${p.deleteConfirmBody}` : p.deleteConfirmBody}${data.backup?.auto ? ` ${p.deleteWithBackup}` : ''}`}
         confirmLabel={p.deleteConfirm}
         danger
         onCancel={() => setConfirm(null)}
@@ -760,6 +769,12 @@ function DataSettings() {
             />
           </div>
           {error && <ErrorText>{error}</ErrorText>}
+          <div>
+            <button type="button" className="btn btn-secondary btn-small" onClick={() => navigate('setari-copie')}>
+              <ShieldCheck size={16} aria-hidden="true" />
+              {d.backupOpen}
+            </button>
+          </div>
         </Group>
 
         <Group title={d.devicesTitle}>
