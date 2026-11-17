@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode, type RefObject } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode, type RefObject } from 'react';
 import { addDays, fromDayNumber, parts, toDayNumber } from '../domain/dates';
 import type { BbtPoint, CycleRow, WeekPoint } from '../domain/stats';
 import type { ISODate } from '../domain/types';
@@ -148,10 +148,12 @@ export function CycleLengthChart({ rows, label }: { rows: CycleRow[]; label: str
             const dim = cursor.index !== null && cursor.index !== i;
             return (
               <g key={row.start} opacity={dim ? 0.45 : 1}>
-                {/* period days at the base, the rest of the cycle above, separated by a 2px gap */}
-                <rect x={x} y={y(period)} width={barW} height={y(0) - y(period)} fill="var(--menstruation)" />
-                <path d={column(x, y(length), barW, y(period) - 2)} fill="var(--ink-2)" />
-                <text className="chart-value" x={cx(i)} y={y(length) - 7} textAnchor="middle">
+                {/* period days at the base, the rest of the cycle above, separated by a 2px gap; the bar grows from the baseline */}
+                <g className="chart-bar" style={{ '--i': i } as CSSProperties}>
+                  <rect x={x} y={y(period)} width={barW} height={y(0) - y(period)} fill="var(--menstruation)" />
+                  <path d={column(x, y(length), barW, y(period) - 2)} fill="var(--ink-2)" />
+                </g>
+                <text className="chart-value chart-late" x={cx(i)} y={y(length) - 7} textAnchor="middle">
                   {length}
                 </text>
                 {(rows.length - 1 - i) % labelEvery === 0 && (
@@ -278,14 +280,31 @@ export function MoodChart({ points, periods, label }: { points: WeekPoint[]; per
             const last = lastIndex(series.key);
             return (
               <g key={series.key}>
-                <path d={path(series.key)} fill="none" stroke={series.color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+                <path
+                  className="chart-line"
+                  pathLength={1}
+                  d={path(series.key)}
+                  fill="none"
+                  stroke={series.color}
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
                 {points.map((p, i) =>
                   isolated(series.key, i) && i !== last ? (
-                    <circle key={p.weekStart} cx={centers[i]} cy={y(p[series.key]!)} r={3} fill={series.color} />
+                    <circle key={p.weekStart} className="chart-late" cx={centers[i]} cy={y(p[series.key]!)} r={3} fill={series.color} />
                   ) : null,
                 )}
                 {last >= 0 && (
-                  <circle cx={centers[last]} cy={y(points[last]![series.key]!)} r={4.5} fill={series.color} stroke="var(--surface)" strokeWidth={2} />
+                  <circle
+                    className="chart-late"
+                    cx={centers[last]}
+                    cy={y(points[last]![series.key]!)}
+                    r={4.5}
+                    fill={series.color}
+                    stroke="var(--surface)"
+                    strokeWidth={2}
+                  />
                 )}
                 {active && cursor.index !== null && active[series.key] !== undefined && (
                   <circle
@@ -401,6 +420,8 @@ export function BbtChart({
             <line className="chart-baseline" x1={xs[cursor.index]} x2={xs[cursor.index]} y1={m.t} y2={m.t + plotH} />
           )}
           <path
+            className="chart-line"
+            pathLength={1}
             d={points.map((p, i) => `${i === 0 ? 'M' : 'L'}${xs[i]!.toFixed(1)} ${y(p.celsius).toFixed(1)}`).join('')}
             fill="none"
             stroke="var(--ink)"
@@ -408,7 +429,17 @@ export function BbtChart({
             strokeLinejoin="round"
             strokeLinecap="round"
           />
-          {last >= 0 && <circle cx={xs[last]} cy={y(points[last]!.celsius)} r={4.5} fill="var(--ink)" stroke="var(--surface)" strokeWidth={2} />}
+          {last >= 0 && (
+            <circle
+              className="chart-late"
+              cx={xs[last]}
+              cy={y(points[last]!.celsius)}
+              r={4.5}
+              fill="var(--ink)"
+              stroke="var(--surface)"
+              strokeWidth={2}
+            />
+          )}
           {active && cursor.index !== null && (
             <circle cx={xs[cursor.index]} cy={y(active.celsius)} r={4.5} fill="var(--ink)" stroke="var(--surface)" strokeWidth={2} />
           )}

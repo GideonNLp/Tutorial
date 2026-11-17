@@ -20,7 +20,7 @@ export function useEnterOnChange<T extends HTMLElement>(key: string | number, ef
     previous.current = key;
     if (!el || before === key || prefersReducedMotion() || typeof el.animate !== 'function') return;
     if (effect === 'stagger') {
-      stagger(el.children, { step: 35 });
+      stagger(el.children);
       return;
     }
     const direction = typeof key === 'number' && typeof before === 'number' ? Math.sign(key - before) : 1;

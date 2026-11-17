@@ -11,6 +11,7 @@ import { Notice, Screen } from '../ui/Shell';
 import { contactExplanation } from '../ui/PregnancyRisk';
 import { summarizeLog, visiblePhase } from '../ui/summaries';
 import { haptic } from '../ui/haptics';
+import { SwapPanel } from '../ui/SwapPanel';
 import { useEnterOnChange } from '../ui/useEnterOnChange';
 import { assessContact } from '../domain/pregnancyRisk';
 
@@ -130,7 +131,7 @@ export function CalendarScreen() {
 
   return (
     <Screen title={c.title} settings>
-      <div className="cal-layout">
+      <div className="cal-layout" data-stagger="">
         <section className="stack stack-3" aria-label={c.gridLabel(monthTitle)}>
           <div className="cal-nav">
             <button type="button" className="icon-btn outlined" aria-label={c.prevMonth} onClick={() => shiftMonth(-1)}>
@@ -224,52 +225,54 @@ export function CalendarScreen() {
           {editing && <p className="small ink-2">{c.edit.hint}</p>}
         </section>
 
-        <div className="stack stack-5">
+        <div className="stack stack-5" data-stagger="">
           {!editing && (
-            <section className="card tight stack stack-2" aria-live="polite" aria-labelledby="day-heading">
-              <h2 id="day-heading" className="cal-detail-title">
-                {formatDate(selected, 'weekdayDayMonth')}
-              </h2>
-              {selectedInfo.cycleDay ? (
-                <p className="phase-line" data-phase={selectedPhase}>
-                  {selectedPhase && <span className="swatch" aria-hidden="true" />}
-                  <span>
-                    <span className="strong">{c.detail.cycleDay(selectedInfo.cycleDay)}</span>
-                    {selectedPhase && !selectedInfo.periodPredicted ? `, ${s.phaseInSentence[selectedPhase]}` : ''}
-                    {selectedInfo.forecast && selected !== today ? ` (${s.common.estimate})` : ''}
-                  </span>
-                </p>
-              ) : (
-                <p className="ink-2">{c.detail.noInfo}</p>
-              )}
-              {(selectedInfo.periodPredicted ||
-                selectedInfo.overdue ||
-                (showFertility && (selectedInfo.fertile || selectedInfo.ovulationDay)) ||
-                selectedInfo.intermenstrualBleed) && (
-                <ul className="small ink-2 stack stack-1">
-                  {selectedInfo.periodPredicted && <li>{c.detail.periodPredicted}</li>}
-                  {selectedInfo.overdue && <li>{c.detail.overdue}</li>}
-                  {showFertility && selectedInfo.ovulationDay && <li>{c.detail.ovulation}</li>}
-                  {showFertility && selectedInfo.fertile && !selectedInfo.ovulationDay && <li>{c.detail.fertile}</li>}
-                  {selectedInfo.intermenstrualBleed && <li>{c.detail.bleed}</li>}
-                </ul>
-              )}
-              {selected > today ? (
-                <p className="small ink-2">{c.detail.future}</p>
-              ) : (
-                <>
-                  <p className="small">{selectedSummary.length ? `${selectedSummary.join(', ')}.` : c.detail.nothing}</p>
-                  {selectedRisk && selectedIntimacy && (
-                    <p className="small phase-line">
-                      <Heart className="mark-heart-inline" size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
-                      <span>{contactExplanation(selectedRisk, selectedIntimacy)[0]}</span>
-                    </p>
-                  )}
-                  <button type="button" className="btn btn-secondary btn-small" onClick={() => openJournal(selected)}>
-                    {c.detail.open}
-                  </button>
-                </>
-              )}
+            <section className="card tight" aria-live="polite" aria-labelledby="day-heading">
+              <SwapPanel swapKey={selected} innerClassName="stack stack-2">
+                <h2 id="day-heading" className="cal-detail-title">
+                  {formatDate(selected, 'weekdayDayMonth')}
+                </h2>
+                {selectedInfo.cycleDay ? (
+                  <p className="phase-line" data-phase={selectedPhase}>
+                    {selectedPhase && <span className="swatch" aria-hidden="true" />}
+                    <span>
+                      <span className="strong">{c.detail.cycleDay(selectedInfo.cycleDay)}</span>
+                      {selectedPhase && !selectedInfo.periodPredicted ? `, ${s.phaseInSentence[selectedPhase]}` : ''}
+                      {selectedInfo.forecast && selected !== today ? ` (${s.common.estimate})` : ''}
+                    </span>
+                  </p>
+                ) : (
+                  <p className="ink-2">{c.detail.noInfo}</p>
+                )}
+                {(selectedInfo.periodPredicted ||
+                  selectedInfo.overdue ||
+                  (showFertility && (selectedInfo.fertile || selectedInfo.ovulationDay)) ||
+                  selectedInfo.intermenstrualBleed) && (
+                  <ul className="small ink-2 stack stack-1">
+                    {selectedInfo.periodPredicted && <li>{c.detail.periodPredicted}</li>}
+                    {selectedInfo.overdue && <li>{c.detail.overdue}</li>}
+                    {showFertility && selectedInfo.ovulationDay && <li>{c.detail.ovulation}</li>}
+                    {showFertility && selectedInfo.fertile && !selectedInfo.ovulationDay && <li>{c.detail.fertile}</li>}
+                    {selectedInfo.intermenstrualBleed && <li>{c.detail.bleed}</li>}
+                  </ul>
+                )}
+                {selected > today ? (
+                  <p className="small ink-2">{c.detail.future}</p>
+                ) : (
+                  <>
+                    <p className="small">{selectedSummary.length ? `${selectedSummary.join(', ')}.` : c.detail.nothing}</p>
+                    {selectedRisk && selectedIntimacy && (
+                      <p className="small phase-line">
+                        <Heart className="mark-heart-inline" size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                        <span>{contactExplanation(selectedRisk, selectedIntimacy)[0]}</span>
+                      </p>
+                    )}
+                    <button type="button" className="btn btn-secondary btn-small" onClick={() => openJournal(selected)}>
+                      {c.detail.open}
+                    </button>
+                  </>
+                )}
+              </SwapPanel>
             </section>
           )}
 

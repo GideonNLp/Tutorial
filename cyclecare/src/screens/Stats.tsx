@@ -1,5 +1,5 @@
 import { FileText } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { reportError } from '../app/errors';
 import { saveFile } from '../app/platform';
 import { useData, useTimeline, useToday } from '../app/store';
@@ -159,13 +159,14 @@ export function StatsScreen() {
                       </tr>
                     </thead>
                     <tbody>
-                      {heatRows.map((row) => (
+                      {heatRows.map((row, rowIndex) => (
                         <tr key={row.symptom}>
                           <th scope="row">{s.symptom[row.symptom]}</th>
                           {row.counts.map((n, i) => (
                             <td
                               key={view.matrix.months[i]}
                               data-level={n > 0 ? Math.ceil((n / view.matrix.max) * 4) : undefined}
+                              style={{ '--d': rowIndex + i } as CSSProperties}
                               title={st.symptoms.tooltip(s.symptom[row.symptom], formatMonthKey(view.matrix.months[i]!), n, row.severe[i] ?? 0)}
                             >
                               {n > 0 ? n : <span className="sr-only">0</span>}
