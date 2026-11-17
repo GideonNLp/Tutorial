@@ -529,12 +529,27 @@ export const ro = {
     /** The button in the middle of the dial; it starts with what is written on it (the day). */
     show: 'Arată capibara',
     hide: 'Înapoi la ziua ciclului',
-    messages: {
-      menstruation: ['Un ceai cald, o pauză.', 'Azi ai voie să încetinești.', 'Și odihna contează.'],
-      follicular: ['Energie nouă, idei noi!', 'Zi bună pentru mișcare.', 'Hai să încercăm ceva nou!'],
-      ovulation: ['Zâmbetul îți vine bine azi!', 'Strălucești azi!', 'Bea apă și bucură-te!'],
-      luteal: ['Pătură, ceai și liniște.', 'Încet și bine, azi.', 'O seară liniștită prinde bine.'],
-      hello: ['Mă bucur că ești aici!', 'Pas cu pas, împreună.', 'Te descurci minunat!'],
+    /** Default thoughts, in the pose's phase; each day starts from a different one. */
+    thoughts: {
+      menstruation: ['Un ceai cald ar merge perfect ☕', 'Azi ai voie să încetinești 🌙', 'O pătură moale, oare? 🧸', 'Odihna contează și ea ✨'],
+      follicular: ['Ce idee nouă ți-ar plăcea? ✨', 'Hai la o plimbare? 🌿', 'Energia e de partea ta azi 💪', 'Ce încerci nou săptămâna asta? 🌱'],
+      ovulation: [
+        'Oare merită o ciocolată azi? 🍫',
+        'Ești în formă, bucură-te! 🌼',
+        'Un zâmbet îți stă bine azi 😊',
+        'Apă rece și o gustare, da? 🍉',
+      ],
+      luteal: ['Pătură, film și liniște? 🎬', 'O seară calmă ar prinde bine 🌙', 'Oare mi-e poftă de dulce? 🍪', 'Ai grijă de tine, ești super! 💜'],
+      hello: ['Ai grijă de tine, ești super! ✨', 'Un ceai cald ar merge perfect ☕', 'Mă bucur că ești aici! 🌿', 'Pas cu pas, împreună. 🌱'],
+    },
+    thought: {
+      label: 'Gândul capibarei',
+      edit: 'Editează gândul',
+      placeholder: 'Scrie un gând drăguț',
+      save: 'Salvează ✓',
+      reset: 'Gânduri implicite',
+      saved: 'Gândul a fost salvat.',
+      resetDone: 'Au revenit gândurile implicite.',
     },
   },
 

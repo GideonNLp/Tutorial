@@ -529,12 +529,27 @@ export const en: Dictionary = {
     /** The button in the middle of the dial; it starts with what is written on it (the day). */
     show: 'Show the capybara',
     hide: 'Back to the cycle day',
-    messages: {
-      menstruation: ['A warm tea, a pause.', 'Slowing down is allowed today.', 'Rest counts too.'],
-      follicular: ['Fresh energy, fresh ideas!', 'A good day to move.', 'Let’s try something new!'],
-      ovulation: ['That smile suits you today!', 'You’re glowing today!', 'Drink water and enjoy!'],
-      luteal: ['Blanket, tea and quiet.', 'Slow and steady today.', 'A calm evening helps.'],
-      hello: ['Glad you’re here!', 'Step by step, together.', 'You’re doing great!'],
+    /** Default thoughts, in the pose's phase; each day starts from a different one. */
+    thoughts: {
+      menstruation: ['A warm tea would be perfect ☕', 'Slowing down is allowed today 🌙', 'A soft blanket, maybe? 🧸', 'Rest counts too ✨'],
+      follicular: ['Any new idea you’d love? ✨', 'Fancy a walk? 🌿', 'Energy is on your side today 💪', 'What new thing will you try? 🌱'],
+      ovulation: [
+        'Is chocolate worth it today? 🍫',
+        'You’re in good shape, enjoy it! 🌼',
+        'A smile suits you today 😊',
+        'Cold water and a snack, yes? 🍉',
+      ],
+      luteal: ['Blanket, film and quiet? 🎬', 'A calm evening would be nice 🌙', 'Craving something sweet? 🍪', 'Take care of you, you’re great! 💜'],
+      hello: ['Take care of you, you’re great! ✨', 'A warm tea would be perfect ☕', 'Glad you’re here! 🌿', 'Step by step, together 🌱'],
+    },
+    thought: {
+      label: 'The capybara’s thought',
+      edit: 'Edit the thought',
+      placeholder: 'Write a kind thought',
+      save: 'Save ✓',
+      reset: 'Default thoughts',
+      saved: 'The thought has been saved.',
+      resetDone: 'The default thoughts are back.',
     },
   },
 

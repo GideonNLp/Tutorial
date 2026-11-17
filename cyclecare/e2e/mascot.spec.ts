@@ -1,75 +1,159 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
+import { MASCOT_SHOW_MS, MASCOT_TURN_MS, THOUGHT_DELAY_MS } from '../src/domain/mascot';
 import { startEmpty, startWithJournal } from './helpers';
 
-/** The capybara's lines in src/i18n/ro.ts (the app's dictionary cannot be loaded outside the build). */
-const FOLLICULAR = ['Energie nouă, idei noi!', 'Zi bună pentru mișcare.', 'Hai să încercăm ceva nou!'];
-const HELLO = ['Mă bucur că ești aici!', 'Pas cu pas, împreună.', 'Te descurci minunat!'];
+/** The default thoughts of src/i18n/ro.ts, per pose (the app's dictionary is not loaded outside the build). */
+const FOLLICULAR = ['Ce idee nouă ți-ar plăcea? ✨', 'Hai la o plimbare? 🌿', 'Energia e de partea ta azi 💪', 'Ce încerci nou săptămâna asta? 🌱'];
+const HELLO = ['Ai grijă de tine, ești super! ✨', 'Un ceai cald ar merge perfect ☕', 'Mă bucur că ești aici! 🌿', 'Pas cu pas, împreună. 🌱'];
 const oneOf = (lines: string[]) => new RegExp(`^(${lines.map((l) => l.replace(/[.!?]/g, '\\$&')).join('|')})$`);
 
-test('the capybara peeks over the day number and turns the dial over when tapped', async ({ page }) => {
+const dial = (page: Page) => page.locator('.page[data-active] .dial-flip');
+const bubble = (page: Page) => page.locator('.page[data-active] .dial-say');
+const field = (page: Page) => page.locator('.page[data-active] .dial-draft');
+const live = (page: Page) => page.locator('.page[data-active] .dial-wrap > p[aria-live="polite"]');
+
+test('tapping the dial turns it, and the thought comes about a second after the turn ends', async ({ page }) => {
   await startWithJournal(page); // day 12, follicular phase
-  const today = page.locator('.page[data-active]');
-  const ring = today.getByRole('img', { name: 'Ziua 12 a ciclului, Faza foliculară' });
-  const center = today.locator('.dial-flip');
+  await dial(page).click();
+  await expect(dial(page)).toHaveAttribute('data-flipped');
+  await expect(page.locator('.page[data-active] .dial-back .capy-full')).toHaveAttribute('data-mood', 'follicular');
 
-  // Hiding: head and body behind the day text, the paws resting on the digits, in front of them.
-  await expect(today.locator('.dial-num .capy-peek-back')).toBeVisible();
-  await expect(today.locator('.dial-num .capy-peek-front')).toBeVisible();
-  expect(await today.locator('.capy-peek-front').evaluate((el) => getComputedStyle(el).zIndex)).toBe('1');
-  await expect(center).toHaveAccessibleName('Ziua 12, Faza foliculară. Arată capibara');
-  await expect(center).not.toHaveAttribute('data-flipped');
-  const peekZ = await today.locator('.capy-peek-back').evaluate((el) => getComputedStyle(el).zIndex);
-  expect(peekZ).toBe('-1');
+  // Still turning, and the pause after it: no thought yet.
+  await page.clock.runFor(MASCOT_TURN_MS);
+  await expect(bubble(page)).toHaveCount(0);
 
-  // A tap turns the card: the capybara in its follicular pose, with a short message read out.
-  await center.click();
-  await expect(center).toHaveAttribute('data-flipped');
-  await expect(today.locator('.dial-back .capy-full')).toHaveAttribute('data-mood', 'follicular');
-  const said = today.locator('.dial-wrap [aria-live="polite"]');
-  await expect(said).toHaveText(oneOf(FOLLICULAR));
-  const first = await said.textContent();
-  await expect(today.locator('.dial-say')).toHaveText(first!);
-  await expect(center).toHaveAccessibleName(`${first} Înapoi la ziua ciclului`);
-
-  // A second tap turns it back; the ring and its colours are untouched.
-  await center.click();
-  await expect(center).not.toHaveAttribute('data-flipped');
-  await expect(said).toHaveText('');
-  await expect(ring).toBeVisible();
-
-  // Each showing brings the next message, and the dial turns back on its own after a few seconds.
-  await center.press('Enter');
-  await expect(center).toHaveAttribute('data-flipped');
-  await expect(said).not.toHaveText(first!);
-  await page.clock.runFor(7500);
-  await expect(center).not.toHaveAttribute('data-flipped');
-  await expect(center).toHaveAccessibleName('Ziua 12, Faza foliculară. Arată capibara');
+  // After the pause, the thought appears, and is read out.
+  await page.clock.runFor(THOUGHT_DELAY_MS + 100);
+  await expect(bubble(page)).toHaveText(oneOf(FOLLICULAR));
+  await expect(live(page)).toHaveText(oneOf(FOLLICULAR));
+  await expect(dial(page)).toHaveAccessibleName('Înapoi la ziua ciclului');
 });
 
-test('the dial passes automated WCAG checks on both faces', async ({ page }) => {
+test('tapping the thought writes your own; Enter remembers it and the dial stays turned', async ({ page }) => {
   await startWithJournal(page);
-  const today = page.locator('.page[data-active]');
-  const check = async (face: string) => {
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await bubble(page).click();
+
+  await expect(field(page)).toBeFocused();
+  await field(page).click(); // a tap inside the field does not turn the dial back
+  await expect(dial(page)).toHaveAttribute('data-flipped');
+
+  await field(page).fill('  Un gând  al meu, scris azi ');
+  await field(page).press('Enter');
+  await expect(bubble(page)).toHaveText('Un gând al meu, scris azi');
+  await expect(live(page)).toHaveText('Gândul a fost salvat.');
+  await expect(dial(page)).toHaveAttribute('data-flipped');
+
+  // It is remembered on this device: after a restart the same thought comes back.
+  await page.reload();
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await expect(bubble(page)).toHaveText('Un gând al meu, scris azi');
+});
+
+test('while someone writes, the dial does not turn back on its own; Escape stops writing', async ({ page }) => {
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await bubble(page).click();
+
+  await page.clock.runFor(MASCOT_SHOW_MS + 2000);
+  await expect(dial(page)).toHaveAttribute('data-flipped');
+  await expect(field(page)).toBeVisible();
+
+  await field(page).press('Escape');
+  await expect(field(page)).toHaveCount(0);
+  await expect(dial(page)).toHaveAttribute('data-flipped');
+
+  // Once writing has stopped, the dial turns back on its own as before.
+  await page.clock.runFor(MASCOT_SHOW_MS + 500);
+  await expect(dial(page)).not.toHaveAttribute('data-flipped');
+  await expect(bubble(page)).toHaveCount(0);
+});
+
+test('"Default thoughts" puts the defaults back after an own thought was written', async ({ page }) => {
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await bubble(page).click();
+  await field(page).fill('Un gând al meu');
+  await page.getByRole('button', { name: 'Salvează ✓' }).click();
+  await expect(bubble(page)).toHaveText('Un gând al meu');
+
+  await bubble(page).click();
+  await page.getByRole('button', { name: 'Gânduri implicite' }).click();
+  await expect(live(page)).toHaveText('Au revenit gândurile implicite.');
+  await expect(dial(page)).toHaveAttribute('data-flipped'); // the dial stays turned
+  await expect(bubble(page)).toHaveText(oneOf(FOLLICULAR));
+});
+
+test('a blank thought is not saved: writing nothing keeps the one that was there', async ({ page }) => {
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await bubble(page).click();
+  await field(page).fill('   ');
+  await field(page).press('Enter');
+  await expect(field(page)).toHaveCount(0);
+  await expect(bubble(page)).toHaveText(oneOf(FOLLICULAR));
+});
+
+test('the thought bubble can be opened from the keyboard', async ({ page }) => {
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await bubble(page).focus();
+  await page.keyboard.press('Enter');
+  await expect(field(page)).toBeFocused();
+});
+
+test('with no cycle yet, the capybara turns and thinks a general thought', async ({ page }) => {
+  await startEmpty(page);
+  await page.locator('.page[data-active] .dial-flip').click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await expect(page.locator('.page[data-active] .dial-say')).toHaveText(oneOf(HELLO));
+});
+
+test('the bubble stays inside the dial on a small phone, with the capybara still visible', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  const wrap = await page.locator('.page[data-active] .dial-wrap').boundingBox();
+  const shown = await page.locator('.page[data-active] .dial-thought').boundingBox();
+  expect(shown).not.toBeNull();
+  const b = shown!;
+  expect(b.x).toBeGreaterThan(wrap!.x);
+  expect(b.x + b.width).toBeLessThan(wrap!.x + wrap!.width);
+  expect(b.y).toBeGreaterThan(wrap!.y);
+  expect(b.y + b.height).toBeLessThan(wrap!.y + wrap!.height * 0.6); // leaves the capybara its space below
+  await expect(page.locator('.page[data-active] .dial-back .capy-full')).toBeVisible();
+
+  // Writing on a small phone: the field stays inside the dial too.
+  await bubble(page).click();
+  const edit = await page.locator('.page[data-active] .dial-thought').boundingBox();
+  expect(edit!.x).toBeGreaterThanOrEqual(wrap!.x);
+  expect(edit!.x + edit!.width).toBeLessThanOrEqual(wrap!.x + wrap!.width);
+});
+
+test('the dial passes automated WCAG checks while the thought shows and while it is written', async ({ page }) => {
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  const check = async (state: string) => {
     const results = await new AxeBuilder({ page: page as never })
       .include('.page[data-active] .today-cycle')
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();
     const found = results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => `${n.target.join(' ')} ${n.failureSummary}`).join(' | ')}`);
-    expect(found, face).toEqual([]);
+    expect(found, state).toEqual([]);
   };
-  await check('front');
-  await today.locator('.dial-flip').click();
-  await page.waitForTimeout(800); // the turn is over
-  await check('back');
-});
-
-test('with no cycle yet, the capybara waves', async ({ page }) => {
-  await startEmpty(page);
-  const today = page.locator('.page[data-active]');
-  await today.getByRole('button', { name: 'Arată capibara' }).click();
-  await expect(today.locator('.dial-back .capy-full')).toHaveAttribute('data-mood', 'hello');
-  await expect(today.locator('.dial-wrap [aria-live="polite"]')).toHaveText(oneOf(HELLO));
+  await check('thought');
+  await bubble(page).click();
+  await expect(field(page)).toBeVisible();
+  await check('writing');
 });
 
 test('the card turns gradually, or at once when the system asks for reduced motion', async ({ page }) => {
@@ -90,7 +174,7 @@ test('the card turns gradually, or at once when the system asks for reduced moti
   // The test setup asks for reduced motion: no in-between angle.
   const instant = await angles();
   expect(instant.every((a) => a === 0 || a === 180)).toBe(true);
-  await page.locator('.page[data-active] .dial-flip').click(); // back to the front
+  await dial(page).click(); // back to the front
 
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.waitForTimeout(800);
