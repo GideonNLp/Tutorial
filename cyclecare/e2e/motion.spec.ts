@@ -269,6 +269,187 @@ test.describe('swipe back', () => {
   });
 });
 
+test.describe('sheets', () => {
+  const panelY = (page: Page) => page.locator('.sheet-panel').evaluate((el) => Math.round(new DOMMatrix(getComputedStyle(el).transform).m42));
+
+  async function openReportSheet(page: Page) {
+    await startWithJournal(page);
+    await tab(page, 'Statistici');
+    await withMotion(page);
+    await page.getByRole('button', { name: 'Creează raportul PDF' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Raport pentru medic' });
+    await expect(dialog).toBeVisible();
+    return dialog;
+  }
+
+  test('a sheet rises from the bottom edge and closes by sliding back down', async ({ page }) => {
+    await startWithJournal(page);
+    await tab(page, 'Statistici');
+    await withMotion(page);
+    // Watch the panel from the moment it exists.
+    await page.evaluate(() => {
+      const ys: number[] = [];
+      (window as unknown as { __sheet: number[] }).__sheet = ys;
+      const frame = () => {
+        const panel = document.querySelector('dialog[open] .sheet-panel');
+        if (panel) ys.push(Math.round(new DOMMatrix(getComputedStyle(panel).transform).m42));
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    });
+    const ys = () => page.evaluate(() => (window as unknown as { __sheet: number[] }).__sheet.splice(0));
+
+    await page.getByRole('button', { name: 'Creează raportul PDF' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Raport pentru medic' });
+    await expect(dialog).toBeVisible();
+    await expect.poll(() => panelY(page)).toBe(0);
+    const rising = await ys();
+    expect(rising[0]).toBeGreaterThan(150); // starts below the edge…
+    expect(rising.filter((y) => y > 0).length).toBeGreaterThan(4); // …and takes several frames to arrive
+    // Its bottom edge is the bottom of the screen.
+    const box = (await page.locator('.sheet-panel').boundingBox())!;
+    expect(Math.round(box.y + box.height)).toBe(page.viewportSize()!.height);
+
+    await dialog.getByRole('button', { name: 'Închide' }).click();
+    await expect(dialog).toBeHidden();
+    const falling = await ys();
+    expect(Math.max(...falling)).toBeGreaterThan(150);
+    expect(falling.filter((y) => y > 0).length).toBeGreaterThan(3);
+  });
+
+  test('dragging the sheet down past a third closes it; a short drag springs back', async ({ page }) => {
+    const dialog = await openReportSheet(page);
+    await expect.poll(() => panelY(page)).toBe(0);
+    const head = (await page.locator('.sheet-head').boundingBox())!;
+    const x = head.x + 150;
+    const y = head.y + 24;
+
+    // A short pull: the sheet follows, then returns.
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + 30, { steps: 3 });
+    expect(await panelY(page)).toBe(30);
+    await page.waitForTimeout(150); // rest, so it is not a flick
+    await page.mouse.move(x, y + 31);
+    await page.mouse.up();
+    await expect.poll(() => panelY(page)).toBe(0);
+    await expect(dialog).toBeVisible();
+
+    // A long pull closes it.
+    const height = (await page.locator('.sheet-panel').boundingBox())!.height;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + height * 0.5, { steps: 6 });
+    expect(await panelY(page)).toBeGreaterThan(height * 0.4);
+    await page.mouse.up();
+    await expect(dialog).toBeHidden();
+    // The page underneath is usable again.
+    await expect(page.getByRole('button', { name: 'Creează raportul PDF' })).toBeEnabled();
+  });
+
+  test('Escape and a tap outside close the sheet', async ({ page }) => {
+    const dialog = await openReportSheet(page);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Creează raportul PDF' })).toBeFocused();
+
+    await page.getByRole('button', { name: 'Creează raportul PDF' }).click();
+    await expect(dialog).toBeVisible();
+    await expect.poll(() => panelY(page)).toBe(0);
+    await page.mouse.click(195, 60); // on the dimmed page above the sheet
+    await expect(dialog).toBeHidden();
+  });
+
+  test('leaving the page closes its sheet', async ({ page }) => {
+    const dialog = await openReportSheet(page);
+    await page.goBack(); // the system back button
+    await expect(dialog).toBeHidden();
+    await expect(page.locator('dialog[open]')).toHaveCount(0);
+  });
+
+  test.describe('by touch', () => {
+    test.use({ hasTouch: true });
+
+    test('pulling the content down drags the sheet when it is scrolled to the top', async ({ page }) => {
+      const dialog = await openReportSheet(page);
+      await expect.poll(() => panelY(page)).toBe(0);
+      const body = (await page.locator('.sheet-body').boundingBox())!;
+      const cdp = await page.context().newCDPSession(page);
+      const send = (type: 'touchStart' | 'touchMove' | 'touchEnd', y?: number) =>
+        cdp.send('Input.dispatchTouchEvent', { type, touchPoints: y === undefined ? [] : [{ x: body.x + 40, y }] });
+      const y0 = body.y + 20;
+      await send('touchStart', y0);
+      for (const dy of [12, 60, 140, 220]) await send('touchMove', y0 + dy);
+      expect(await panelY(page)).toBeGreaterThan(150);
+      await send('touchEnd');
+      await expect(dialog).toBeHidden();
+    });
+  });
+
+  test('on a wide screen the sheet is a centred dialog', async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 800 });
+    await openReportSheet(page);
+    const panel = page.locator('.sheet-panel');
+    await expect(panel).toHaveCSS('opacity', '1');
+    const box = (await panel.boundingBox())!;
+    expect(Math.abs(box.y + box.height / 2 - 400)).toBeLessThan(4);
+    expect(Math.abs(box.x + box.width / 2 - 550)).toBeLessThan(4);
+    await expect(page.locator('.sheet-grabber')).toBeHidden();
+  });
+});
+
+test.describe('small movements', () => {
+  test('a pressed button shrinks and springs back', async ({ page }) => {
+    await startEmpty(page);
+    await withMotion(page);
+    const button = page.getByRole('button', { name: 'Deschide jurnalul', exact: true });
+    const scale = () => button.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+    const box = (await button.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await expect(button).toHaveAttribute('data-pressed', '');
+    await expect.poll(scale).toBeCloseTo(0.97, 2);
+    await page.mouse.move(box.x + box.width / 2, box.y - 200); // slide off: no click
+    await page.mouse.up();
+    await expect(button).not.toHaveAttribute('data-pressed', '');
+    await expect.poll(scale).toBeCloseTo(1, 2);
+    await expect(page.getByRole('heading', { level: 1, name: 'Azi' })).toBeVisible();
+  });
+
+  test('a new list of tips arrives one item after another', async ({ page }) => {
+    await startWithJournal(page);
+    await tab(page, 'Sfaturi');
+    await withMotion(page);
+    await page.getByRole('radio', { name: 'Somn' }).check();
+    const delays = await page
+      .locator('.tip-list > li')
+      .evaluateAll((items) => items.map((li) => li.getAnimations().map((a) => Number(a.effect?.getTiming().delay))[0]));
+    expect(delays.length).toBeGreaterThan(1);
+    expect(delays[0]).toBe(0);
+    for (let i = 1; i < delays.length; i++) {
+      const step = delays[i]! - delays[i - 1]!;
+      expect(step).toBeGreaterThanOrEqual(30);
+      expect(step).toBeLessThanOrEqual(50);
+    }
+  });
+
+  test('glass: the tab bar and the scrolled header blur what is behind them', async ({ page }) => {
+    await startWithJournal(page);
+    const blur = (selector: string, pseudo?: string) =>
+      page.evaluate(([sel, ps]) => getComputedStyle(document.querySelector(sel!)!, ps).backdropFilter, [selector, pseudo] as const);
+    expect(await blur('.tabbar')).toContain('blur(20px)');
+    expect(await blur('.page[data-active] .navbar', '::before')).toContain('blur(20px)');
+    // Translucent, in the same colour as before.
+    const tabbar = await page.evaluate(() => getComputedStyle(document.querySelector('.tabbar')!).backgroundColor);
+    expect(tabbar).toMatch(/0\.8\)$|\/ 0\.8\)$/);
+
+    // "Increase contrast" turns the glass back into solid surfaces.
+    await page.emulateMedia({ contrast: 'more' });
+    expect(await blur('.tabbar')).toBe('none');
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('.tabbar')!).backgroundColor)).toBe('rgb(255, 255, 255)');
+  });
+});
+
 test('with reduced motion pages change at once', async ({ page }) => {
   await startEmpty(page);
   const samples = await recordMotion(page);

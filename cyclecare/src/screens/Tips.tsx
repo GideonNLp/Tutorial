@@ -10,6 +10,7 @@ import { strings } from '../i18n';
 import { ChoiceChips, Segmented } from '../ui/controls';
 import { Notice, Screen } from '../ui/Shell';
 import { flagText, visiblePhase } from '../ui/summaries';
+import { useEnterOnChange } from '../ui/useEnterOnChange';
 
 export function TipsScreen() {
   const s = strings();
@@ -27,6 +28,8 @@ export function TipsScreen() {
     [timeline, data.logs, data.dismissedFlags, today],
   );
   const recent = useMemo(() => recentSymptoms(data.logs, today), [data.logs, today]);
+
+  const tipList = useEnterOnChange<HTMLUListElement>(`${phase}/${category}`, 'stagger');
 
   const dismiss = (id: string) => {
     update((d) => ({ ...d, dismissedFlags: { ...d.dismissedFlags, [id]: today } }));
@@ -81,7 +84,7 @@ export function TipsScreen() {
             value={category}
             onChange={setCategory}
           />
-          <ul className="tip-list" aria-live="polite">
+          <ul className="tip-list" aria-live="polite" ref={tipList}>
             {tips.phaseTips[phase].tips[category].map((tip) => (
               <li key={tip.id} className="stack stack-1">
                 <h3>{tip.title}</h3>

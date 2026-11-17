@@ -10,6 +10,7 @@ import { formatDate, strings } from '../i18n';
 import { Notice, Screen } from '../ui/Shell';
 import { summarizeLog, visiblePhase } from '../ui/summaries';
 import { haptic } from '../ui/haptics';
+import { useEnterOnChange } from '../ui/useEnterOnChange';
 
 export function CalendarScreen() {
   const s = strings();
@@ -37,6 +38,9 @@ export function CalendarScreen() {
     gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${focusTarget}"]`)?.focus();
     setFocusTarget(null);
   }, [focusTarget, year, month]);
+
+  // Another month slides in from the side it lies on.
+  useEnterOnChange(year * 12 + month, 'slide', gridRef);
 
   const monthStart = makeISO(year, month, 1);
   const monthEnd = makeISO(year, month, daysInMonth(year, month));
