@@ -1,0 +1,80 @@
+# Checks, builds and publishes CycleCare on GitHub Pages (branch `gh-pages`).
+#
+# It runs on every push to `main` and when started by hand (Actions → this workflow → "Run workflow",
+# choosing the branch to publish). Work-in-progress pushes to other branches publish nothing.
+#
+# One-time setup in the repository: Settings → Pages → Build and deployment →
+#   Source: "Deploy from a branch", Branch: "gh-pages" / "(root)".
+# Optional repository variables (Settings → Secrets and variables → Actions → Variables) are
+# passed to the build as configuration; see cyclecare/.env.example for what each one does.
+#
+# The site only serves static files; journal data never leaves the visitor's device.
+name: CycleCare – verificare și publicare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cyclecare-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cyclecare
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cyclecare/package-lock.json
+
+      - name: Instalare
+        run: npm ci
+
+      - name: Tipuri și formatare
+        run: npm run typecheck && npm run format:check
+
+      - name: Teste unitare
+        run: npm test
+
+      - name: Teste cap-coadă
+        run: npx playwright install --with-deps chromium && npm run test:e2e
+
+      # The checks above describe the default configuration; the published build gets the repository's own.
+      - name: Build
+        env:
+          VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+          VITE_PUBLIC_URL: ${{ vars.VITE_PUBLIC_URL }}
+          VITE_ALLOW_INDEXING: ${{ vars.VITE_ALLOW_INDEXING }}
+          VITE_OPERATOR_NAME: ${{ vars.VITE_OPERATOR_NAME }}
+          VITE_OPERATOR_ADDRESS: ${{ vars.VITE_OPERATOR_ADDRESS }}
+          VITE_OPERATOR_REGISTRATION: ${{ vars.VITE_OPERATOR_REGISTRATION }}
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
+          VITE_DPO_CONTACT: ${{ vars.VITE_DPO_CONTACT }}
+          VITE_LEGAL_REVIEWED: ${{ vars.VITE_LEGAL_REVIEWED }}
+        run: |
+          if [ -z "$VITE_PUBLIC_URL" ]; then
+            export VITE_PUBLIC_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
+          fi
+          npm run build
+
+      - name: Publicare pe gh-pages
+        working-directory: cyclecare/dist
+        run: |
+          touch .nojekyll
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish CycleCare ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages

@@ -1,0 +1,845 @@
+/* Screen-specific styles. Shared controls and surfaces are in base.css. */
+
+/* Starting up: the mark appears only if opening the journal takes more than a moment. */
+.splash {
+  display: grid;
+  place-items: center;
+}
+.splash .brandmark {
+  opacity: 0;
+  animation: splash-in 0.4s 0.3s ease-out forwards;
+}
+@keyframes splash-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------- onboarding & lock */
+
+.onb {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 32rem;
+  min-height: 100%;
+  margin-inline: auto;
+  padding-left: var(--gutter-l);
+  padding-right: var(--gutter-r);
+  padding-top: calc(var(--safe-top) + var(--s4));
+  padding-bottom: calc(var(--safe-bottom) + var(--s5));
+}
+.onb-top {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--s2) var(--s3);
+  margin-bottom: var(--s5);
+}
+.onb-progress {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+.onb-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ink);
+  transition: width 0.25s ease-out;
+}
+.onb-body {
+  flex: 1;
+}
+.onb-welcome {
+  justify-content: center;
+  padding-block: var(--s6);
+}
+.onb-welcome h1 {
+  font-size: 2.25rem;
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: var(--fs-h3);
+  letter-spacing: 0.01em;
+  color: var(--ink-2);
+}
+.onb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding-top: var(--s5);
+}
+.consent-points > div + div {
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+
+.lock .onb-body {
+  justify-content: center;
+}
+.lock-form {
+  width: 100%;
+  max-width: 20rem;
+}
+.pin-input {
+  height: 3.75rem;
+  text-align: center;
+  font-size: 1.75rem;
+  letter-spacing: 0.4em;
+}
+
+.bullets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+.policy h3 {
+  font-family: var(--font-display);
+}
+
+/* ---------------------------------------------------------------- today */
+
+.today-grid {
+  display: grid;
+  gap: var(--s5);
+}
+.today-cycle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+.dial-wrap {
+  position: relative;
+  width: min(18.5rem, 100%);
+  margin-inline: auto;
+  container-type: inline-size;
+}
+.dial {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.dial-tick {
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--muted);
+}
+.dial-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 22%;
+  text-align: center;
+  pointer-events: none;
+}
+/* The text inside the ring is sized from the ring, so it fits at any text-size setting;
+   the same information is repeated as ordinary, scalable text right below the dial. */
+.dial-day {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-size: min(2.75rem, 15cqw);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.dial-phase {
+  margin-top: 0.4rem;
+  font-size: 1rem;
+  font-size: min(1.0625rem, 6.2cqw);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.phase-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: var(--s2) var(--s4);
+  font-size: var(--fs-small);
+}
+.phase-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+}
+.phase-legend .swatch {
+  transform: translateY(0.05rem);
+}
+
+/* ---------------------------------------------------------------- calendar */
+
+.cal-layout {
+  display: grid;
+  gap: var(--s5);
+}
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.cal-month {
+  flex: 1;
+  text-align: center;
+  font-size: 1.25rem;
+}
+.cal-month::first-letter {
+  text-transform: uppercase;
+}
+.cal {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.cal th {
+  padding: var(--s2) 0;
+  font-size: var(--fs-caption);
+  font-weight: 650;
+  color: var(--muted);
+  text-align: center;
+}
+.cal-cell {
+  position: relative;
+  padding: 2px 0;
+}
+/* The phase band: a tint behind the day, joined to its neighbours. */
+.cal-cell[data-phase]::before {
+  content: '';
+  position: absolute;
+  inset: 4px 0;
+  background: var(--tint);
+}
+.cal-cell[data-run='start']::before {
+  left: 3px;
+  border-radius: 0.875rem 0 0 0.875rem;
+}
+.cal-cell[data-run='end']::before {
+  right: 3px;
+  border-radius: 0 0.875rem 0.875rem 0;
+}
+.cal-cell[data-run='single']::before {
+  left: 3px;
+  right: 3px;
+  border-radius: 0.875rem;
+}
+/* A rail in the phase colour under the band: the tint alone is too faint to carry the phase. */
+.cal-cell[data-phase]::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 3px;
+  background: var(--c);
+}
+.cal-cell[data-run='start']::after {
+  left: 12px;
+}
+.cal-cell[data-run='end']::after {
+  right: 12px;
+}
+.cal-cell[data-run='single']::after {
+  left: 12px;
+  right: 12px;
+}
+.cal-cell.outside::before,
+.cal-cell.outside::after {
+  opacity: 0.45;
+}
+.cal-day {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0 0 6px;
+  border: 0;
+  border-radius: 0.875rem;
+  background: none;
+}
+.cal-day:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0.875rem;
+}
+.cal-cell[aria-selected='true'] .cal-day {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+.cal-cell.outside .cal-num {
+  color: var(--muted);
+}
+.cal-num {
+  display: grid;
+  place-items: center;
+  width: min(2rem, calc(100% - 6px));
+  aspect-ratio: 1;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  font-size: var(--fs-small);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.cal-num[data-period='logged'] {
+  background: var(--menstruation);
+  color: var(--on-menstruation);
+  font-weight: 700;
+}
+.cal-cell.outside .cal-num[data-period='logged'] {
+  color: var(--on-menstruation);
+  opacity: 0.6;
+}
+.cal-num[data-period='predicted'] {
+  border: 2px dashed var(--menstruation);
+}
+.cal-num[data-ovulation] {
+  border: 2px solid var(--ovulation);
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--ovulation);
+  width: min(1.5rem, calc(100% - 14px));
+}
+.cal-day[aria-current='date'] .cal-num {
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.cal-marks {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  height: 7px;
+}
+.mark {
+  display: block;
+  width: 6px;
+  height: 6px;
+}
+.mark-fertile {
+  border-radius: 50%;
+  background: var(--ovulation);
+}
+.mark-entry {
+  width: 5px;
+  height: 5px;
+  background: var(--ink-2);
+}
+.mark-bleed {
+  background: var(--menstruation);
+  transform: rotate(45deg);
+}
+.cal.editing .cal-day[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 2px var(--menstruation);
+}
+.cal.editing .cal-day[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cal-detail-title::first-letter {
+  text-transform: uppercase;
+}
+.cal-detail-title {
+  font-size: 1.25rem;
+}
+.h3-like {
+  font-family: var(--font-text);
+  font-size: var(--fs-h3);
+  letter-spacing: 0;
+}
+.cal-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--s2) var(--s4);
+  font-size: var(--fs-small);
+}
+.cal-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-height: 1.75rem;
+}
+.legend-band {
+  flex: none;
+  width: 1.5rem;
+  height: 1.1rem;
+  border-radius: 0.4rem;
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1.5px var(--c);
+}
+.legend-num {
+  flex: none;
+  width: 1.25rem;
+  margin-inline: 0.125rem;
+}
+.legend-num[data-ovulation] {
+  width: 0.9rem;
+  margin-inline: 0.3rem;
+}
+.legend-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- journal */
+
+.weekstrip {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline: -6px;
+}
+.weekstrip ul {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  flex: 1;
+  gap: 2px;
+  container-type: inline-size;
+}
+.weekday {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  width: 100%;
+  min-height: 3.75rem;
+  padding: 0.35rem 0 0.3rem;
+  border: 0;
+  border-radius: 1rem;
+  background: none;
+}
+.weekday-name {
+  font-size: min(0.75rem, 6cqw);
+  font-weight: 600;
+  color: var(--muted);
+}
+/* Seven days always fit in one row: the digits shrink with the strip instead of colliding. */
+.weekday-num {
+  font-size: min(1rem, 7.5cqw);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.weekday-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.weekday-dot.on {
+  background: var(--ink-2);
+}
+.weekday[aria-current='date'] {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.weekday[aria-current='date'] .weekday-name {
+  color: inherit;
+}
+.weekday[aria-current='date'] .weekday-dot.on {
+  background: var(--on-ink);
+}
+.weekday[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.weekstrip + div h2::first-letter {
+  text-transform: uppercase;
+}
+.save-state {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 1.25rem;
+}
+.journal-section {
+  padding-top: var(--s5);
+  border-top: 1px solid var(--line);
+}
+.journal-section h2 {
+  font-size: 1.25rem;
+}
+.journal-section legend.field-label {
+  margin-bottom: var(--s2);
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+.intensity-list {
+  padding: var(--s4);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+}
+.intensity-list h3 {
+  font-size: var(--fs-small);
+}
+.intensity-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr);
+  align-items: center;
+  gap: var(--s3);
+}
+.intensity-row .segmented {
+  background: var(--surface);
+}
+
+/* ---------------------------------------------------------------- tips */
+
+.tip-list {
+  display: flex;
+  flex-direction: column;
+}
+.tip-list > li {
+  padding-block: var(--s4);
+  border-top: 1px solid var(--line);
+}
+.tip-list > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.symptom-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.symptom-card h4 {
+  margin: 0;
+  font-size: var(--fs-small);
+  font-weight: 650;
+}
+
+/* ---------------------------------------------------------------- statistics */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  background: var(--surface);
+}
+.tile-label {
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+  line-height: 1.25;
+}
+.tile-value {
+  font-size: 1.75rem;
+  font-weight: 650;
+  line-height: 1.1;
+}
+.tile-unit {
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.chart-head h2 {
+  font-size: 1.25rem;
+}
+.chart-plot {
+  position: relative;
+  padding: var(--s3) var(--s3) var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  background: var(--surface);
+}
+.chart-plot svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.chart-plot svg:focus-visible {
+  outline-offset: 4px;
+}
+.chart-axis {
+  font-family: var(--font-text);
+  font-size: 11px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.chart-value {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 650;
+  fill: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.chart-baseline {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s4);
+  font-size: var(--fs-small);
+  color: var(--ink-2);
+}
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.key-rect {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+}
+.key-line {
+  width: 1.25rem;
+  height: 0;
+  border-top: 2px solid currentColor;
+}
+.chart-tip {
+  position: absolute;
+  z-index: 5;
+  max-width: 14rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.6rem;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: var(--fs-caption);
+  line-height: 1.35;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 8px));
+  white-space: nowrap;
+}
+.chart-tip strong {
+  font-size: var(--fs-small);
+}
+
+details.table-view > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  background: var(--surface);
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+.data-table th,
+.data-table td {
+  padding: 0.55rem 0.75rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.data-table th:first-child,
+.data-table td:first-child {
+  text-align: left;
+}
+.data-table thead th {
+  font-weight: 650;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+}
+.data-table tbody tr + tr > * {
+  border-top: 1px solid var(--line);
+}
+.data-table tbody th {
+  font-weight: 550;
+}
+
+/* Symptom heat table: a table first, shaded second. */
+.heat {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+.heat th {
+  font-weight: 550;
+  text-align: left;
+  padding: 0 var(--s2) 0 0;
+  line-height: 1.2;
+}
+.heat thead th {
+  padding: 0 0 var(--s1);
+  font-size: var(--fs-caption);
+  font-weight: 650;
+  color: var(--muted);
+  text-align: center;
+}
+.heat td {
+  width: 2.5rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 0.4rem;
+  background: var(--surface-2);
+  color: var(--muted);
+  text-align: center;
+}
+.heat td[data-level='1'] {
+  background: var(--heat-1);
+  color: var(--on-heat-1);
+}
+.heat td[data-level='2'] {
+  background: var(--heat-2);
+  color: var(--on-heat-2);
+}
+.heat td[data-level='3'] {
+  background: var(--heat-3);
+  color: var(--on-heat-3);
+}
+.heat td[data-level='4'] {
+  background: var(--heat-4);
+  color: var(--on-heat-4);
+}
+.heat td[data-level] {
+  font-weight: 650;
+}
+
+.meter {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ink-2);
+}
+.phase-rows {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s2) var(--s4);
+  align-items: center;
+  font-size: var(--fs-small);
+}
+.phase-rows .head {
+  font-size: var(--fs-caption);
+  font-weight: 650;
+  color: var(--muted);
+}
+.phase-rows .cell {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s2);
+}
+.phase-rows .name {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+/* ---------------------------------------------------------------- install guide */
+
+.install-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.install-steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.install-step-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+}
+
+/* ---------------------------------------------------------------- settings */
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.settings-group > h2 {
+  font-size: 1.25rem;
+}
+.med-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.weekday-toggles {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s1);
+}
+.weekday-toggles .chip {
+  display: flex;
+}
+.weekday-toggles .chip-face {
+  flex: 1;
+  justify-content: center;
+  padding-inline: 0;
+  font-size: var(--fs-small);
+}
+.text-sample {
+  padding: var(--s4);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+}
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s4);
+  align-items: baseline;
+}
+
+/* ---------------------------------------------------------------- wide screens */
+
+@media (min-width: 56rem) {
+  .today-grid {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+    align-items: start;
+  }
+  .cal-layout {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: start;
+  }
+  .tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

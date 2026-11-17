@@ -1,0 +1,108 @@
+/* GENERATED from tokens.json by scripts/gen-tokens.mjs — do not edit by hand. Run: npm run tokens */
+:root {
+  --bg: #F6F5FB;
+  --surface: #FFFFFF;
+  --surface-2: #ECEBF5;
+  --ink: #1F1B3A;
+  --ink-2: #4B4668;
+  --muted: #66617F;
+  --line: #DCD9EA;
+  --line-strong: #8580A2;
+  --on-ink: #FFFFFF;
+  --menstruation: #B3264F;
+  --follicular: #14937C;
+  --ovulation: #B67500;
+  --luteal: #6257C4;
+  --menstruation-tint: #F9E3EA;
+  --follicular-tint: #DDF1EC;
+  --ovulation-tint: #FBEBCB;
+  --luteal-tint: #E7E4F8;
+  --on-menstruation: #FFFFFF;
+  --danger: #B42318;
+  --on-danger: #FFFFFF;
+  --attention-bg: #FFF1D6;
+  --attention-line: #A86A00;
+  --scrim: rgba(31, 27, 58, 0.45);
+  --shadow: rgba(31, 27, 58, 0.10);
+  --heat-1: #E3E0F0;
+  --heat-2: #BDB7DC;
+  --heat-3: #6A62A8;
+  --heat-4: #3B3470;
+  --on-heat-1: #1F1B3A;
+  --on-heat-2: #1F1B3A;
+  --on-heat-3: #FFFFFF;
+  --on-heat-4: #FFFFFF;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #14121E;
+    --surface: #1C1930;
+    --surface-2: #252140;
+    --ink: #F1EEF8;
+    --ink-2: #C4BFD9;
+    --muted: #9A94B5;
+    --line: #322D4F;
+    --line-strong: #746E96;
+    --on-ink: #14121E;
+    --menstruation: #D93355;
+    --follicular: #22A68B;
+    --ovulation: #C87A15;
+    --luteal: #8186D7;
+    --menstruation-tint: #3D1826;
+    --follicular-tint: #11332E;
+    --ovulation-tint: #3A2A0E;
+    --luteal-tint: #25254A;
+    --on-menstruation: #FFFFFF;
+    --danger: #F97066;
+    --on-danger: #14121E;
+    --attention-bg: #34280F;
+    --attention-line: #C99A3A;
+    --scrim: rgba(5, 4, 10, 0.65);
+    --shadow: rgba(0, 0, 0, 0.40);
+    --heat-1: #2B2748;
+    --heat-2: #453F72;
+    --heat-3: #8A82C4;
+    --heat-4: #C3BDEA;
+    --on-heat-1: #F1EEF8;
+    --on-heat-2: #F1EEF8;
+    --on-heat-3: #14121E;
+    --on-heat-4: #14121E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #14121E;
+  --surface: #1C1930;
+  --surface-2: #252140;
+  --ink: #F1EEF8;
+  --ink-2: #C4BFD9;
+  --muted: #9A94B5;
+  --line: #322D4F;
+  --line-strong: #746E96;
+  --on-ink: #14121E;
+  --menstruation: #D93355;
+  --follicular: #22A68B;
+  --ovulation: #C87A15;
+  --luteal: #8186D7;
+  --menstruation-tint: #3D1826;
+  --follicular-tint: #11332E;
+  --ovulation-tint: #3A2A0E;
+  --luteal-tint: #25254A;
+  --on-menstruation: #FFFFFF;
+  --danger: #F97066;
+  --on-danger: #14121E;
+  --attention-bg: #34280F;
+  --attention-line: #C99A3A;
+  --scrim: rgba(5, 4, 10, 0.65);
+  --shadow: rgba(0, 0, 0, 0.40);
+  --heat-1: #2B2748;
+  --heat-2: #453F72;
+  --heat-3: #8A82C4;
+  --heat-4: #C3BDEA;
+  --on-heat-1: #F1EEF8;
+  --on-heat-2: #F1EEF8;
+  --on-heat-3: #14121E;
+  --on-heat-4: #14121E;
+  color-scheme: dark;
+}
