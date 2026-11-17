@@ -676,19 +676,33 @@ export const ro = {
         'Estimările pornesc de la datele pe care le notezi și presupun cicluri naturale. Sunt mai puțin de încredere în primele luni de folosire, la cicluri neregulate, în timpul contracepției hormonale, după naștere, în perioada de alăptare și la perimenopauză.',
       emergency: 'Pentru urgențe medicale, sună la 112.',
       licenses: 'Fonturi: Figtree și Bricolage Grotesque (SIL Open Font License 1.1). Pictograme: Lucide (ISC).',
-      install: {
-        title: 'Instalează aplicația',
-        body: `Adaugă ${APP_NAME} pe ecranul principal: se deschide ca o aplicație, pornește și fără internet, iar datele sunt mai bine ferite de curățarea automată a browserului.`,
-        action: 'Instalează',
-        ios: 'În Safari, apasă pe butonul Partajare, apoi alege „Adaugă pe ecranul principal”.',
-        installed: 'Aplicația este instalată pe acest dispozitiv.',
-        done: 'Aplicația a fost instalată.',
-      },
       update: {
         ready: 'Este disponibilă o versiune nouă.',
         apply: 'Actualizează',
         hint: 'Datele tale rămân neschimbate. Aplicația se reîncarcă o singură dată.',
       },
+    },
+  },
+
+  install: {
+    title: 'Instalează aplicația',
+    body: `Pune ${APP_NAME} pe ecranul principal: se deschide ca o aplicație, pornește și fără internet, iar datele sunt mai bine ferite de curățarea automată a browserului.`,
+    action: 'Instalează aplicația',
+    later: 'Nu acum',
+    done: 'Aplicația a fost instalată.',
+    installed: 'Aplicația este instalată pe acest dispozitiv.',
+    ios: {
+      title: 'Instalează pe iPhone sau iPad',
+      intro: 'iOS nu are un buton de instalare, dar durează câteva secunde din Safari:',
+      steps: [
+        'Apasă butonul Partajare din bara browserului.',
+        'Derulează lista și alege „Adaugă pe ecranul principal”.',
+        'Apasă „Adaugă”, în colțul din dreapta sus.',
+      ],
+      otherBrowser: 'Nu găsești opțiunea? Deschide această pagină în Safari.',
+      separateData:
+        'Aplicația instalată își păstrează datele separat de Safari. Dacă ai notat deja ceva aici, exportă datele din Setări → Datele mele și restaurează-le în aplicația instalată.',
+      close: 'Am înțeles',
     },
   },
 

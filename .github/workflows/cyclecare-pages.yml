@@ -1,6 +1,6 @@
 # Checks, builds and publishes CycleCare on GitHub Pages (branch `gh-pages`).
 #
-# It runs on pushes to `main` and when started by hand (Actions → this workflow → "Run workflow",
+# It runs on every push to `main` and when started by hand (Actions → this workflow → "Run workflow",
 # choosing the branch to publish). Work-in-progress pushes to other branches publish nothing.
 #
 # One-time setup in the repository: Settings → Pages → Build and deployment →
@@ -14,7 +14,6 @@ name: CycleCare – verificare și publicare
 on:
   push:
     branches: [main]
-    paths: ['cyclecare/**', '.github/workflows/cyclecare-pages.yml']
   workflow_dispatch:
 
 permissions:

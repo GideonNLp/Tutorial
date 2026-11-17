@@ -52,6 +52,15 @@ Aplicația pornește cu un jurnal gol. Pentru un jurnal plin, de test, restaurea
 
 Testele cap-coadă folosesc Chromium-ul instalat de Playwright (`npx playwright install chromium`) sau, dacă există deja unul, calea din variabila `PW_CHROMIUM_PATH`.
 
+## Instalare pe telefon
+
+Butonul „Instalează aplicația” apare pe ecranul de bun venit, pe „Azi” (până la instalare sau până la „Nu acum”) și în „Setări → Despre”.
+
+- **Android și desktop (Chrome, Edge):** butonul deschide fereastra de instalare a browserului (evenimentul `beforeinstallprompt`). Apare doar când browserul consideră aplicația instalabilă: servită prin HTTPS, cu manifest și service worker.
+- **iPhone și iPad:** iOS nu are o astfel de fereastră, așa că butonul deschide un ghid în trei pași, cu pictograme: Partajare → „Adaugă pe ecranul principal” → „Adaugă”. Pe iOS aplicația instalată își păstrează datele separat de Safari, deci merită instalată înainte de a nota ceva; altfel datele se mută cu export și restaurare.
+
+Codul este în `src/app/pwa.ts` și `src/ui/InstallApp.tsx`.
+
 ## Configurare
 
 Build-ul funcționează fără nicio configurare. Valorile de mai jos se dau ca variabile de mediu la build sau într-un fișier `.env.local` (vezi [.env.example](.env.example)); niciuna nu este secretă.

@@ -64,7 +64,7 @@ Dreptunghiurile duble sunt ferestre deschise peste ecran (foaie de jos pe telefo
 
 | Pas | Ecran | Ce cere | Poate fi sărit | Validare |
 |---|---|---|---|---|
-| – | Bun venit | Ce face aplicația, pe scurt, și butonul „Începe” | – | – |
+| – | Bun venit | Ce face aplicația, pe scurt, butonul „Începe” și, unde se poate, „Instalează aplicația” | – | – |
 | 1 | Consimțământ | Două căsuțe nebifate: prelucrarea datelor privind sănătatea; vârsta de cel puțin 16 ani sau acordul unui părinte. Legătură către declarația de confidențialitate | nu | Fără ambele bife apare o eroare lângă căsuțe. „Nu sunt de acord” explică faptul că nu s-a salvat nimic |
 | 2 | Ultima menstruație | Data primei zile (selector nativ de dată, cel mult azi) | da: „Nu-mi amintesc” | Data din viitor este refuzată; o dată mai veche de 90 de zile primește o notă că estimările vor fi nesigure |
 | 3 | Durata ciclului | 21–45 de zile, pornind de la 28 | da: „Nu știu” | Valoarea este ținută în interval |
@@ -96,7 +96,7 @@ Ce se întâmplă cu răspunsurile:
 Răspunde la „unde sunt în ciclu și ce urmează?”.
 
 1. Antet: titlu, data de azi, rotița pentru setări.
-2. Anunț, doar dacă este cazul: stocare indisponibilă.
+2. Doar dacă este cazul: anunțul de stocare indisponibilă; invitația „Instalează aplicația” (până la instalare sau până la „Nu acum”).
 3. **Cadranul ciclului.** Ziua 1 este sus, sensul este cel al acelor de ceas. Arcele sunt cele patru faze estimate, bila marchează ziua de azi, arcul întrerupt de sus este intervalul în care este așteptată următoarea menstruație, iar arcul punctat din exterior marchează zilele fertile estimate. În centru: „Ziua 12” și faza. Dedesubt, legenda cu zilele fiecărei faze.
 4. **Următoarea menstruație**: intervalul („Probabil între 29 noiembrie și 5 decembrie”), data cea mai probabilă, peste câte zile, precizia estimării și pe ce se bazează.
 5. **Fertilitate**: zilele fertile și ovulația estimate, cu avertismentul de contracepție. Lipsește dacă estimările de fertilitate sunt oprite.
@@ -186,7 +186,7 @@ Fiecare grafic are și varianta „Vezi datele ca tabel”, iar valorile pot fi 
 | Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; unde sunt datele; partajarea cu terți; acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
 | Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor |
 | Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba |
-| Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal (buton acolo unde browserul îl oferă, instrucțiuni pe iOS), actualizarea la o versiune nouă, licențe |
+| Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal, actualizarea la o versiune nouă, licențe |
 
 <p>
 <img src="screenshots/13-setari.png" width="230" alt="Lista de setări">
@@ -207,6 +207,7 @@ Apare la deschidere dacă există un PIN și atunci când aplicația a stat în 
 | Import temperaturi | Jurnal, Datele mele | Alege fișierul CSV, arată câte valori a găsit, cere confirmarea |
 | Raport pentru medic | Statistici | Perioada (3, 6 sau 12 luni), includerea notelor, generarea PDF-ului |
 | PIN | Confidențialitate și securitate | Setează, schimbă sau dezactivează PIN-ul |
+| Instalează pe iPhone sau iPad | Butonul „Instalează aplicația” (Bun venit, Azi, Despre), pe iOS | Trei pași cu pictograme: Partajare, „Adaugă pe ecranul principal”, „Adaugă”; nota că aplicația instalată își ține datele separat de Safari |
 | Confirmări | Ștergere totală, retragerea acordului, restaurare | Un pas explicit înaintea unei acțiuni care nu poate fi anulată |
 
 ## 8. Stări speciale

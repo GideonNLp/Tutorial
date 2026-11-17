@@ -14,9 +14,11 @@ export interface Prefs {
   textSize: TextSize;
   autoLock: AutoLock;
   locale: Locale;
+  /** The person answered "not now" to the install invitation on the home screen. */
+  installHintDismissed: boolean;
 }
 
-export const DEFAULT_PREFS: Prefs = { theme: 'system', textSize: 'normal', autoLock: 1, locale: DEFAULT_LOCALE };
+export const DEFAULT_PREFS: Prefs = { theme: 'system', textSize: 'normal', autoLock: 1, locale: DEFAULT_LOCALE, installHintDismissed: false };
 export const TEXT_SCALE: Record<TextSize, number> = { small: 0.9, normal: 1, large: 1.15, xlarge: 1.3 };
 
 const KEY = 'cyclecare.prefs';
@@ -29,6 +31,7 @@ export function loadPrefs(): Prefs {
       textSize: raw.textSize && raw.textSize in TEXT_SCALE ? raw.textSize : 'normal',
       autoLock: raw.autoLock === 0 || raw.autoLock === 5 || raw.autoLock === 'never' ? raw.autoLock : 1,
       locale: raw.locale && raw.locale in dictionaries ? raw.locale : DEFAULT_LOCALE,
+      installHintDismissed: raw.installHintDismissed === true,
     };
   } catch {
     return DEFAULT_PREFS;

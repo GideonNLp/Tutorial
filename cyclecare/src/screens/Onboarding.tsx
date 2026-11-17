@@ -8,6 +8,7 @@ import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/predictio
 import { GOALS, type Goal, type ISODate } from '../domain/types';
 import { strings } from '../i18n';
 import { ErrorText, MultiChips, Stepper, Switch } from '../ui/controls';
+import { InstallButton } from '../ui/InstallApp';
 import { PinFields, validateNewPin, type PinError } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
 import { Sheet } from '../ui/Sheet';
@@ -118,6 +119,7 @@ export function Onboarding() {
             <button type="button" className="btn btn-primary btn-block" onClick={() => go('consent')}>
               {o.welcome.start}
             </button>
+            <InstallButton className="btn btn-secondary btn-block" />
             {__PREVIEW__ && (
               <p className="caption" style={{ textAlign: 'center' }}>
                 {o.welcome.previewNote}

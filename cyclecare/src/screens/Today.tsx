@@ -14,6 +14,7 @@ import { FLOWS, type Flow } from '../domain/types';
 import { formatDate, formatRange, strings } from '../i18n';
 import { ChoiceChips } from '../ui/controls';
 import { CycleDial, phaseSpans } from '../ui/CycleDial';
+import { InstallCard } from '../ui/InstallApp';
 import { Notice, Screen } from '../ui/Shell';
 import { flagText, summarizeLog, visiblePhase } from '../ui/summaries';
 import { haptic } from '../ui/haptics';
@@ -198,6 +199,8 @@ export function TodayScreen() {
             <p>{storage === 'plain' ? s.today.storage.plain : s.today.storage.session}</p>
           </Notice>
         )}
+
+        <InstallCard />
 
         <div className="today-grid">
           <section className="card today-cycle" aria-labelledby="cycle-heading">

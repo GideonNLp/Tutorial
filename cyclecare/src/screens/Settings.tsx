@@ -4,7 +4,6 @@ import {
   CircleDot,
   CircleHelp,
   Database,
-  Download,
   FileUp,
   Info,
   Palette,
@@ -16,7 +15,7 @@ import {
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { notificationStatus, readFileAsText, requestNotifications, saveFile, type NotificationStatus } from '../app/platform';
 import type { AutoLock, TextSize, ThemePref } from '../app/prefs';
-import { applyUpdate, promptInstall, useInstallState, useStoragePersisted, useUpdateReady } from '../app/pwa';
+import { applyUpdate, useInstallState, useStoragePersisted, useUpdateReady } from '../app/pwa';
 import { navigate, type Route } from '../app/router';
 import {
   disableBiometrics,
@@ -45,6 +44,7 @@ import { exportBackup, parseBackup } from '../storage/backup';
 import { biometricsAvailable } from '../storage/webauthn';
 import { ErrorText, MultiChips, Segmented, Stepper, Switch } from '../ui/controls';
 import { ImportTempsSheet } from '../ui/ImportTempsSheet';
+import { InstallButton } from '../ui/InstallApp';
 import { PinFields, validateNewPin } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
@@ -834,10 +834,6 @@ function About() {
   const install = useInstallState();
   const updateReady = useUpdateReady();
 
-  const installApp = async () => {
-    if ((await promptInstall()) === 'accepted') toast(a.install.done);
-  };
-
   return (
     <Screen title={s.settings.sections.about.title} subtitle={a.version(__APP_VERSION__)} back>
       <div className="stack stack-5">
@@ -858,22 +854,15 @@ function About() {
         <p>{a.estimates}</p>
         <p className="strong">{a.emergency}</p>
         {install !== 'unavailable' && (
-          <Group title={a.install.title}>
+          <Group title={s.install.title}>
             {install === 'installed' ? (
-              <p className="ink-2">{a.install.installed}</p>
+              <p className="ink-2">{s.install.installed}</p>
             ) : (
               <>
-                <p className="ink-2">{a.install.body}</p>
-                {install === 'available' ? (
-                  <div>
-                    <button type="button" className="btn btn-secondary btn-small" onClick={() => void installApp()}>
-                      <Download size={16} aria-hidden="true" />
-                      {a.install.action}
-                    </button>
-                  </div>
-                ) : (
-                  <p className="small">{a.install.ios}</p>
-                )}
+                <p className="ink-2">{s.install.body}</p>
+                <div>
+                  <InstallButton className="btn btn-secondary btn-small" />
+                </div>
               </>
             )}
           </Group>
