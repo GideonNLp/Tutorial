@@ -1,5 +1,5 @@
 import { CircleAlert, Stethoscope } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { update, useData, useTimeline, useToday } from '../app/store';
 import { toast } from '../app/ui';
 import { content, TIP_CATEGORIES, type TipCategory } from '../content';
@@ -142,8 +142,8 @@ export function TipsScreen() {
             </button>
           </div>
           <ul className="tip-cards" aria-live="polite" ref={tipList}>
-            {shown.map((tip) => (
-              <li key={tip.id}>
+            {shown.map((tip, n) => (
+              <li key={tip.id} style={{ '--n': n } as CSSProperties}>
                 <TipCard
                   tip={tip}
                   category={category}

@@ -73,7 +73,7 @@ export function TodayScreen() {
   const symptomsFirst = goals.includes('symptoms');
 
   const nextBlock = current && forecast && (
-    <section aria-labelledby="next-heading" className="stack stack-2">
+    <section aria-labelledby="next-heading" className="stack stack-2" data-tap="">
       <h2 id="next-heading">{s.today.next.heading}</h2>
       {late ? (
         <>
@@ -101,7 +101,7 @@ export function TodayScreen() {
     </section>
   );
   const fertilityBlock = current && showFertility && (
-    <section aria-labelledby="fertility-heading" className="stack stack-2">
+    <section aria-labelledby="fertility-heading" className="stack stack-2" data-tap="">
       <h2 id="fertility-heading">{s.today.fertility.heading}</h2>
       {late ? (
         // With the period overdue nobody knows where this cycle stands, so no fertile days are claimed.
@@ -132,7 +132,7 @@ export function TodayScreen() {
   const p = s.pregnancy;
   const showRisk = risk.contacts.length > 0 || (!!current && showFertility);
   const pregnancyBlock = showRisk && (
-    <section aria-labelledby="pregnancy-heading" className="stack stack-2">
+    <section aria-labelledby="pregnancy-heading" className="stack stack-2" data-tap="">
       <h2 id="pregnancy-heading">{fertilityFirst ? p.titleChance : p.titleRisk}</h2>
       <p className="risk-today">
         <ChanceScale level={risk.today.level} />
@@ -176,7 +176,7 @@ export function TodayScreen() {
   );
 
   const quickBlock = (
-    <section className="card stack stack-3" aria-labelledby="quick-heading">
+    <section className="card stack stack-3" aria-labelledby="quick-heading" data-tap="">
       <h2 id="quick-heading">{s.today.quick.title}</h2>
       <ChoiceChips
         legend={s.today.quick.flow}
@@ -227,7 +227,7 @@ export function TodayScreen() {
     </section>
   );
   const tipBlock = tip && phase && (
-    <section aria-labelledby="tip-heading" className="stack stack-2">
+    <section aria-labelledby="tip-heading" className="stack stack-2" data-tap="">
       <h2 id="tip-heading">{s.today.tip.title}</h2>
       <p className="caption">
         {s.phase[phase]}, {s.tips.category[tip.category].toLowerCase()}
@@ -253,7 +253,7 @@ export function TodayScreen() {
 
         <InstallCard />
 
-        <div className="today-grid">
+        <div className="today-grid" data-stagger="">
           <section className="card today-cycle" aria-labelledby="cycle-heading">
             <h2 id="cycle-heading" className="sr-only">
               {s.today.legendTitle}
@@ -285,7 +285,7 @@ export function TodayScreen() {
             )}
           </section>
 
-          <div className="stack stack-5">
+          <div className="stack stack-5" data-stagger="">
             {fertilityFirst ? fertilityBlock : nextBlock}
             {fertilityFirst ? nextBlock : fertilityBlock}
             {pregnancyBlock}

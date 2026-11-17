@@ -6,7 +6,9 @@
  * and iOS only applies it under conditions. Here the pressed state lasts at least a moment,
  * and ends as soon as the finger starts scrolling.
  */
-const PRESSABLE = '.btn, .icon-btn, .avatar-btn, .tab, .list-row, .chip, .scale > label, .segmented > label, .cal-day, .weekday, .toast-action';
+const PRESSABLE =
+  '.btn, .icon-btn, .avatar-btn, .tab, .list-row, .chip, .scale > label, .segmented > label, .cal-day, .weekday, .toast-action, ' +
+  '.dial-flip, .dial-say, .dial-action, .why summary, [data-tap]';
 const MIN_VISIBLE_MS = 90;
 
 let installed = false;

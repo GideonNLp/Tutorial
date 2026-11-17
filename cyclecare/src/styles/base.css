@@ -1307,7 +1307,12 @@ dialog.sheet::backdrop {
   .tab-icon,
   .cal-day,
   .weekday,
-  .toast-action {
+  .toast-action,
+  .dial-flip,
+  .dial-say,
+  .dial-action,
+  .why summary,
+  [data-tap] {
     transition:
       transform 0.5s var(--ease-spring),
       background-color 0.15s ease-out,
@@ -1329,6 +1334,26 @@ dialog.sheet::backdrop {
   .weekday[data-pressed],
   .toast-action[data-pressed] {
     transform: scale(0.92);
+    transition-duration: 0.09s, 0.15s, 0.15s, 0.15s;
+    transition-timing-function: ease-out;
+  }
+  /* Cards and blocks give a lighter touch than buttons: a large surface moves less for the same edge shift. */
+  [data-tap][data-pressed],
+  .dial-flip[data-pressed],
+  .dial-say[data-pressed],
+  .dial-action[data-pressed] {
+    transform: scale(0.97);
+    transition-duration: 0.09s, 0.15s, 0.15s, 0.15s;
+    transition-timing-function: ease-out;
+  }
+  [data-tap][data-pressed] {
+    transform: scale(0.985);
+  }
+  .why summary {
+    transform-origin: 0 50%;
+  }
+  .why summary[data-pressed] {
+    transform: scale(0.96);
     transition-duration: 0.09s, 0.15s, 0.15s, 0.15s;
     transition-timing-function: ease-out;
   }

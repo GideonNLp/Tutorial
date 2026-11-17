@@ -2,7 +2,7 @@ import { Activity, useEffect, useLayoutEffect, useRef, type ReactNode } from 're
 import { ROUTES, collapseNav, finishTransition, getNav, useNav, usePeek, type Route } from '../app/router';
 import { ErrorBoundary } from './ErrorBoundary';
 import { hasInteracted } from './interaction';
-import { runPageTransition, stagger, whenFinished } from './motion';
+import { revealScreen, runPageTransition, stagger, staggerTargets, whenFinished } from './motion';
 import { attachSwipeBack } from './swipeBack';
 
 /**
@@ -99,13 +99,17 @@ function Page(props: { route: Route; active: boolean; entering: boolean; childre
     };
   }, []);
 
-  // The first time a page appears its blocks arrive one after another.
+  // A page's blocks arrive one after another the first time it appears, and again whenever a tab
+  // brings it back. Coming back with "Back" or a swipe shows the page as it was left.
   useLayoutEffect(() => {
     const el = ref.current;
-    if (!el || entered.current || !active) return;
-    entered.current = true;
+    if (!el || !active) return;
     const kind = getNav().transition?.kind;
-    stagger(el.querySelectorAll(':scope .screen > .stack > *, :scope .screen > .list > *'), { delay: kind === 'push' ? 90 : 30 });
+    const first = !entered.current;
+    entered.current = true;
+    if (!first && kind !== 'fade') return;
+    revealScreen(el);
+    stagger(staggerTargets(el), { delay: kind === 'push' ? 90 : kind === 'fade' ? 40 : 30 });
   }, [active]);
 
   // Screen readers and keyboards follow the navigation: forward to the page title,

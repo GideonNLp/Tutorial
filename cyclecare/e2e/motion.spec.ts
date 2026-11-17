@@ -428,8 +428,8 @@ test.describe('small movements', () => {
     expect(delays[0]).toBe(0);
     for (let i = 1; i < delays.length; i++) {
       const step = delays[i]! - delays[i - 1]!;
-      expect(step).toBeGreaterThanOrEqual(30);
-      expect(step).toBeLessThanOrEqual(50);
+      expect(step).toBeGreaterThanOrEqual(50);
+      expect(step).toBeLessThanOrEqual(80);
     }
   });
 

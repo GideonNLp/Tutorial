@@ -1,5 +1,5 @@
 import { Pencil } from 'lucide-react';
-import { useEffect, useState, type KeyboardEvent } from 'react';
+import { useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { clearOwnThought, loadOwnThought, saveOwnThought } from '../app/mascotThought';
 import { diffDays } from '../domain/dates';
 import { cleanThought, MASCOT_SHOW_MS, MASCOT_TURN_MS, mascotThought, THOUGHT_DELAY_MS, THOUGHT_MAX, type MascotMood } from '../domain/mascot';
@@ -25,6 +25,9 @@ const R = 104; // ring radius
 const RING = 20; // ring thickness
 const OUTER = R + 19; // radius of the outer track (fertile days, next-period interval)
 const GAP = 2 / (2 * Math.PI * R); // 2px between arcs, as a fraction of the circle
+
+/** A position in the dial's drawing as a share of its size, for an element laid over it. */
+const percent = (value: number): string => `${((value / SIZE) * 100).toFixed(3)}%`;
 
 function point(fraction: number, radius: number): [number, number] {
   const angle = fraction * 2 * Math.PI - Math.PI / 2;
@@ -303,9 +306,13 @@ export function CycleDial({
   return (
     <div className="dial-wrap">
       <svg className="dial" viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label={s.today.dialLabel(current.cycleDay, phaseLabel)}>
-        {spans.map((span) => (
+        {spans.map((span, index) => (
+          // `pathLength` makes every arc one unit long, so the stylesheet can draw them with a single dash.
           <path
             key={span.from}
+            className="dial-arc"
+            style={{ '--i': index } as CSSProperties}
+            pathLength={1}
             d={arc((span.from - 1) / total + GAP / 2, span.to / total - GAP / 2, R)}
             fill="none"
             stroke={strokeOf(span.kind)}
@@ -342,6 +349,8 @@ export function CycleDial({
         <circle cx={bx} cy={by} r={15} fill="var(--surface)" stroke="var(--ink)" strokeWidth={3.5} />
         <circle cx={bx} cy={by} r={4.5} fill="var(--ink)" />
       </svg>
+      {/* A soft ring that pulses outwards from today's bead; an element of its own, so it moves on the GPU. */}
+      <span className="dial-pulse" aria-hidden="true" style={{ left: percent(bx), top: percent(by) }} />
       <DialCenter
         text={s.today.cycleDay(current.cycleDay)}
         number={String(current.cycleDay)}

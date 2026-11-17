@@ -315,21 +315,27 @@ Structura și fluxul rămân aceleași. Diferă doar ce oferă platforma:
 
 ## 10. Mișcare, gesturi și suprafețe
 
-Aplicația are un cadru fix: fiecare ecran derulează în propriul container, sub o bară de navigare care rămâne sus și deasupra barei de file. Codul este în `src/app/router.ts`, `src/ui/Navigator.tsx`, `src/ui/motion.ts`, `src/ui/swipeBack.ts` și `src/ui/Sheet.tsx`.
+Aplicația are un cadru fix: fiecare ecran derulează în propriul container, sub o bară de navigare care rămâne sus și deasupra barei de file. Codul este în `src/app/router.ts`, `src/ui/Navigator.tsx`, `src/ui/motion.ts`, `src/ui/swipeBack.ts`, `src/ui/Sheet.tsx`, `src/ui/SwapPanel.tsx`, `src/ui/pop.ts` și, pentru mișcarea din conținutul ecranelor, `src/styles/motion.css`.
 
 | Element | Comportament |
 |---|---|
 | Intrarea într-un ecran mai adânc (Setări, o secțiune din Setări, declarația) | Ecranul nou intră din dreapta în aproximativ 320 ms, cu o curbă care pornește repede și se așază lin; cel vechi se mută ușor spre stânga și se estompează |
 | „Înapoi” | Mișcarea inversă. Ecranul părăsit este eliberat; cel de dedesubt a rămas montat, deci revine exact cum a fost lăsat |
 | Glisare de la marginea stângă | Degetul trage ecranul curent, iar cel de dedesubt se vede și îl urmează. Eliberat după o treime din lățime sau cu o mișcare rapidă, gestul se încheie; altfel ecranul revine. O glisare verticală pornită de la margine derulează ca de obicei |
-| Schimbarea filei | O estompare scurtă (200 ms). Filele deja vizitate rămân montate: poziția în pagină, faza și tema alese la „Sfaturi”, luna din calendar se păstrează. O a doua atingere pe fila curentă duce la începutul paginii |
+| Schimbarea filei | Pagina nouă se estompează și urcă puțin, micșorată cu un fir (240 ms), iar cea veche se stinge. Filele deja vizitate rămân montate: poziția în pagină, faza și tema alese la „Sfaturi”, luna din calendar se păstrează. O a doua atingere pe fila curentă duce la începutul paginii |
 | Antetul | În repaus este rândul obișnuit: buton, titlu mare, rotiță. Când pagina derulează, butoanele rămân sus pe o bară de sticlă, titlul mare trece pe sub ea, iar în mijlocul barei apare titlul mic. O atingere pe bară duce la începutul paginii |
 | Ferestrele | Pe telefon urcă de la marginea de jos și pot fi trase în jos de antet sau de conținut (când acesta este la început); se închid după un sfert din înălțime sau la o mișcare rapidă, altfel revin cu un mic arc. Escape și atingerea în afara ferestrei le închid la fel. Pe ecrane late sunt dialoguri centrate care se estompează. Stau deasupra tastaturii |
 | Sticlă | Bara de navigare (după derulare), bara de file, ferestrele și mesajele scurte lasă să se vadă, estompat, ce este dedesubt. Culorile sunt aceleași; fără suport pentru estompare, sau cu „Reducere transparență” ori „Contrast mărit”, suprafețele sunt opace |
-| Apăsarea | Butoanele, pastilele și zilele se micșorează ușor (aproximativ 0,97; cele mici ceva mai mult) și revin cu un arc; rândurile de listă se evidențiază |
+| Apăsarea | Butoanele, pastilele și zilele se micșorează ușor (aproximativ 0,97; cele mici ceva mai mult) și revin cu un arc; rândurile de listă se evidențiază. Cardurile și blocurile de pe „Azi” (următoarea menstruație, fertilitate, risc de sarcină, cum e azi, sfatul zilei), centrul cercului, „De ce ajută?” și butoanele capibarei se micșorează mai discret (0,985, respectiv 0,97) |
 | Vibrație scurtă | La comutatoare, la notarea menstruației, la PIN corect sau greșit, la confirmări și la „Anulează”, acolo unde dispozitivul o permite |
-| Liste | La prima afișare a unui ecran, blocurile lui sosesc pe rând, la 40 ms distanță; o listă de sfaturi nouă la fel, iar o altă lună intră din partea în care se află |
-| „Reducere mișcare” | Nimic din cele de mai sus nu se mai animă: ecranele și ferestrele se schimbă pe loc |
+| Apariția în trepte | La prima afișare a unui ecran și de fiecare dată când o filă îl aduce înapoi, blocurile lui sosesc pe rând, la 60 ms distanță (cel mult opt trepte, deci un ecran lung nu așteaptă): fiecare urcă 12 px și se arată, iar cardurile din interiorul „Azi” și al Calendarului sosesc separat. „Înapoi” sau o glisare nu o reiau. O listă de sfaturi nouă sosește la fel, iar o altă lună intră din partea în care se află |
+| „Azi”: cercul | Arcele fazelor se desenează pe rând, de la menstruație spre faza luteală (aproximativ 1,6 s în total), iar în jurul bilei zilei pornește un inel moale care pulsează spre exterior, cât timp ecranul e afișat |
+| Calendar | Inelul zilei alese apare cu un arc elastic (de la jumătate de mărime, cu depășire). Detaliile zilei se schimbă cu o estompare și o urcare ușoară, iar panoul trece lin de la înălțimea veche la cea nouă, fără salt |
+| Jurnal | Un simptom, o dispoziție sau o intensitate bifată „sare” (se micșorează și revine cu un arc), iar pictograma ei salută cu o mică rotire. „Salvare” arată o bifă care se desenează, un halou verde care se extinde și un arc scurt al butonului; etichetele rezumatului se așază pe rând |
+| Sfaturi și Statistici | Cardurile de sfaturi urcă pe rând. Barele cresc de la zero la valoare, de la stânga la dreapta; liniile graficelor se trasează, iar punctul de la capăt și valorile apar după ele; celulele hărții simptomelor „sar” în diagonală |
+| „Reducere mișcare” | Nimic din cele de mai sus nu se mai animă: ecranele și ferestrele se schimbă pe loc, desenele sunt complete de la început, inelul din jurul bilei rămâne ca un halou liniștit, iar alegerile nu mai „sar” |
+
+**Cum este făcută.** Mișcarea folosește doar `transform` și `opacity`, pe care browserul le rulează pe placa grafică; singura excepție este desenarea arcelor și a liniilor, care mișcă linia întreruptă a unui contur (ieftin la această mărime, o dată, sub o secundă și jumătate). Nu rămâne niciun strat alocat (fără `will-change`, fără filtre), iar singurele animații care se repetă sunt pulsul bilei și mișcările mici ale capibarei, doar cât ecranul lor e afișat. Animațiile de intrare atârnă de semnul `data-reveal`, pus pe ecran cât durează sosirea lui (2,6 s); animațiile din `motion.css` sunt toate sub `prefers-reduced-motion: no-preference`. `tests/motion.test.ts` verifică aceste reguli în CSS (proprietățile animate, condiția, lipsa straturilor), iar `e2e/animations.spec.ts` verifică în browser fiecare animație și varianta cu mișcare redusă.
 
 <p>
 <img src="screenshots/21-tranzitie-push.png" width="230" alt="Ecranul Setări intrând din dreapta peste ecranul Azi, care se retrage și se estompează">

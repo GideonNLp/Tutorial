@@ -517,8 +517,19 @@
   outline-offset: -2px;
   border-radius: 0.875rem;
 }
-.cal-cell[aria-selected='true'] .cal-day {
-  box-shadow: inset 0 0 0 2px var(--ink);
+/* The ring round the chosen day is a layer of its own: it can pop in (motion.css), and a border,
+   unlike a shadow, survives forced colours. The partner's read-only calendar and the editing mode use it too. */
+.cal-cell[aria-selected='true'] .cal-day::after,
+.cal .cal-day[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--ink);
+  border-radius: 0.875rem;
+  pointer-events: none;
+}
+.cal.editing .cal-day[aria-pressed='true']::after {
+  border-color: var(--menstruation);
 }
 .cal-cell.outside .cal-num {
   color: var(--muted);
@@ -583,13 +594,6 @@
 .mark-bleed {
   background: var(--menstruation);
   transform: rotate(45deg);
-}
-/* The partner's read-only calendar marks the chosen day the same way. */
-.cal:not(.editing) .cal-day[aria-pressed='true'] {
-  box-shadow: inset 0 0 0 2px var(--ink);
-}
-.cal.editing .cal-day[aria-pressed='true'] {
-  box-shadow: inset 0 0 0 2px var(--menstruation);
 }
 .cal.editing .cal-day[disabled] {
   opacity: 0.4;
@@ -866,8 +870,14 @@
   animation: saved-pop 0.45s var(--ease-spring);
 }
 @keyframes saved-pop {
-  from {
-    transform: scale(0.96);
+  0% {
+    transform: scale(0.93);
+  }
+  55% {
+    transform: scale(1.035);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 @media (min-width: 56rem) {
