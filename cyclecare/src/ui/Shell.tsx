@@ -4,6 +4,7 @@ import { goBack, navigate, useRoute, type Route } from '../app/router';
 import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
 import { prefersReducedMotion } from './motion';
+import { haptic } from './haptics';
 
 function scrollToTop(page: Element | null | undefined): void {
   page?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
@@ -142,6 +143,7 @@ export function Toaster() {
               type="button"
               className="toast-action"
               onClick={() => {
+                haptic('light');
                 t.action!.run();
                 dismissToast(t.id);
               }}

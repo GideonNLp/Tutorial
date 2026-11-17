@@ -13,6 +13,7 @@ import { PolicyText } from '../ui/PolicyText';
 import { Sheet } from '../ui/Sheet';
 import { StepStack } from '../ui/StepStack';
 import { Notice } from '../ui/Shell';
+import { haptic } from '../ui/haptics';
 
 type Step = 'welcome' | 'consent' | 'lastPeriod' | 'cycleLength' | 'periodLength' | 'goals' | 'finish';
 const QUESTION_STEPS: Step[] = ['consent', 'lastPeriod', 'cycleLength', 'periodLength', 'goals', 'finish'];
@@ -64,6 +65,7 @@ export function Onboarding() {
         pin: pin || undefined,
         periodReminder: reminder,
       });
+      haptic('success');
     } finally {
       setBusy(false);
     }

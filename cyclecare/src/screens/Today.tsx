@@ -16,6 +16,7 @@ import { ChoiceChips } from '../ui/controls';
 import { CycleDial, phaseSpans } from '../ui/CycleDial';
 import { Notice, Screen } from '../ui/Shell';
 import { flagText, summarizeLog, visiblePhase } from '../ui/summaries';
+import { haptic } from '../ui/haptics';
 
 export function TodayScreen() {
   const s = strings();
@@ -56,6 +57,7 @@ export function TodayScreen() {
   const summary = summarizeLog(todayLog);
 
   const setFlow = (flow: Flow | undefined) => {
+    haptic('medium');
     update((d) => ({ ...d, logs: updateDay(d.logs, today, { flow }, new Date().toISOString()) }));
     toast(s.common.saved);
   };

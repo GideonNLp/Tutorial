@@ -12,6 +12,7 @@ import { BbtChart, ChartFrame, CycleLengthChart, MoodChart } from '../ui/charts'
 import { Segmented } from '../ui/controls';
 import { Sheet } from '../ui/Sheet';
 import { Screen } from '../ui/Shell';
+import { haptic } from '../ui/haptics';
 
 const mean = (values: number[]) => (values.length ? values.reduce((a, b) => a + b, 0) / values.length : undefined);
 const HEAT_ROWS = 8;
@@ -365,7 +366,10 @@ function ExportSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
       const bytes = await buildReportPdf(data, today, { months, includeNotes: notes });
       const outcome = await saveFile(e.filename(today), new Blob([bytes], { type: 'application/pdf' }));
       toast(outcome === 'saved' ? e.saved : outcome === 'declined' ? e.declined : e.failed);
-      if (outcome === 'saved') onClose();
+      if (outcome === 'saved') {
+        haptic('success');
+        onClose();
+      }
     } catch (error) {
       reportError('export', error);
       toast(e.failed);

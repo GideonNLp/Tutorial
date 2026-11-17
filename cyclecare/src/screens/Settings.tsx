@@ -50,6 +50,7 @@ import { PolicyText } from '../ui/PolicyText';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
 import { Notice, Screen } from '../ui/Shell';
 import { content } from '../content';
+import { haptic } from '../ui/haptics';
 
 export function SettingsScreen({ route }: { route: Route }) {
   switch (route) {
@@ -410,15 +411,20 @@ function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void
     if (!mode) return;
     setBusy(true);
     try {
-      if (mode !== 'set' && !(await verifyPin(current))) return setError(p.wrongPin);
+      if (mode !== 'set' && !(await verifyPin(current))) {
+        haptic('warning');
+        return setError(p.wrongPin);
+      }
       if (mode === 'remove') {
         await removePin();
+        haptic('success');
         toast(p.pinRemoved);
         return onClose();
       }
       if (!PIN_PATTERN.test(pin)) return setError(s.onboarding.finish.pinInvalid);
       if (pin !== repeat) return setError(s.onboarding.finish.pinMismatch);
       await setPin(pin);
+      haptic('success');
       toast(p.pinSet);
       onClose();
     } catch {

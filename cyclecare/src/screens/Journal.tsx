@@ -35,6 +35,7 @@ import { ChoiceChips, ErrorText, MultiChips, Scale, Segmented } from '../ui/cont
 import { ImportTempsSheet } from '../ui/ImportTempsSheet';
 import { Screen } from '../ui/Shell';
 import { visiblePhase } from '../ui/summaries';
+import { haptic } from '../ui/haptics';
 
 const NOTE_MAX = 2000;
 const MOOD_ICONS = [Frown, Annoyed, Meh, Smile, Laugh];
@@ -62,6 +63,7 @@ export function JournalScreen() {
   }, [date, today]);
 
   const patch = (change: DayPatch) => {
+    if ('flow' in change) haptic('medium');
     update((d) => ({ ...d, logs: updateDay(d.logs, date, change, new Date().toISOString()) }));
     setJustSaved(true);
     clearTimeout(savedTimer.current);

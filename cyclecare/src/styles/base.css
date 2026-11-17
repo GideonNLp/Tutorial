@@ -894,7 +894,7 @@ main:focus {
   background: var(--line-strong);
   transform: translateY(-50%);
   transition:
-    transform 0.15s,
+    transform 0.35s var(--ease-spring),
     background-color 0.15s;
 }
 .switch-row input:checked + .switch-track {
@@ -940,37 +940,90 @@ legend {
 
 /* ---------------------------------------------------------------- dialogs & toasts */
 
+/*
+ * Sheets. The <dialog> covers the whole screen and is itself invisible; inside it a scrim dims the
+ * page and the panel carries the content. On phones the panel rises from the bottom edge and can
+ * be dragged down; from 40rem up it is a centred dialog. Movement is driven from Sheet.tsx.
+ */
 dialog.sheet {
+  position: fixed;
+  inset: 0;
   width: 100%;
-  max-width: 34rem;
-  max-height: 92dvh;
-  margin: auto auto 0;
-  padding: 0;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  /* Stays clear of the on-screen keyboard (set from the visual viewport while a sheet is open). */
+  padding: 0 0 var(--keyboard-inset, 0px);
   border: 0;
-  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
-  background: var(--surface);
+  background: transparent;
   color: var(--ink);
   overflow: hidden;
 }
 dialog.sheet[open] {
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
 }
 dialog.sheet::backdrop {
+  background: transparent;
+}
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
   background: var(--scrim);
 }
+.sheet-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 34rem;
+  max-height: calc(92dvh - var(--keyboard-inset, 0px));
+  border: 1px solid var(--glass-line);
+  border-bottom: 0;
+  border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+  background: var(--surface);
+  box-shadow: 0 -10px 40px var(--shadow);
+  will-change: transform;
+}
+/* More of the same surface below the edge, so pulling the sheet up a little never shows a gap. */
+.sheet-panel::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -1px;
+  right: -1px;
+  height: 6rem;
+  background: inherit;
+}
 .sheet-head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--s3);
-  padding: var(--s4) var(--s4) var(--s2) var(--s5);
+  padding: calc(var(--s4) + 0.4rem) var(--s4) var(--s2) var(--s5);
+  /* The header is the handle: dragging it moves the sheet instead of scrolling or selecting. */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .sheet-head h2 {
   flex: 1;
   font-size: 1.25rem;
 }
+.sheet-grabber {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  width: 2.25rem;
+  height: 0.3125rem;
+  margin-left: -1.125rem;
+  border-radius: var(--r-pill);
+  background: var(--line-strong);
+}
 .sheet-body {
-  padding: var(--s2) var(--s5) calc(var(--s5) + env(safe-area-inset-bottom, 0px));
+  padding: var(--s2) var(--s5) calc(var(--s5) + var(--safe-bottom));
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -984,9 +1037,22 @@ dialog.sheet::backdrop {
   flex: 1 1 9rem;
 }
 @media (min-width: 40rem) {
-  dialog.sheet {
-    margin: auto;
+  dialog.sheet[open] {
+    align-items: center;
+  }
+  .sheet-panel {
+    max-height: calc(86dvh - var(--keyboard-inset, 0px));
+    border-bottom: 1px solid var(--glass-line);
     border-radius: var(--r-sheet);
+    box-shadow: 0 16px 60px var(--shadow);
+  }
+  .sheet-panel::after,
+  .sheet-grabber {
+    display: none;
+  }
+  .sheet-head {
+    padding-top: var(--s4);
+    touch-action: auto;
   }
 }
 
@@ -1013,14 +1079,14 @@ dialog.sheet::backdrop {
   gap: var(--s2);
   max-width: 30rem;
   padding: 0.7rem 1.1rem;
-  border-radius: var(--r-pill);
+  border-radius: 1.5rem;
   background: var(--ink);
   color: var(--on-ink);
   font-size: var(--fs-small);
   font-weight: 600;
   box-shadow: 0 6px 20px var(--shadow);
   pointer-events: auto;
-  animation: toast-in 0.2s ease-out;
+  animation: toast-in 0.32s var(--ease-spring) backwards;
 }
 .toast.leaving {
   animation: toast-out 0.18s ease-in forwards;
@@ -1045,7 +1111,7 @@ dialog.sheet::backdrop {
 @keyframes toast-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px) scale(0.96);
   }
 }
 @keyframes toast-out {
@@ -1089,6 +1155,107 @@ dialog.sheet::backdrop {
 }
 .phase-line .swatch {
   transform: translateY(0.05rem);
+}
+
+/* ---------------------------------------------------------------- glass */
+
+/*
+ * Bars, sheets and toasts let the page show through, blurred. The colours are the same tokens,
+ * mixed with transparency; where the browser cannot blur, the solid colours above remain.
+ */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) and (color: color-mix(in srgb, red 50%, transparent)) {
+  .navbar::before {
+    background: var(--glass-bar);
+    border-bottom-color: var(--glass-line);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  .tabbar {
+    background: var(--glass-surface);
+    border-color: var(--glass-line);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  .sheet-panel {
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+  .toast {
+    background: var(--glass-ink);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+  }
+}
+/* "Reduce transparency" and "Increase contrast": back to solid surfaces. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .navbar::before {
+    background: var(--bg);
+    border-bottom-color: var(--line);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .tabbar,
+  .sheet-panel {
+    background: var(--surface);
+    border-color: var(--line);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .toast {
+    background: var(--ink);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ---------------------------------------------------------------- press feedback */
+
+/*
+ * Whatever is pressed shrinks a little and springs back when released (`data-pressed` is set by
+ * press.ts). Large surfaces move less than small ones, so the change in edge position is similar.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .btn,
+  .icon-btn,
+  .chip-face,
+  .scale-face,
+  .segmented-face,
+  .tab-icon,
+  .cal-day,
+  .weekday,
+  .toast-action {
+    transition:
+      transform 0.5s var(--ease-spring),
+      background-color 0.15s ease-out,
+      border-color 0.15s ease-out,
+      color 0.15s ease-out;
+  }
+  .btn[data-pressed],
+  .chip[data-pressed] .chip-face,
+  .scale > label[data-pressed] .scale-face,
+  .segmented > label[data-pressed] .segmented-face {
+    transform: scale(0.97);
+    transition-duration: 0.09s, 0.15s, 0.15s, 0.15s;
+    transition-timing-function: ease-out;
+  }
+  .icon-btn[data-pressed],
+  .tab[data-pressed] .tab-icon,
+  .cal-day[data-pressed],
+  .weekday[data-pressed],
+  .toast-action[data-pressed] {
+    transform: scale(0.92);
+    transition-duration: 0.09s, 0.15s, 0.15s, 0.15s;
+    transition-timing-function: ease-out;
+  }
+  .list-row {
+    transition: background-color 0.3s ease-out;
+  }
+}
+/* Rows highlight rather than shrink, as list rows do on a phone. */
+.list-row[data-pressed] {
+  background: var(--surface-2);
+  transition-duration: 0s;
 }
 
 /* ---------------------------------------------------------------- wide screens */

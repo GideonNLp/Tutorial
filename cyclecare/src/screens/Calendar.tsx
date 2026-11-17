@@ -9,6 +9,7 @@ import { isPeriodFlow, PHASES, type ISODate } from '../domain/types';
 import { formatDate, strings } from '../i18n';
 import { Notice, Screen } from '../ui/Shell';
 import { summarizeLog, visiblePhase } from '../ui/summaries';
+import { haptic } from '../ui/haptics';
 
 export function CalendarScreen() {
   const s = strings();
@@ -49,6 +50,7 @@ export function CalendarScreen() {
   const togglePeriod = (date: ISODate) => {
     if (date > today) return;
     const marked = isPeriodFlow(data.logs[date]?.flow);
+    haptic('medium');
     update((d) => ({ ...d, logs: updateDay(d.logs, date, { flow: marked ? undefined : 'unspecified' }, new Date().toISOString()) }));
     const label = formatDate(date, 'dayMonthLong');
     toast(marked ? c.edit.unmarked(label) : c.edit.marked(label));

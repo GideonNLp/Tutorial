@@ -11,6 +11,17 @@ import type { TransitionKind } from '../app/router';
 /** The curve iOS uses for navigation: quick start, long soft landing. */
 export const EASE_NAV = 'cubic-bezier(0.32, 0.72, 0, 1)';
 export const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
+/** A lightly damped spring for things that bounce back (a sheet let go, a released press). */
+const SPRING =
+  'linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1)';
+function supportsLinearEasing(): boolean {
+  try {
+    return typeof CSS !== 'undefined' && CSS.supports('transition-timing-function', 'linear(0, 1)');
+  } catch {
+    return false;
+  }
+}
+export const EASE_SPRING = supportsLinearEasing() ? SPRING : 'cubic-bezier(0.34, 1.56, 0.64, 1)';
 export const NAV_MS = 320;
 export const FADE_MS = 200;
 /** How far the page underneath is shifted while it is covered, as a share of its width. */

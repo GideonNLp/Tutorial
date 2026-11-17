@@ -1,6 +1,7 @@
 import { AlertCircle, Minus, Plus } from 'lucide-react';
 import { useId, type ReactNode } from 'react';
 import { strings } from '../i18n';
+import { haptic } from './haptics';
 
 /**
  * Form controls. Every one is a native input underneath (radio, checkbox, number),
@@ -177,7 +178,10 @@ export function Switch(props: { label: string; hint?: string; checked: boolean; 
         checked={props.checked}
         disabled={props.disabled}
         aria-describedby={props.hint ? hintId : undefined}
-        onChange={(e) => props.onChange(e.target.checked)}
+        onChange={(e) => {
+          haptic('light');
+          props.onChange(e.target.checked);
+        }}
       />
       <span className="switch-track" aria-hidden="true" />
     </label>

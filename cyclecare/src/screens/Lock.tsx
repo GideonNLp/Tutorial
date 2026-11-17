@@ -5,6 +5,7 @@ import { strings } from '../i18n';
 import { ErrorText } from '../ui/controls';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
 import { BrandMark } from './Onboarding';
+import { haptic } from '../ui/haptics';
 
 export function LockScreen() {
   const s = strings();
@@ -35,6 +36,7 @@ export function LockScreen() {
     setBusy(true);
     const result = await unlockWithPin(pin);
     setBusy(false);
+    haptic(result.ok ? 'success' : 'warning');
     if (result.ok) return;
     setPin('');
     if (result.reason === 'paused') {
