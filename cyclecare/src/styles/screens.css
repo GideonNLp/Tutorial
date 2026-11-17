@@ -229,11 +229,14 @@
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
-/* The number the capybara hides behind: its own stacking context, so the head sits under the digits. */
+/* The capybara hides behind the number: its back layer goes under the whole day text, its paws over it. */
+.dial-day {
+  position: relative;
+  isolation: isolate;
+}
 .dial-num {
   position: relative;
   display: inline-block;
-  isolation: isolate;
 }
 .dial-phase {
   margin-top: 0.4rem;
@@ -1215,124 +1218,234 @@ details.table-view > summary {
 
 .capy {
   display: block;
+  overflow: visible;
   forced-color-adjust: none;
 }
-/* Peeking over the top edge of the day number, from behind it. The digits of the display font rise
-   to about 0.85em above the bottom of their line, so the cut under the eyes sits just below that. */
+/* Gradient stops take their colours from the tokens, so the drawing follows the theme. */
+.capy-s-fur-light {
+  stop-color: var(--capy-fur-light);
+}
+.capy-s-fur {
+  stop-color: var(--capy-fur);
+}
+.capy-s-fur-dark {
+  stop-color: var(--capy-fur-dark);
+}
+.capy-s-cream {
+  stop-color: var(--capy-cream);
+}
+.capy-s-cream-shade {
+  stop-color: var(--capy-cream-shade);
+}
+.capy-s-nose {
+  stop-color: var(--capy-nose);
+}
+.capy-s-iris {
+  stop-color: var(--capy-iris);
+}
+.capy-s-ink {
+  stop-color: var(--capy-ink);
+}
+.capy-s-ear {
+  stop-color: var(--capy-ear);
+}
+.capy-s-blush {
+  stop-color: var(--capy-blush);
+}
+.capy-s-shine {
+  stop-color: var(--capy-shine);
+}
+.capy-s-shadow {
+  stop-color: var(--capy-shadow);
+}
+.capy-s-leaf-light {
+  stop-color: var(--capy-leaf-light);
+}
+.capy-s-follicular {
+  stop-color: var(--follicular);
+}
+.capy-s-star-light {
+  stop-color: var(--capy-star-light);
+}
+.capy-s-ovulation {
+  stop-color: var(--ovulation);
+}
+.capy-s-menstruation {
+  stop-color: var(--menstruation);
+}
+.capy-s-mug-light {
+  stop-color: var(--capy-mug-light);
+}
+.capy-s-blanket-light {
+  stop-color: var(--capy-blanket-light);
+}
+.capy-s-luteal {
+  stop-color: var(--luteal);
+}
+
+/*
+ * Peeking: both layers share one box, in which y = 84 (of 146) is the top of the digits. The box is
+ * 1.404em wide, so that line is 0.655em above its bottom; the digits of the display font rise to
+ * 0.852em above the bottom of their line, so the box sits 0.197em up. The dash of an empty dial is
+ * lower (0.46em).
+ */
 .capy-peek {
   position: absolute;
-  z-index: -1;
   left: 50%;
-  bottom: 0.82em;
-  width: max(1.1em, 110%);
-  aspect-ratio: 80 / 35;
+  bottom: 0.197em;
+  width: 1.404em;
+  aspect-ratio: 120 / 146;
   height: auto;
   transform: translateX(-50%);
+  pointer-events: none;
 }
-/* No cycle yet: the dash sits much lower than digits do. */
+.capy-peek-back {
+  z-index: -1;
+}
+.capy-peek-front {
+  z-index: 1;
+}
 .dial-day.muted .capy-peek {
-  bottom: 0.44em;
+  bottom: -0.195em;
 }
 .capy-full {
-  width: 62%;
+  width: 66%;
   flex: none;
 }
-.capy-fur {
-  fill: var(--capy-fur);
+
+.capy-texture {
+  opacity: 0.32;
 }
-.capy-shade {
-  fill: var(--capy-shade);
-}
-.capy-muzzle {
-  fill: var(--capy-muzzle);
-}
-.capy-ear {
-  fill: var(--capy-ear);
-}
-.capy-ink {
-  fill: var(--capy-ink);
-}
-.capy-nostril {
-  opacity: 0.55;
+.capy-tex {
+  fill: none;
+  stroke: var(--capy-fur-dark);
+  stroke-width: 0.7;
+  stroke-linecap: round;
 }
 .capy-shine {
   fill: var(--capy-shine);
 }
-.capy-blush {
-  fill: var(--capy-blush);
-  opacity: 0.6;
+.capy-shine-soft {
+  opacity: 0.8;
+}
+.capy-shine-nose {
+  opacity: 0.45;
+}
+.capy-nostril {
+  fill: var(--capy-ink);
+  opacity: 0.7;
+}
+.capy-claw {
+  fill: var(--capy-claw);
 }
 .capy-tongue {
   fill: var(--capy-blush);
 }
+.capy-mouth-open {
+  fill: var(--capy-nose);
+}
+.capy-snout-edge {
+  fill: none;
+  stroke: var(--capy-fur-dark);
+  stroke-width: 3;
+  opacity: 0.22;
+}
+.capy-fluff {
+  fill: var(--capy-blanket-light);
+}
+.capy-blanket-dot {
+  fill: var(--capy-shine);
+  opacity: 0.35;
+}
+.capy-mug-rim {
+  fill: var(--capy-mug-light);
+}
+.capy-mug-heart {
+  fill: var(--capy-shine);
+  opacity: 0.75;
+}
 .capy-line,
-.capy-tuft,
+.capy-lid,
+.capy-lash,
+.capy-mouth,
+.capy-toe,
+.capy-crease,
+.capy-stem,
+.capy-vein,
 .capy-arm,
+.capy-arm-light,
 .capy-mug-handle,
+.capy-mug-shine,
 .capy-steam,
-.capy-blanket-stripe,
-.capy-sprout-stem,
 .capy-z {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.capy-line {
+.capy-line-eye {
   stroke: var(--capy-ink);
-  stroke-width: 2.2;
+  stroke-width: 3.2;
 }
-.capy-tuft {
-  stroke: var(--capy-shade);
-  stroke-width: 2.2;
-}
-.capy-philtrum {
+.capy-lid {
+  stroke: var(--capy-fur-dark);
   stroke-width: 1.6;
+  opacity: 0.8;
+}
+.capy-lash {
+  stroke: var(--capy-ink);
+  stroke-width: 1.6;
+}
+.capy-mouth {
+  stroke: var(--capy-nose);
+  stroke-width: 2;
+}
+.capy-toe,
+.capy-crease {
+  stroke: var(--capy-fur-dark);
+  stroke-width: 1.4;
+  opacity: 0.45;
+}
+.capy-crease {
+  stroke-width: 2.4;
+  opacity: 0.3;
+}
+.capy-stem {
+  stroke: var(--follicular);
+  stroke-width: 2.2;
+}
+.capy-vein {
+  stroke: var(--capy-leaf-light);
+  stroke-width: 1;
+  opacity: 0.8;
 }
 .capy-arm {
   stroke: var(--capy-fur);
-  stroke-width: 10;
+  stroke-width: 19;
 }
-.capy-mug {
-  fill: var(--menstruation);
+.capy-arm-light {
+  stroke: var(--capy-fur-light);
+  stroke-width: 6;
+  opacity: 0.55;
 }
 .capy-mug-handle {
   stroke: var(--menstruation);
-  stroke-width: 3.2;
+  stroke-width: 6;
 }
-.capy-tea-top {
-  fill: var(--capy-shade);
+.capy-mug-shine {
+  stroke: var(--capy-shine);
+  stroke-width: 3;
+  opacity: 0.4;
 }
 .capy-steam {
   stroke: var(--capy-steam);
-  stroke-width: 2;
-}
-.capy-blanket {
-  fill: var(--luteal);
-}
-.capy-blanket-stripe {
-  stroke: var(--luteal-tint);
-  stroke-width: 2.5;
-  opacity: 0.7;
-}
-.capy-sprout-stem {
-  stroke: var(--follicular);
-  stroke-width: 2.4;
-}
-.capy-sprout,
-.capy-sparkle-follicular,
-.capy-yuzu-leaf {
-  fill: var(--follicular);
-}
-.capy-yuzu-fruit,
-.capy-sparkle-ovulation {
-  fill: var(--ovulation);
+  stroke-width: 3;
 }
 .capy-z {
   stroke: var(--luteal);
-  stroke-width: 2;
+  stroke-width: 3.2;
 }
 
-/* Small, slow movements: breathing and blinking while hiding, a little life while in front. */
+/* Small, slow movements: breathing, blinking, an ear and a paw while hiding; a little life in front. */
 @media (prefers-reduced-motion: no-preference) {
   .capy-bob {
     animation: capy-breathe 4.8s ease-in-out infinite;
@@ -1342,15 +1455,26 @@ details.table-view > summary {
     transform-origin: center;
     animation: capy-blink 5.5s ease-in-out infinite;
   }
+  .capy-peek .capy-ear-r {
+    transform-box: fill-box;
+    transform-origin: 30% 90%;
+    animation: capy-ear 7s ease-in-out infinite;
+  }
+  .capy-peek .capy-paw-r {
+    animation: capy-tap 6s ease-in-out 1.5s infinite;
+  }
   .dial-flip[data-flipped] .capy-steam {
     animation: capy-steam 2.4s ease-in-out infinite;
   }
   .dial-flip[data-flipped] .capy-steam-2 {
-    animation-delay: 1.2s;
+    animation-delay: 0.8s;
+  }
+  .dial-flip[data-flipped] .capy-steam-3 {
+    animation-delay: 1.6s;
   }
   .dial-flip[data-flipped] .capy-wave {
     transform-box: view-box;
-    transform-origin: 80px 82px;
+    transform-origin: 136px 126px;
     animation: capy-wave 1.4s ease-in-out infinite;
   }
   .dial-flip[data-flipped] .capy-sparkles > path {
@@ -1364,8 +1488,11 @@ details.table-view > summary {
   .dial-flip[data-flipped] .capy-sparkles > path:nth-child(3) {
     animation-delay: 1.2s;
   }
+  .dial-flip[data-flipped] .capy-flower,
   .dial-flip[data-flipped] .capy-yuzu {
-    animation: capy-hop 1.6s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: capy-sway 2.4s ease-in-out infinite;
   }
   .dial-flip[data-flipped] .capy-z {
     animation: capy-float 3s ease-in-out infinite;
@@ -1376,7 +1503,7 @@ details.table-view > summary {
 }
 @keyframes capy-breathe {
   50% {
-    transform: translateY(2.5px);
+    transform: translateY(1.4px);
   }
 }
 @keyframes capy-blink {
@@ -1386,20 +1513,52 @@ details.table-view > summary {
     transform: scaleY(1);
   }
   95% {
-    transform: scaleY(0.12);
+    transform: scaleY(0.1);
+  }
+}
+@keyframes capy-ear {
+  0%,
+  86%,
+  100% {
+    transform: rotate(0deg);
+  }
+  89% {
+    transform: rotate(-14deg);
+  }
+  92% {
+    transform: rotate(4deg);
+  }
+  95% {
+    transform: rotate(-8deg);
+  }
+}
+@keyframes capy-tap {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  85% {
+    transform: translateY(-2.5px);
+  }
+  90% {
+    transform: translateY(0);
+  }
+  94% {
+    transform: translateY(-1.5px);
   }
 }
 @keyframes capy-steam {
   0% {
     opacity: 0;
-    transform: translateY(3px);
+    transform: translateY(4px);
   }
   40% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateY(-6px);
   }
 }
 @keyframes capy-wave {
@@ -1408,7 +1567,7 @@ details.table-view > summary {
     transform: rotate(-6deg);
   }
   50% {
-    transform: rotate(12deg);
+    transform: rotate(10deg);
   }
 }
 @keyframes capy-twinkle {
@@ -1422,19 +1581,19 @@ details.table-view > summary {
     transform: scale(0.6);
   }
 }
-@keyframes capy-hop {
+@keyframes capy-sway {
   0%,
   100% {
-    transform: translateY(0);
+    transform: rotate(-5deg);
   }
   50% {
-    transform: translateY(-2.5px);
+    transform: rotate(5deg);
   }
 }
 @keyframes capy-float {
   0% {
     opacity: 0;
-    transform: translateY(3px);
+    transform: translateY(4px);
   }
   30%,
   70% {
@@ -1442,6 +1601,6 @@ details.table-view > summary {
   }
   100% {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px);
   }
 }
