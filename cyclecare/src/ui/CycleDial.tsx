@@ -1,12 +1,20 @@
+import { useEffect, useState } from 'react';
 import { diffDays } from '../domain/dates';
+import { MASCOT_SHOW_MS, mascotMessage, type MascotMood } from '../domain/mascot';
 import { FERTILE_DAYS_AFTER, FERTILE_DAYS_BEFORE, ovulationOffset, phaseAt, type Timeline } from '../domain/prediction';
 import type { Phase } from '../domain/types';
 import { strings } from '../i18n';
+import { Capybara, CapybaraPeek } from './Capybara';
+import { haptic } from './haptics';
 
 /**
  * The cycle as a dial: day 1 at the top, clockwise. Phase arcs are estimates for the running cycle,
  * the bead marks today, the dashed arc at the top is the interval in which the next period is expected,
  * and the dotted arc marks the estimated fertile days.
+ *
+ * The middle of the dial is a card that turns over: on the front the cycle day, with a capybara
+ * peeking over the number; on the back the capybara itself, in a pose for the phase, with a short
+ * message. It turns back on a second tap or after a few seconds.
  */
 
 const SIZE = 280;
@@ -62,7 +70,89 @@ export function phaseSpans(timeline: Timeline, showFertility: boolean): { spans:
 
 const strokeOf = (kind: SpanKind) => (kind === 'overdue' || kind === 'rest' ? 'var(--line-strong)' : `var(--${kind})`);
 
-export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: Timeline; showFertility: boolean; phaseLabel: string }) {
+/** The turning middle of the dial. `text` is what the front shows; `number` is the part the capybara hides behind. */
+function DialCenter({
+  text,
+  number,
+  phaseLabel,
+  mood,
+  cycleDay,
+  muted,
+}: {
+  text: string;
+  number: string;
+  phaseLabel?: string;
+  mood: MascotMood;
+  cycleDay: number;
+  muted?: boolean;
+}) {
+  const s = strings();
+  const [flipped, setFlipped] = useState(false);
+  // Counts the showings, so each one brings the next message.
+  const [turn, setTurn] = useState(0);
+  const message = mascotMessage(s.mascot.messages[mood], cycleDay, turn);
+
+  useEffect(() => {
+    if (!flipped) return;
+    const timer = setTimeout(() => setFlipped(false), MASCOT_SHOW_MS);
+    return () => clearTimeout(timer);
+  }, [flipped, turn]);
+
+  const toggle = () => {
+    haptic('light');
+    if (!flipped) setTurn((t) => t + 1);
+    setFlipped(!flipped);
+  };
+
+  const front = muted ? s.mascot.show : `${text}${phaseLabel ? `, ${phaseLabel}` : ''}. ${s.mascot.show}`;
+  const label = flipped ? `${message} ${s.mascot.hide}` : front;
+  const at = text.lastIndexOf(number);
+  const before = at >= 0 ? text.slice(0, at) : text;
+  const after = at >= 0 ? text.slice(at + number.length) : '';
+
+  return (
+    <>
+      <div className="dial-center">
+        {/* Named after the face that shows, so the name always contains the visible text. */}
+        <button type="button" className="dial-flip" data-flipped={flipped || undefined} aria-label={label} onClick={toggle}>
+          <span className="dial-card">
+            <span className="dial-face dial-front" aria-hidden="true">
+              <span className={muted ? 'dial-day muted' : 'dial-day'}>
+                {before}
+                <span className="dial-num">
+                  <CapybaraPeek />
+                  {at >= 0 ? number : ''}
+                </span>
+                {after}
+              </span>
+              {/* A space between the lines, so tools that join the text read "Ziua 12 Faza…", as the name does. */}{' '}
+              {phaseLabel && <span className="dial-phase">{phaseLabel}</span>}
+            </span>
+            <span className="dial-face dial-back" data-mood={mood} aria-hidden="true">
+              <Capybara mood={mood} />
+              <span className="dial-say">{message}</span>
+            </span>
+          </span>
+        </button>
+      </div>
+      <p className="sr-only" aria-live="polite">
+        {flipped ? message : ''}
+      </p>
+    </>
+  );
+}
+
+export function CycleDial({
+  timeline,
+  showFertility,
+  phaseLabel,
+  mood,
+}: {
+  timeline: Timeline;
+  showFertility: boolean;
+  phaseLabel: string;
+  mood: MascotMood;
+}) {
   const s = strings();
   const { prediction } = timeline;
   const current = prediction.current;
@@ -71,13 +161,11 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
 
   if (!current) {
     return (
-      <div className="dial-wrap" role="img" aria-label={s.today.dialEmpty}>
-        <svg className="dial" viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
+      <div className="dial-wrap">
+        <svg className="dial" viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label={s.today.dialEmpty}>
           <circle cx={C} cy={C} r={R} fill="none" stroke="var(--line)" strokeWidth={RING} />
         </svg>
-        <div className="dial-center" aria-hidden="true">
-          <span className="dial-day muted">–</span>
-        </div>
+        <DialCenter text="–" number="–" mood="hello" cycleDay={0} muted />
       </div>
     );
   }
@@ -92,8 +180,8 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
   const ticks = [1, 7, 14, 21, 28, 35, 42].filter((d) => d <= total && (d === 1 || total - d >= 3));
 
   return (
-    <div className="dial-wrap" role="img" aria-label={s.today.dialLabel(current.cycleDay, phaseLabel)}>
-      <svg className="dial" viewBox={`0 0 ${SIZE} ${SIZE}`} aria-hidden="true">
+    <div className="dial-wrap">
+      <svg className="dial" viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label={s.today.dialLabel(current.cycleDay, phaseLabel)}>
         {spans.map((span) => (
           <path
             key={span.from}
@@ -133,10 +221,13 @@ export function CycleDial({ timeline, showFertility, phaseLabel }: { timeline: T
         <circle cx={bx} cy={by} r={15} fill="var(--surface)" stroke="var(--ink)" strokeWidth={3.5} />
         <circle cx={bx} cy={by} r={4.5} fill="var(--ink)" />
       </svg>
-      <div className="dial-center" aria-hidden="true">
-        <span className="dial-day">{s.today.cycleDay(current.cycleDay)}</span>
-        {phaseLabel && <span className="dial-phase">{phaseLabel}</span>}
-      </div>
+      <DialCenter
+        text={s.today.cycleDay(current.cycleDay)}
+        number={String(current.cycleDay)}
+        phaseLabel={phaseLabel}
+        mood={mood}
+        cycleDay={current.cycleDay}
+      />
     </div>
   );
 }

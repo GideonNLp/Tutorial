@@ -32,6 +32,14 @@
   --on-heat-2: #1F1B3A;
   --on-heat-3: #FFFFFF;
   --on-heat-4: #FFFFFF;
+  --capy-fur: #B07A52;
+  --capy-shade: #8A5A3A;
+  --capy-muzzle: #D6A77F;
+  --capy-ear: #E2A196;
+  --capy-ink: #2B1D24;
+  --capy-blush: #EE9AA6;
+  --capy-shine: #FFFFFF;
+  --capy-steam: rgba(255, 255, 255, 0.9);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -68,6 +76,14 @@
     --on-heat-2: #F1EEF8;
     --on-heat-3: #14121E;
     --on-heat-4: #14121E;
+    --capy-fur: #A87652;
+    --capy-shade: #7C5236;
+    --capy-muzzle: #C99A72;
+    --capy-ear: #D08B86;
+    --capy-ink: #1E141C;
+    --capy-blush: #D97C8C;
+    --capy-shine: #FFF4EC;
+    --capy-steam: rgba(255, 244, 236, 0.85);
     color-scheme: dark;
   }
 }
@@ -104,5 +120,13 @@
   --on-heat-2: #F1EEF8;
   --on-heat-3: #14121E;
   --on-heat-4: #14121E;
+  --capy-fur: #A87652;
+  --capy-shade: #7C5236;
+  --capy-muzzle: #C99A72;
+  --capy-ear: #D08B86;
+  --capy-ink: #1E141C;
+  --capy-blush: #D97C8C;
+  --capy-shine: #FFF4EC;
+  --capy-steam: rgba(255, 244, 236, 0.85);
   color-scheme: dark;
 }

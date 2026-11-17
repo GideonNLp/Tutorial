@@ -14,6 +14,7 @@ import { FLOWS, type Flow } from '../domain/types';
 import { formatDate, formatRange, strings } from '../i18n';
 import { ChoiceChips } from '../ui/controls';
 import { CycleDial, phaseSpans } from '../ui/CycleDial';
+import { mascotMood } from '../domain/mascot';
 import { InstallCard } from '../ui/InstallApp';
 import { Notice, Screen } from '../ui/Shell';
 import { flagText, summarizeLog, visiblePhase } from '../ui/summaries';
@@ -56,6 +57,7 @@ export function TodayScreen() {
   }, [phase, today]);
 
   const phaseLabel = late ? s.today.late : todayInfo.periodLogged && current ? s.phase.menstruation : phase ? s.phase[phase] : '';
+  const mood = mascotMood(todayInfo.periodLogged && current ? 'menstruation' : phase, late);
   const { spans } = phaseSpans(timeline, showFertility);
   const forecast = prediction.forecasts[0];
   const summary = summarizeLog(todayLog, data.profile.showIntimacy);
@@ -256,7 +258,7 @@ export function TodayScreen() {
             <h2 id="cycle-heading" className="sr-only">
               {s.today.legendTitle}
             </h2>
-            <CycleDial timeline={timeline} showFertility={showFertility} phaseLabel={phaseLabel} />
+            <CycleDial timeline={timeline} showFertility={showFertility} phaseLabel={phaseLabel} mood={mood} />
             {current ? (
               <ul className="phase-legend" aria-label={s.today.legendTitle}>
                 {spans.map((span) => (

@@ -42,6 +42,9 @@ const PAIRS: Array<[string, string, number]> = [
   ['on-danger', 'danger', 4.5],
   ['attention-line', 'attention-bg', 3],
   ...[1, 2, 3, 4].map((n): [string, string, number] => [`on-heat-${n}`, `heat-${n}`, 4.5]),
+  // The mascot: eyes readable on the fur, the fur visible on the card in both themes.
+  ['capy-ink', 'capy-fur', 3],
+  ['capy-fur', 'surface', 3],
 ];
 
 describe('design tokens', () => {
