@@ -394,7 +394,7 @@ function ExportSheet({ open, onClose }: { open: boolean; onClose: () => void }) 
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             {s.common.cancel}
           </button>
-          <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void generate()}>
+          <button type="button" className="btn btn-primary" disabled={busy} aria-busy={busy || undefined} onClick={() => void generate()}>
             {busy ? e.generating : e.generate}
           </button>
         </div>

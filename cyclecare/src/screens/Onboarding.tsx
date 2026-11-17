@@ -8,7 +8,7 @@ import { DEFAULT_CYCLE_LENGTH, DEFAULT_PERIOD_LENGTH } from '../domain/predictio
 import { GOALS, type Goal, type ISODate } from '../domain/types';
 import { strings } from '../i18n';
 import { ErrorText, MultiChips, Stepper, Switch } from '../ui/controls';
-import { PIN_PATTERN, PinFields } from '../ui/PinFields';
+import { PinFields, validateNewPin, type PinError } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
 import { Sheet } from '../ui/Sheet';
 import { StepStack } from '../ui/StepStack';
@@ -35,7 +35,7 @@ export function Onboarding() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [pin, setPin] = useState('');
   const [pinRepeat, setPinRepeat] = useState('');
-  const [pinError, setPinError] = useState<string | undefined>(undefined);
+  const [pinError, setPinError] = useState<PinError | undefined>(undefined);
   const [reminder, setReminder] = useState(false);
 
   const [forward, setForward] = useState(true);
@@ -52,8 +52,8 @@ export function Onboarding() {
 
   const finish = async () => {
     if (pin || pinRepeat) {
-      if (!PIN_PATTERN.test(pin)) return setPinError(o.finish.pinInvalid);
-      if (pin !== pinRepeat) return setPinError(o.finish.pinMismatch);
+      const invalid = validateNewPin(pin, pinRepeat, { invalid: o.finish.pinInvalid, mismatch: o.finish.pinMismatch });
+      if (invalid) return setPinError(invalid);
     }
     setBusy(true);
     try {
@@ -334,7 +334,7 @@ export function Onboarding() {
           />
         </section>
       </>,
-      <button type="button" className="btn btn-primary btn-block" disabled={busy} onClick={() => void finish()}>
+      <button type="button" className="btn btn-primary btn-block" disabled={busy} aria-busy={busy || undefined} onClick={() => void finish()}>
         {busy ? s.common.loading : o.finish.open}
       </button>,
     );

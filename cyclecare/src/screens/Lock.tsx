@@ -97,7 +97,7 @@ export function LockScreen() {
           <div id="unlock-message" aria-live="assertive">
             {waiting > 0 ? <ErrorText>{l.paused(waiting)}</ErrorText> : message ? <ErrorText>{message}</ErrorText> : null}
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={busy || waiting > 0 || pin.length < 4}>
+          <button type="submit" className="btn btn-primary btn-block" disabled={busy || waiting > 0 || pin.length < 4} aria-busy={busy || undefined}>
             {l.unlock}
           </button>
           {hasBiometric && (

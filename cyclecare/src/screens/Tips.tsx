@@ -33,7 +33,18 @@ export function TipsScreen() {
 
   const dismiss = (id: string) => {
     update((d) => ({ ...d, dismissedFlags: { ...d.dismissedFlags, [id]: today } }));
-    toast(t.flags.dismissed);
+    toast(t.flags.dismissed, {
+      action: {
+        label: s.common.undo,
+        run: () => {
+          update((d) => {
+            const { [id]: _removed, ...rest } = d.dismissedFlags;
+            return { ...d, dismissedFlags: rest };
+          });
+          toast(t.flags.restored);
+        },
+      },
+    });
   };
 
   return (

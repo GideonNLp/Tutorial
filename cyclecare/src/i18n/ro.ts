@@ -31,6 +31,7 @@ export const ro = {
     next: 'Continuă',
     skip: 'Sari peste',
     cancel: 'Renunță',
+    undo: 'Anulează',
     close: 'Închide',
     add: 'Adaugă',
     saved: 'Salvat',
@@ -398,6 +399,7 @@ export const ro = {
     overwrite: 'Înlocuiește valorile notate cu cele din fișier',
     confirm: 'Importă',
     done: (n: number) => `Am importat ${count(n, 'temperatură', 'temperaturi', 'de temperaturi')}.`,
+    undone: 'Importul a fost anulat.',
     problem: {
       empty: 'Fișierul este gol.',
       no_date_column: 'Nu am găsit o coloană cu data.',
@@ -414,6 +416,7 @@ export const ro = {
       intro: 'Observații făcute pe baza a ceea ce ai notat. Nu sunt un diagnostic.',
       dismiss: 'Am înțeles',
       dismissed: 'Observația a fost ascunsă pentru 30 de zile.',
+      restored: 'Observația este din nou afișată.',
     },
     phase: {
       title: 'Pentru faza în care ești',
@@ -568,6 +571,9 @@ export const ro = {
       pillName: 'Pilula',
       medName: 'Denumire',
       medNamePlaceholder: 'de exemplu: Pilula, Fier, Magneziu',
+      medNameRequired: 'Scrie o denumire, ca să știi pentru ce este memento-ul.',
+      medRemoved: (name: string) => `Memento-ul pentru ${name} a fost eliminat.`,
+      medRestored: 'Memento-ul a fost pus la loc.',
       medDays: 'Zilele',
       everyDay: 'În fiecare zi',
       removeMedication: (name: string) => `Elimină memento-ul pentru ${name}`,
@@ -640,6 +646,7 @@ export const ro = {
         `Fișierul conține ${count(days, 'zi notată', 'zile notate', 'de zile notate')}. Jurnalul și setările actuale vor fi înlocuite.`,
       importConfirm: 'Înlocuiește',
       imported: 'Datele au fost restaurate.',
+      importUndone: 'Am revenit la datele dinainte de restaurare.',
       importError: {
         not_json: `Fișierul nu este un export ${APP_NAME} valid.`,
         not_cyclecare: `Fișierul nu este un export ${APP_NAME}.`,

@@ -541,6 +541,26 @@ main:focus {
   opacity: 0.55;
   cursor: not-allowed;
 }
+/* Working on it: a small spinner joins the label, so the wait is visible even when the text stays the same. */
+.btn[aria-busy='true'] {
+  opacity: 0.8;
+  cursor: progress;
+}
+.btn[aria-busy='true']::before {
+  content: '';
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .icon-btn {
   display: inline-grid;

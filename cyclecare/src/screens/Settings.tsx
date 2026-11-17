@@ -45,7 +45,7 @@ import { exportBackup, parseBackup } from '../storage/backup';
 import { biometricsAvailable } from '../storage/webauthn';
 import { ErrorText, MultiChips, Segmented, Stepper, Switch } from '../ui/controls';
 import { ImportTempsSheet } from '../ui/ImportTempsSheet';
-import { PIN_PATTERN, PinFields } from '../ui/PinFields';
+import { PinFields, validateNewPin } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
 import { Notice, Screen } from '../ui/Shell';
@@ -201,6 +201,9 @@ function ReminderSettingsScreen() {
   const data = useData();
   const reminders = data.reminders;
   const [status, setStatus] = useState<NotificationStatus>(notificationStatus());
+  // A name is asked for once the person has left the field empty, not while they are still getting to it.
+  const [touched, setTouched] = useState<string[]>([]);
+  const nameMissing = (med: MedicationReminder) => med.name.trim() === '' && touched.includes(med.id);
   const set = (patch: Partial<ReminderSettings>) => update((d) => ({ ...d, reminders: { ...d.reminders, ...patch } }));
   const setMed = (id: string, patch: Partial<MedicationReminder>) =>
     set({ medications: reminders.medications.map((m) => (m.id === id ? { ...m, ...patch } : m)) });
@@ -208,6 +211,26 @@ function ReminderSettingsScreen() {
     set({
       medications: [...reminders.medications, { id: `med-${Date.now().toString(36)}`, name, time: '21:00', weekdays: [], enabled: true }],
     });
+
+  // Removing is immediate; the toast offers to put the reminder back where it was.
+  const removeMed = (med: MedicationReminder) => {
+    const index = reminders.medications.findIndex((m) => m.id === med.id);
+    set({ medications: reminders.medications.filter((m) => m.id !== med.id) });
+    toast(r.medRemoved(med.name.trim() || r.medName), {
+      action: {
+        label: s.common.undo,
+        run: () => {
+          update((d) => {
+            if (d.reminders.medications.some((m) => m.id === med.id)) return d;
+            const medications = [...d.reminders.medications];
+            medications.splice(Math.min(index, medications.length), 0, med);
+            return { ...d, reminders: { ...d.reminders, medications } };
+          });
+          toast(r.medRestored);
+        },
+      },
+    });
+  };
 
   const timing = (key: 'period' | 'fertile', title: string, repeatLabel: string, disabledNote?: string) => {
     const value = reminders[key];
@@ -301,7 +324,10 @@ function ReminderSettingsScreen() {
                     value={med.name}
                     maxLength={60}
                     placeholder={r.medNamePlaceholder}
+                    aria-invalid={nameMissing(med) || undefined}
+                    aria-describedby={nameMissing(med) ? `${med.id}-name-error` : undefined}
                     onChange={(e) => setMed(med.id, { name: e.target.value })}
+                    onBlur={() => setTouched((ids) => (ids.includes(med.id) ? ids : [...ids, med.id]))}
                   />
                 </div>
                 <div className="field">
@@ -317,6 +343,7 @@ function ReminderSettingsScreen() {
                   />
                 </div>
               </div>
+              {nameMissing(med) && <ErrorText id={`${med.id}-name-error`}>{r.medNameRequired}</ErrorText>}
               <Switch
                 label={r.everyDay}
                 checked={med.weekdays.length === 0}
@@ -352,11 +379,7 @@ function ReminderSettingsScreen() {
                 </div>
               </div>
               <div>
-                <button
-                  type="button"
-                  className="btn btn-quiet btn-small"
-                  onClick={() => set({ medications: reminders.medications.filter((m) => m.id !== med.id) })}
-                >
+                <button type="button" className="btn btn-quiet btn-small" onClick={() => removeMed(med)}>
                   <Trash2 size={16} aria-hidden="true" />
                   {r.removeMedication(med.name || r.medName)}
                 </button>
@@ -397,7 +420,8 @@ function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void
   const [current, setCurrent] = useState('');
   const [pin, setPinValue] = useState('');
   const [repeat, setRepeat] = useState('');
-  const [error, setError] = useState<string | undefined>(undefined);
+  // Each message is shown under the field it is about; `form` is for failures that belong to none.
+  const [error, setError] = useState<{ field: 'current' | 'pin' | 'repeat' | 'form'; message: string } | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -413,7 +437,7 @@ function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void
     try {
       if (mode !== 'set' && !(await verifyPin(current))) {
         haptic('warning');
-        return setError(p.wrongPin);
+        return setError({ field: 'current', message: p.wrongPin });
       }
       if (mode === 'remove') {
         await removePin();
@@ -421,14 +445,14 @@ function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void
         toast(p.pinRemoved);
         return onClose();
       }
-      if (!PIN_PATTERN.test(pin)) return setError(s.onboarding.finish.pinInvalid);
-      if (pin !== repeat) return setError(s.onboarding.finish.pinMismatch);
+      const invalid = validateNewPin(pin, repeat, { invalid: s.onboarding.finish.pinInvalid, mismatch: s.onboarding.finish.pinMismatch });
+      if (invalid) return setError(invalid);
       await setPin(pin);
       haptic('success');
       toast(p.pinSet);
       onClose();
     } catch {
-      setError(s.errors.generic);
+      setError({ field: 'form', message: s.errors.generic });
     } finally {
       setBusy(false);
     }
@@ -457,11 +481,14 @@ function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void
               autoComplete="current-password"
               maxLength={8}
               value={current}
+              aria-invalid={error?.field === 'current' || undefined}
+              aria-describedby={error?.field === 'current' ? `${currentId}-error` : undefined}
               onChange={(e) => {
                 setCurrent(e.target.value.replace(/\D/g, '').slice(0, 8));
                 setError(undefined);
               }}
             />
+            {error?.field === 'current' && <ErrorText id={`${currentId}-error`}>{error.message}</ErrorText>}
           </div>
         )}
         {mode !== 'remove' && (
@@ -479,16 +506,17 @@ function PinSheet({ mode, onClose }: { mode: PinMode | null; onClose: () => void
                 setRepeat(v);
                 setError(undefined);
               }}
+              error={error?.field === 'pin' || error?.field === 'repeat' ? { field: error.field, message: error.message } : undefined}
             />
             <p className="caption">{s.onboarding.finish.pinWarning}</p>
           </>
         )}
-        {error && <ErrorText>{error}</ErrorText>}
+        {error?.field === 'form' && <ErrorText>{error.message}</ErrorText>}
         <div className="sheet-actions">
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             {s.common.cancel}
           </button>
-          <button type="submit" className={mode === 'remove' ? 'btn btn-danger' : 'btn btn-primary'} disabled={busy}>
+          <button type="submit" className={mode === 'remove' ? 'btn btn-danger' : 'btn btn-primary'} disabled={busy} aria-busy={busy || undefined}>
             {title}
           </button>
         </div>
@@ -732,9 +760,20 @@ function DataSettings() {
         confirmLabel={d.importConfirm}
         onCancel={() => setPending(null)}
         onConfirm={() => {
+          const before = data;
           if (pending) replaceJournal(pending);
           setPending(null);
-          toast(d.imported);
+          haptic('success');
+          toast(d.imported, {
+            action: {
+              label: s.common.undo,
+              run: () => {
+                replaceJournal(before);
+                toast(d.importUndone);
+              },
+            },
+            duration: 10000,
+          });
         }}
       />
     </Screen>

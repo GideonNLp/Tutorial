@@ -89,7 +89,25 @@ export function ImportTempsSheet({ open, onClose }: { open: boolean; onClose: ()
         ],
       };
     });
-    toast(t.done(readings.length));
+    // Undo puts back the temperatures and the import history exactly as they were.
+    const before = data;
+    toast(t.done(readings.length), {
+      action: {
+        label: strings().common.undo,
+        run: () => {
+          update((d) => {
+            const logs: DayLogs = { ...d.logs };
+            for (const r of readings) {
+              const previous = before.logs[r.date];
+              if (previous) logs[r.date] = previous;
+              else delete logs[r.date];
+            }
+            return { ...d, logs, importBatches: before.importBatches };
+          });
+          toast(t.undone);
+        },
+      },
+    });
     close();
   };
 
