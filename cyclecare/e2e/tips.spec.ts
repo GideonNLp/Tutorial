@@ -75,6 +75,7 @@ test('"Alte idei ↻" shows another set at once, and the set changes with the da
   expect(await titles(page)).not.toEqual(more);
 
   // A new day of the cycle starts from a different place, without pressing anything.
+  await page.waitForTimeout(800); // let the restored journal reach IndexedDB before the restart
   await page.clock.setSystemTime(new Date('2026-11-16T09:00:00+02:00'));
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
