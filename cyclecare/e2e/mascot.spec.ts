@@ -13,11 +13,13 @@ test('the capybara peeks over the day number and turns the dial over when tapped
   const ring = today.getByRole('img', { name: 'Ziua 12 a ciclului, Faza foliculară' });
   const center = today.locator('.dial-flip');
 
-  // Hiding: only the top of the head shows, behind the number, and it does not cover it.
-  await expect(today.locator('.dial-num .capy-peek')).toBeVisible();
+  // Hiding: head and body behind the day text, the paws resting on the digits, in front of them.
+  await expect(today.locator('.dial-num .capy-peek-back')).toBeVisible();
+  await expect(today.locator('.dial-num .capy-peek-front')).toBeVisible();
+  expect(await today.locator('.capy-peek-front').evaluate((el) => getComputedStyle(el).zIndex)).toBe('1');
   await expect(center).toHaveAccessibleName('Ziua 12, Faza foliculară. Arată capibara');
   await expect(center).not.toHaveAttribute('data-flipped');
-  const peekZ = await today.locator('.capy-peek').evaluate((el) => getComputedStyle(el).zIndex);
+  const peekZ = await today.locator('.capy-peek-back').evaluate((el) => getComputedStyle(el).zIndex);
   expect(peekZ).toBe('-1');
 
   // A tap turns the card: the capybara in its follicular pose, with a short message read out.
