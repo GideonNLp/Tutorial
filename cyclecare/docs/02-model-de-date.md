@@ -1,6 +1,6 @@
 # Modelul de date
 
-Tipurile sunt definite în `src/domain/types.ts`; stocarea este în `src/storage/`. Documentul descrie întâi modelul logic (entități și relații), apoi felul în care prototipul îl păstrează criptat pe dispozitiv și cum s-ar transpune într-o bază de date relațională pentru aplicația nativă.
+Tipurile sunt definite în `src/domain/types.ts`; stocarea este în `src/storage/`. Documentul descrie întâi modelul logic (entități și relații), apoi felul în care aplicația web îl păstrează criptat pe dispozitiv și cum s-ar transpune într-o bază de date relațională pentru aplicația nativă.
 
 ## 1. Principii
 
@@ -34,7 +34,6 @@ erDiagram
         int durata_menstruatie "2-10, opțional"
         bool arata_fertilitatea
         timestamp inregistrat_la
-        bool date_demonstrative
         int versiune_schema
     }
     ACORD {
@@ -107,7 +106,6 @@ Unul singur pe instalare. Nu identifică persoana.
 | `typicalPeriodLength` | întreg, opțional | 2–10 | Durata declarată a menstruației |
 | `showFertility` | boolean | implicit `true` | Oprit: se afișează doar menstruația, fără faze estimate și fără fertilitate |
 | `onboardedAt` | moment | – | Când s-a încheiat prima configurare |
-| `demo` | boolean, opțional | – | Jurnalul conține date demonstrative; afișat ca anunț |
 | `schemaVersion` | întreg | acum `1` | Pentru migrări |
 
 În cod, ultimele trei câmpuri stau pe documentul-rădăcină (`AppData`), alături de profil; logic, descriu aceeași instalare.
@@ -177,7 +175,7 @@ Toate sunt funcții pure: aceleași date de intrare dau același rezultat. Algor
 
 Nu sunt date ale persoanei și nu se modifică la folosire: sfaturile pe faze și pe simptome și mesajele observațiilor (`src/content/<limbă>/tips.ts`, cu `TIPS_VERSION`), textele juridice (`src/content/<limbă>/legal.ts`, cu `LEGAL_VERSION`) și textele interfeței (`src/i18n/<limbă>.ts`).
 
-## 6. Cum sunt păstrate datele în prototip
+## 6. Cum sunt păstrate datele în aplicația web
 
 ### 6.1 Ce se află pe disc
 
@@ -215,7 +213,7 @@ Limite ale variantei web, de spus deschis: un PIN din cifre are puțină entropi
 
 ### 6.3 Criptarea în tranzit
 
-Prototipul nu transmite nimic: nu există server, iar politica de securitate a paginii (`connect-src 'self'`) blochează orice cerere către alt server. Dacă va exista vreodată o copie în cloud, datele trebuie criptate pe dispozitiv cu o cheie pe care serverul nu o cunoaște și transmise doar prin TLS 1.2 sau mai nou, după un acord separat.
+Aplicația nu transmite nimic: nu există server, iar politica de securitate a paginii (`connect-src 'self'`) blochează orice cerere către alt server. Dacă va exista vreodată o copie în cloud, datele trebuie criptate pe dispozitiv cu o cheie pe care serverul nu o cunoaște și transmise doar prin TLS 1.2 sau mai nou, după un acord separat.
 
 ## 7. Export și restaurare
 
@@ -247,7 +245,6 @@ CREATE TABLE profile (
   typical_period_length INTEGER CHECK (typical_period_length BETWEEN 2 AND 10),
   show_fertility        INTEGER NOT NULL DEFAULT 1,
   onboarded_at          TEXT,
-  is_demo               INTEGER NOT NULL DEFAULT 0,
   schema_version        INTEGER NOT NULL
 );
 CREATE TABLE profile_goal (

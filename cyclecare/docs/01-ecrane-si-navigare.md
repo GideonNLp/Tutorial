@@ -1,6 +1,6 @@
 # Structura ecranelor și fluxul de navigare
 
-Documentul descrie prototipul web așa cum este construit în `src/screens/`. Capturile sunt făcute din aplicație, cu datele demonstrative, la lățimea unui telefon (390 px); se regenerează cu `npm run docs:screenshots`.
+Documentul descrie aplicația așa cum este construită în `src/screens/` și `src/ui/`. Capturile sunt făcute din aplicație, cu un jurnal de test restaurat dintr-o copie de siguranță, la lățimea unui telefon (390 px); se regenerează cu `npm run docs:screenshots`.
 
 ## 1. Principii de structură
 
@@ -8,7 +8,8 @@ Documentul descrie prototipul web așa cum este construit în `src/screens/`. Ca
 - **Cinci file, mereu vizibile.** Bara de navigare stă jos pe telefon și devine o coloană în stânga de la 896 px lățime în sus. Setările se deschid din rotița din antetul fiecărui ecran.
 - **Culoarea înseamnă mereu o fază.** Butoanele și selecțiile folosesc culoarea textului; singurele culori saturate sunt cele patru faze ale ciclului, aceleași peste tot (cadran, calendar, legendă, sfaturi).
 - **Orice estimare este numită estimare** și este însoțită, acolo unde privește fertilitatea, de avertismentul că nu este un mijloc de contracepție.
-- **Nimic nu se pierde în tăcere.** Jurnalul se salvează la fiecare atingere; acțiunile care nu pot fi anulate cer o confirmare într-o fereastră a aplicației.
+- **Nimic nu se pierde în tăcere.** Jurnalul se salvează la fiecare atingere; acțiunile care nu pot fi anulate cer o confirmare într-o fereastră a aplicației, iar cele care pot fi anulate oferă „Anulează” în mesajul de confirmare.
+- **Se mișcă precum o aplicație de telefon.** Ecranele se împing și se retrag, ferestrele urcă de jos, iar ce ai lăsat în urmă (poziția în pagină, filtrele alese) te așteaptă la întoarcere. Detaliile sunt în secțiunea 10.
 
 ## 2. Harta de navigare
 
@@ -20,8 +21,6 @@ flowchart TD
     exista -- da, fără PIN --> today
 
     welcome -- Începe --> consent[Consimțământ]
-    welcome -- Date demonstrative --> consentDemo[Consimțământ]
-    consentDemo --> today
     consent --> q1[Ultima menstruație]
     q1 --> q2[Durata ciclului]
     q2 --> q3[Durata menstruației]
@@ -65,7 +64,7 @@ Dreptunghiurile duble sunt ferestre deschise peste ecran (foaie de jos pe telefo
 
 | Pas | Ecran | Ce cere | Poate fi sărit | Validare |
 |---|---|---|---|---|
-| – | Bun venit | Alegerea între „Începe” și „Explorează cu date demonstrative” | – | – |
+| – | Bun venit | Ce face aplicația, pe scurt, și butonul „Începe” | – | – |
 | 1 | Consimțământ | Două căsuțe nebifate: prelucrarea datelor privind sănătatea; vârsta de cel puțin 16 ani sau acordul unui părinte. Legătură către declarația de confidențialitate | nu | Fără ambele bife apare o eroare lângă căsuțe. „Nu sunt de acord” explică faptul că nu s-a salvat nimic |
 | 2 | Ultima menstruație | Data primei zile (selector nativ de dată, cel mult azi) | da: „Nu-mi amintesc” | Data din viitor este refuzată; o dată mai veche de 90 de zile primește o notă că estimările vor fi nesigure |
 | 3 | Durata ciclului | 21–45 de zile, pornind de la 28 | da: „Nu știu” | Valoarea este ținută în interval |
@@ -73,7 +72,7 @@ Dreptunghiurile duble sunt ferestre deschise peste ecran (foaie de jos pe telefo
 | 5 | Obiective | Contracepție, planificarea unei sarcini, urmărire generală, înțelegerea simptomelor (alegere multiplă) | da: „Sari peste” | La „Contracepție” apare imediat avertismentul că aplicația nu este un mijloc de contracepție |
 | 6 | Aproape gata | Opțional: PIN (de două ori) și un memento cu două zile înainte de menstruație | da: „Deschide CycleCare” | PIN de 4–8 cifre, identic în ambele câmpuri |
 
-Varianta cu date demonstrative trece prin consimțământ și apoi direct în aplicație, cu un jurnal inventat de șapte luni, marcat vizibil ca demonstrativ.
+Pașii se succed cu aceeași mișcare ca restul aplicației: următorul intră din dreapta, iar „Înapoi” îl retrage.
 
 <p>
 <img src="screenshots/01-bun-venit.png" width="230" alt="Ecranul de bun venit">
@@ -97,7 +96,7 @@ Ce se întâmplă cu răspunsurile:
 Răspunde la „unde sunt în ciclu și ce urmează?”.
 
 1. Antet: titlu, data de azi, rotița pentru setări.
-2. Anunțuri, doar dacă este cazul: date demonstrative (cu buton de ștergere); stocare indisponibilă.
+2. Anunț, doar dacă este cazul: stocare indisponibilă.
 3. **Cadranul ciclului.** Ziua 1 este sus, sensul este cel al acelor de ceas. Arcele sunt cele patru faze estimate, bila marchează ziua de azi, arcul întrerupt de sus este intervalul în care este așteptată următoarea menstruație, iar arcul punctat din exterior marchează zilele fertile estimate. În centru: „Ziua 12” și faza. Dedesubt, legenda cu zilele fiecărei faze.
 4. **Următoarea menstruație**: intervalul („Probabil între 29 noiembrie și 5 decembrie”), data cea mai probabilă, peste câte zile, precizia estimării și pe ce se bazează.
 5. **Fertilitate**: zilele fertile și ovulația estimate, cu avertismentul de contracepție. Lipsește dacă estimările de fertilitate sunt oprite.
@@ -185,9 +184,9 @@ Fiecare grafic are și varianta „Vezi datele ca tabel”, iar valorile pot fi 
 | Ciclul meu | Duratele obișnuite (sau „Nu știu”), obiectivele, comutatorul „Arată fazele ciclului și estimările de fertilitate” |
 | Memento-uri | Starea permisiunii de notificare; text discret; începutul menstruației estimate și zilele fertile (cu câte zile înainte, ora, repetare zilnică); pilulă și alte medicamente (denumire, oră, în fiecare zi sau în anumite zile) |
 | Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; unde sunt datele; partajarea cu terți; acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
-| Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor; date demonstrative |
+| Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor |
 | Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba |
-| Despre CycleCare | Versiunea, limitele aplicației, licențe |
+| Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal (buton acolo unde browserul îl oferă, instrucțiuni pe iOS), actualizarea la o versiune nouă, licențe |
 
 <p>
 <img src="screenshots/13-setari.png" width="230" alt="Lista de setări">
@@ -208,7 +207,7 @@ Apare la deschidere dacă există un PIN și atunci când aplicația a stat în 
 | Import temperaturi | Jurnal, Datele mele | Alege fișierul CSV, arată câte valori a găsit, cere confirmarea |
 | Raport pentru medic | Statistici | Perioada (3, 6 sau 12 luni), includerea notelor, generarea PDF-ului |
 | PIN | Confidențialitate și securitate | Setează, schimbă sau dezactivează PIN-ul |
-| Confirmări | Ștergere totală, retragerea acordului, restaurare, date demonstrative | Un pas explicit înaintea unei acțiuni care nu poate fi anulată |
+| Confirmări | Ștergere totală, retragerea acordului, restaurare | Un pas explicit înaintea unei acțiuni care nu poate fi anulată |
 
 ## 8. Stări speciale
 
@@ -218,7 +217,9 @@ Apare la deschidere dacă există un PIN și atunci când aplicația a stat în 
 | Menstruație întârziată | Cadranul arată „Menstruația întârzie” și zilele de întârziere ca arc neutru; apare o observație informativă; calendarul desenează doar menstruația așteptată, de azi, fără faze sau zile fertile pentru ciclurile următoare; secțiunea „Fertilitate” spune că estimările sunt suspendate până la notarea următoarei menstruații |
 | Estimări de fertilitate oprite | Dispar ovulația, zilele fertile și fazele în afara menstruației, în cadran, calendar, jurnal și raport; rămân zilele de menstruație și estimarea următoarei menstruații |
 | Stocare indisponibilă (fereastră privată, fără HTTPS) | Un anunț pe „Azi” spune că datele se păstrează doar până la închiderea paginii; PIN-ul nu poate fi setat fără criptare |
-| Date demonstrative | Un anunț permanent pe „Azi”, cu ștergere dintr-o atingere |
+| Versiune nouă disponibilă | Un mesaj cu butonul „Actualizează” și o notă în „Despre”; până la acceptare aplicația rămâne pe versiunea cu care a pornit |
+| Eroare neașteptată | Un mesaj scurt; dacă un ecran nu poate fi afișat, doar acel ecran este înlocuit cu o explicație și butonul „Reîncarcă”, iar bara de file rămâne folosibilă |
+| Adresă inexistentă | O pagină 404 cu o legătură înapoi în aplicație; o adresă necunoscută din interiorul aplicației duce la „Azi” |
 | Seif care nu mai poate fi deschis | Un ecran care explică situația și oferă doar ștergerea datelor |
 
 ## 9. Adrese
@@ -259,3 +260,26 @@ Structura și fluxul rămân aceleași. Diferă doar ce oferă platforma:
 | PIN verificat de aplicație, cheie păstrată de browser | Cheie în Secure Enclave sau StrongBox, cu limită de încercări impusă de hardware |
 | Biometrie prin WebAuthn | Face ID, Touch ID sau biometria Android, direct |
 | Raport salvat prin descărcare sau prin foaia de partajare | Foaia de partajare a sistemului |
+
+## 10. Mișcare, gesturi și suprafețe
+
+Aplicația are un cadru fix: fiecare ecran derulează în propriul container, sub o bară de navigare care rămâne sus și deasupra barei de file. Codul este în `src/app/router.ts`, `src/ui/Navigator.tsx`, `src/ui/motion.ts`, `src/ui/swipeBack.ts` și `src/ui/Sheet.tsx`.
+
+| Element | Comportament |
+|---|---|
+| Intrarea într-un ecran mai adânc (Setări, o secțiune din Setări, declarația) | Ecranul nou intră din dreapta în aproximativ 320 ms, cu o curbă care pornește repede și se așază lin; cel vechi se mută ușor spre stânga și se estompează |
+| „Înapoi” | Mișcarea inversă. Ecranul părăsit este eliberat; cel de dedesubt a rămas montat, deci revine exact cum a fost lăsat |
+| Glisare de la marginea stângă | Degetul trage ecranul curent, iar cel de dedesubt se vede și îl urmează. Eliberat după o treime din lățime sau cu o mișcare rapidă, gestul se încheie; altfel ecranul revine. O glisare verticală pornită de la margine derulează ca de obicei |
+| Schimbarea filei | O estompare scurtă (200 ms). Filele deja vizitate rămân montate: poziția în pagină, faza și tema alese la „Sfaturi”, luna din calendar se păstrează. O a doua atingere pe fila curentă duce la începutul paginii |
+| Antetul | În repaus este rândul obișnuit: buton, titlu mare, rotiță. Când pagina derulează, butoanele rămân sus pe o bară de sticlă, titlul mare trece pe sub ea, iar în mijlocul barei apare titlul mic. O atingere pe bară duce la începutul paginii |
+| Ferestrele | Pe telefon urcă de la marginea de jos și pot fi trase în jos de antet sau de conținut (când acesta este la început); se închid după un sfert din înălțime sau la o mișcare rapidă, altfel revin cu un mic arc. Escape și atingerea în afara ferestrei le închid la fel. Pe ecrane late sunt dialoguri centrate care se estompează. Stau deasupra tastaturii |
+| Sticlă | Bara de navigare (după derulare), bara de file, ferestrele și mesajele scurte lasă să se vadă, estompat, ce este dedesubt. Culorile sunt aceleași; fără suport pentru estompare, sau cu „Reducere transparență” ori „Contrast mărit”, suprafețele sunt opace |
+| Apăsarea | Butoanele, pastilele și zilele se micșorează ușor (aproximativ 0,97; cele mici ceva mai mult) și revin cu un arc; rândurile de listă se evidențiază |
+| Vibrație scurtă | La comutatoare, la notarea menstruației, la PIN corect sau greșit, la confirmări și la „Anulează”, acolo unde dispozitivul o permite |
+| Liste | La prima afișare a unui ecran, blocurile lui sosesc pe rând, la 40 ms distanță; o listă de sfaturi nouă la fel, iar o altă lună intră din partea în care se află |
+| „Reducere mișcare” | Nimic din cele de mai sus nu se mai animă: ecranele și ferestrele se schimbă pe loc |
+
+<p>
+<img src="screenshots/21-tranzitie-push.png" width="230" alt="Ecranul Setări intrând din dreapta peste ecranul Azi, care se retrage și se estompează">
+<img src="screenshots/20-foaie-raport.png" width="230" alt="Fereastra Raport pentru medic urcată de jos, cu mâner, peste pagina estompată">
+</p>

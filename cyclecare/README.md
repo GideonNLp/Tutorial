@@ -1,8 +1,8 @@
 # CycleCare
 
-Prototip web responsive pentru urmărirea ciclului menstrual: jurnal zilnic, calendar pe faze, estimări cu interval, sfaturi, memento-uri, statistici și raport PDF pentru medic. Interfața este în română. Datele rămân criptate pe dispozitiv; nu există cont și nu există server.
+Aplicație web pentru urmărirea ciclului menstrual: jurnal zilnic, calendar pe faze, estimări cu interval, sfaturi, memento-uri, statistici și raport PDF pentru medic. Interfața este în română. Datele rămân criptate pe dispozitiv; nu există cont și nu există server.
 
-Este o aplicație web instalabilă (PWA): se deschide în browserul telefonului și poate fi adăugată pe ecranul principal pe iOS și Android. „CycleCare” este un nume provizoriu.
+Este o aplicație web instalabilă (PWA): se deschide în browserul telefonului, se adaugă pe ecranul principal pe iOS și Android și pornește apoi și fără internet. Navigarea se poartă ca într-o aplicație de telefon: ecrane care se împing și se retrag, glisare de la margine pentru înapoi, ferestre care urcă de jos. „CycleCare” este un nume provizoriu și poate fi schimbat din configurare.
 
 > CycleCare este un instrument de urmărire și informare. Nu este un dispozitiv medical, nu pune diagnostice și nu poate fi folosit ca metodă de contracepție. Sfaturile și textele juridice sunt schițe: trebuie validate de un medic, respectiv de un jurist, înainte de orice lansare.
 
@@ -34,23 +34,52 @@ npm install
 npm run dev          # aplicația, la http://localhost:5173
 ```
 
-Pentru a vedea imediat grafice și sfaturi, alege pe primul ecran „Explorează cu date demonstrative”.
+Aplicația pornește cu un jurnal gol. Pentru un jurnal plin, de test, restaurează o copie de siguranță din „Setări → Datele mele” (testele cap-coadă construiesc una din `tests/fixtures/sampleJournal.ts`).
 
-| Comandă                    | Ce face                                                                                             |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| `npm run dev`              | Server de dezvoltare                                                                                |
-| `npm run build`            | Verificare de tipuri și build de producție în `dist/` (cu service worker și politică de securitate) |
-| `npm run preview`          | Servește build-ul de producție                                                                      |
-| `npm run build:single`     | Tot prototipul într-un singur fișier HTML, în `dist-single/`                                        |
-| `npm test`                 | Teste unitare (Vitest)                                                                              |
-| `npm run test:e2e`         | Teste cap-coadă pe build-ul de producție (Playwright, Chromium)                                     |
-| `npm run typecheck`        | Verificare de tipuri                                                                                |
-| `npm run format`           | Formatare cu Prettier                                                                               |
-| `npm run tokens`           | Regenerează `src/styles/tokens.css` din `tokens.json`                                               |
-| `npm run docs:content`     | Regenerează documentele 4 și 5                                                                      |
-| `npm run docs:screenshots` | Regenerează capturile (cu build-ul servit pe portul 4173)                                           |
+| Comandă                    | Ce face                                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------------------------- |
+| `npm run dev`              | Server de dezvoltare                                                                               |
+| `npm run build`            | Verificare de tipuri și build de producție în `dist/`: minificat, cu service worker, manifest, 404 |
+| `npm run preview`          | Servește build-ul de producție                                                                     |
+| `npm run build:single`     | O previzualizare într-un singur fișier HTML, în `dist-single/` (fără service worker)               |
+| `npm test`                 | Teste unitare (Vitest)                                                                             |
+| `npm run test:e2e`         | Teste cap-coadă pe build-ul de producție (Playwright, Chromium)                                    |
+| `npm run typecheck`        | Verificare de tipuri                                                                               |
+| `npm run format`           | Formatare cu Prettier                                                                              |
+| `npm run tokens`           | Regenerează `src/styles/tokens.css` din `tokens.json`                                              |
+| `npm run docs:content`     | Regenerează documentele 4 și 5                                                                     |
+| `npm run docs:screenshots` | Regenerează capturile din `docs/screenshots/`                                                      |
 
 Testele cap-coadă folosesc Chromium-ul instalat de Playwright (`npx playwright install chromium`) sau, dacă există deja unul, calea din variabila `PW_CHROMIUM_PATH`.
+
+## Configurare
+
+Build-ul funcționează fără nicio configurare. Valorile de mai jos se dau ca variabile de mediu la build sau într-un fișier `.env.local` (vezi [.env.example](.env.example)); niciuna nu este secretă.
+
+| Variabilă                                                                                                             | Rol                                                                                                              |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `VITE_APP_NAME`                                                                                                       | Numele produsului: interfață, manifest, fișiere generate (implicit „CycleCare”)                                  |
+| `VITE_PUBLIC_URL`                                                                                                     | Adresa la care este publicată aplicația; folosită de pagina 404 și de legătura canonică                          |
+| `VITE_ALLOW_INDEXING`                                                                                                 | `true` permite motoarelor de căutare să indexeze pagina (implicit: `noindex` și `robots.txt` care interzice tot) |
+| `VITE_OPERATOR_NAME`, `VITE_OPERATOR_ADDRESS`, `VITE_OPERATOR_REGISTRATION`, `VITE_CONTACT_EMAIL`, `VITE_DPO_CONTACT` | Datele operatorului din declarația de confidențialitate; cât lipsesc, rămân vizibile ca spații de completat      |
+| `VITE_LEGAL_REVIEWED`                                                                                                 | `true` după verificarea juridică a textelor: scoate mențiunea „schiță” și notele pentru jurist                   |
+
+## Publicare
+
+`npm run build` produce în `dist/` un site static, cu adrese relative: poate fi servit de la rădăcina unui domeniu sau dintr-un subdirector, de orice gazdă de fișiere statice. Condiția este **HTTPS**: fără el browserul nu oferă criptarea, service worker-ul și instalarea.
+
+| Fișier din `dist/`                   | Rol                                                                                                                                |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`, `assets/`              | Aplicația, minificată, cu nume de fișiere care conțin amprenta conținutului                                                        |
+| `manifest.webmanifest`, `icon-*.png` | Instalarea: nume, culori, `display: standalone`, pictograme de 192 și 512 px, în variantele obișnuită și „maskable”                |
+| `sw.js`                              | Pornirea fără internet și actualizările: o versiune nouă se descarcă în fundal și se aplică atunci când persoana o acceptă         |
+| `404.html`                           | Pagina pentru adrese inexistente (GitHub Pages, Netlify și Cloudflare Pages o folosesc automat)                                    |
+| `_headers`                           | Antete de securitate și de cache pentru Netlify și Cloudflare Pages; pe alte gazde, aceleași antete se setează în configurarea lor |
+| `robots.txt`                         | Politica pentru motoarele de căutare                                                                                               |
+
+Politica de securitate (`default-src 'self'`, `connect-src 'self'`) este inclusă și în pagină, deci se aplică pe orice gazdă: aplicația nu poate încărca nimic de pe alt server și nu poate trimite date nicăieri, așa că nu există nici conținut mixt.
+
+Fluxul din `.github/workflows/cyclecare-pages.yml` rulează verificările și publică `dist/` pe GitHub Pages (ramura `gh-pages`) la fiecare modificare ajunsă în `main` sau la pornirea manuală din fila Actions.
 
 ## Cum sunt acoperite cerințele
 
@@ -64,6 +93,8 @@ Testele cap-coadă folosesc Chromium-ul instalat de Playwright (`npx playwright 
 | 6. Statistici și rapoarte          | Grafice pentru durata ciclurilor, simptome și dispoziție, fiecare cu tabel; raport PDF generat pe dispozitiv                                      | `src/domain/stats.ts`, `src/ui/charts.tsx`, `src/pdf/`                                                 | `tests/stats.test.ts`, `tests/pdf.test.ts`, `e2e/data.spec.ts`            |
 | 7. Confidențialitate și securitate | AES-256-GCM în repaus, PIN, biometrie, blocare automată, ștergerea tuturor datelor, nicio partajare                                               | `src/storage/`, `src/app/store.ts`                                                                     | `tests/vault.test.ts`, `e2e/security.spec.ts`, `e2e/quality.spec.ts`      |
 | 8. Design și accesibilitate        | Paletă calmă verificată pentru contrast și daltonism, mod întunecat, text scalabil, cititoare de ecran, română cu loc pentru alte limbi           | `src/styles/`, `src/i18n/`                                                                             | `tests/tokens.test.ts`, `e2e/quality.spec.ts`                             |
+| Navigare și mișcare                | Stivă de ecrane cu tranziții, glisare înapoi, ferestre care se trag în jos, sticlă, reacție la apăsare; totul se oprește la „Reducere mișcare”    | `src/app/router.ts`, `src/ui/Navigator.tsx`, `src/ui/motion.ts`, `src/ui/Sheet.tsx`                    | `tests/router.test.ts`, `e2e/motion.spec.ts`                              |
+| Instalare și producție             | Manifest, pictograme, pornire fără internet, actualizări acceptate de persoană, pagină 404, tratarea erorilor, anulare, validări lângă câmp       | `vite.config.ts`, `public/sw.js`, `src/app/pwa.ts`, `src/app/errors.ts`                                | `e2e/pwa.spec.ts`, `e2e/polish.spec.ts`                                   |
 
 ## Confidențialitate și securitate, pe scurt
 
@@ -72,6 +103,7 @@ Testele cap-coadă folosesc Chromium-ul instalat de Playwright (`npx playwright 
 - Deblocarea biometrică folosește WebAuthn cu extensia PRF: senzorul dispozitivului eliberează un secret care despachetează cheia. Nu se trimite nimic unui server.
 - Build-ul de producție are o politică de securitate (`connect-src 'self'`) care împiedică aplicația să comunice cu alt server. Nu există fonturi sau scripturi încărcate de la terți.
 - „Șterge toate datele” șterge jurnalul, cheile și preferințele. Retragerea consimțământului face același lucru.
+- După ce există un jurnal, aplicația cere browserului să nu îl șteargă la curățarea automată a spațiului; dacă browserul nu promite asta, ecranul de confidențialitate o spune și recomandă instalarea și un export periodic.
 
 Limitele variantei web sunt descrise deschis în [docs/02-model-de-date.md](docs/02-model-de-date.md): un PIN din cifre are puțină entropie, iar limita de încercări este impusă de aplicație, nu de hardware.
 
@@ -91,16 +123,16 @@ Logica (`src/domain/`), conținutul (`src/content/`), textele (`src/i18n/`) și 
 src/
   domain/      cicluri, predicție, semnalizări, memento-uri, statistici, import CSV (funcții pure)
   storage/     criptare, seif cu sloturi de chei, WebAuthn, export și restaurare
-  app/         starea sesiunii, rutare, preferințe, memento-uri în timp real, integrarea cu platforma
+  app/         starea sesiunii, stiva de navigare, configurare, instalare și actualizări, erori, memento-uri în timp real
   screens/     ecranele
-  ui/          controale, ferestre, cadranul ciclului, grafice
+  ui/          cadrul aplicației, tranziții și gesturi, ferestre, controale, cadranul ciclului, grafice
   pdf/         cititor TrueType și generator PDF, fără dependențe
   i18n/        texte de interfață și formatare
   content/     sfaturi și texte juridice, pe limbi
   styles/      culori (tokens.json), fonturi, stiluri
 tests/         teste unitare
 e2e/           teste cap-coadă
-scripts/       generatoare: culori, documente, capturi, pictograme, build într-un singur fișier
+scripts/       generatoare: culori, documente, pictograme, previzualizare într-un singur fișier
 docs/          livrabilele
 ```
 
