@@ -24,7 +24,7 @@ export const consentText = {
   points: [
     {
       title: 'Unde sunt păstrate',
-      body: 'Doar pe acest dispozitiv, criptate. Nu există cont și nu există server, iar noi nu le putem vedea.',
+      body: 'Doar pe acest dispozitiv, criptate. Nu există cont, iar noi nu le putem vedea.',
     },
     {
       title: 'La ce folosesc',

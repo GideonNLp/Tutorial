@@ -869,7 +869,7 @@ export const ro = {
       lockNow: 'Blochează acum',
       storageTitle: 'Unde sunt datele',
       storage: {
-        encrypted: 'Pe acest dispozitiv, criptate cu AES-256. Nu există cont și nu există server.',
+        encrypted: 'Pe acest dispozitiv, criptate cu AES-256. Nu există cont, iar jurnalul nu este trimis nicăieri.',
         session: 'Doar în memoria acestei pagini: browserul nu permite salvarea pe dispozitiv.',
         plain: 'Doar în memoria acestei pagini, necriptate: criptarea nu este disponibilă fără HTTPS.',
       },

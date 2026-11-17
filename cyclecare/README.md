@@ -1,6 +1,6 @@
 # CycleCare
 
-Aplicație web pentru urmărirea ciclului menstrual: jurnal zilnic, calendar pe faze, estimări cu interval, sfaturi, memento-uri, statistici și raport PDF pentru medic. Interfața este în română. Datele rămân criptate pe dispozitiv; nu există cont și nu există server.
+Aplicație web pentru urmărirea ciclului menstrual: jurnal zilnic, calendar pe faze, estimări cu interval, sfaturi, memento-uri, statistici și raport PDF pentru medic. Interfața este în română. Datele rămân criptate pe dispozitiv și nu există cont; singura excepție, la alegere, este Modul Partener, criptat cap-coadă.
 
 Este o aplicație web instalabilă (PWA): se deschide în browserul telefonului, se adaugă pe ecranul principal pe iOS și Android și pornește apoi și fără internet. Navigarea se poartă ca într-o aplicație de telefon: ecrane care se împing și se retrag, glisare de la margine pentru înapoi, ferestre care urcă de jos. „CycleCare” este un nume provizoriu și poate fi schimbat din configurare.
 

@@ -24,7 +24,7 @@ Dacă produsul primește funcții online, textele trebuie rescrise și consimț�
 
 Ca să funcționeze, CycleCare păstrează date despre sănătatea ta: zilele de menstruație, simptomele, dispoziția, temperatura, notele pe care le scrii și, numai dacă alegi să le notezi, contactele intime și contracepția folosită. Înainte să notezi ceva, iată ce se întâmplă cu ele.
 
-**Unde sunt păstrate.** Doar pe acest dispozitiv, criptate. Nu există cont și nu există server, iar noi nu le putem vedea.
+**Unde sunt păstrate.** Doar pe acest dispozitiv, criptate. Nu există cont, iar noi nu le putem vedea.
 
 **La ce folosesc.** La calcularea estimărilor și a statisticilor și la alegerea sfaturilor pe care ți le arătăm. La nimic altceva.
 
