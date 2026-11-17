@@ -192,8 +192,8 @@
 }
 .dial-back {
   justify-content: flex-start;
-  gap: 0.15rem;
-  padding: 9% 11% 0;
+  /* Low enough to leave room for the thought bubble above the capybara's head. */
+  padding: 41% 11% 0;
   background: var(--surface-2);
   transform: rotateY(180deg);
 }
@@ -209,14 +209,173 @@
 .dial-back[data-mood='luteal'] {
   background: var(--luteal-tint);
 }
+/* The thought bubble: above the capybara's head, inside the dial, drawn over the turning card. Its
+   sizes are fractions of the dial (cqw), so it scales with the ring at any screen width. The top
+   edge at 25% keeps it below the tick of day 1 and its corners inside the free middle of the ring. */
+.dial-thought {
+  position: absolute;
+  left: 50%;
+  top: 25%;
+  z-index: 2;
+  width: 46cqw;
+  transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  pointer-events: auto;
+  animation: thought-in 0.5s var(--ease-spring) both;
+}
+.dial-bubble {
+  position: relative;
+  padding: 0.5rem 0.7rem;
+  border-radius: 1.25rem;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 0.4rem 1.2rem var(--shadow);
+  text-align: center;
+}
 .dial-say {
-  max-width: 100%;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
   font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-size: min(0.95rem, 5.1cqw);
+  font-size: min(0.85rem, 4.3cqw);
+  font-weight: 650;
+  line-height: 1.25;
+  text-wrap: balance;
+  cursor: pointer;
+  border-radius: 0.8rem;
+}
+.dial-say:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+.dial-pencil {
+  position: absolute;
+  bottom: -0.35rem;
+  right: -0.35rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  box-shadow: 0 0.1rem 0.4rem var(--shadow);
+  padding: 0.3rem;
+  box-sizing: content-box;
+}
+.dial-draft {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  resize: none;
+  border: 0;
+  border-radius: 0.8rem;
+  padding: 0.3rem 0.45rem;
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: min(0.8rem, 4cqw);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+}
+.dial-draft::placeholder {
+  color: var(--muted);
+}
+.dial-draft:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.dial-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+.dial-action {
+  min-height: 1.5rem;
+  padding: 0.2rem 0.65rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: var(--on-ink);
+  font-family: var(--font-display);
+  font-size: min(0.72rem, 3.4cqw);
   font-weight: 650;
   line-height: 1.2;
-  text-wrap: balance;
+  cursor: pointer;
+}
+.dial-action.dial-quiet {
+  background: none;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.dial-action:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+/* Three small bubbles rising from the capybara's head to the thought, the nearest to the head first. */
+.dial-trail {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0;
+  height: 0;
+}
+.dial-trail i {
+  position: absolute;
+  left: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 0.1rem 0.35rem var(--shadow);
+  transform: translate(-50%, 0) scale(0);
+  animation: trail-pop 0.4s var(--ease-spring) both;
+}
+.dial-trail i:nth-child(1) {
+  top: 0.4cqw;
+  width: 2.2cqw;
+  height: 2.2cqw;
+  animation-delay: 0.36s;
+}
+.dial-trail i:nth-child(2) {
+  top: 2.6cqw;
+  width: 1.6cqw;
+  height: 1.6cqw;
+  animation-delay: 0.22s;
+}
+.dial-trail i:nth-child(3) {
+  top: 4.6cqw;
+  width: 1.1cqw;
+  height: 1.1cqw;
+  animation-delay: 0.1s;
+}
+/* While the person writes, the capybara steps back so the field is clear. */
+.dial-flip[data-editing] .dial-back {
+  opacity: 0.25;
+  transition: opacity 0.3s ease-out;
+}
+@keyframes thought-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.55);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+@keyframes trail-pop {
+  from {
+    transform: translate(-50%, 0) scale(0);
+  }
+  to {
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 /* The text inside the ring is sized from the ring, so it fits at any text-size setting;
    the same information is repeated as ordinary, scalable text right below the dial. */

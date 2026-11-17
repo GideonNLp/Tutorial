@@ -221,7 +221,7 @@ Baza de date IndexedDB `cyclecare` are un singur depozit cu trei chei:
 | `meta` | Versiunea seifului, data creării, „sloturile de chei” (cheia de date împachetată, săruri, număr de iterații), contorul de PIN-uri greșite și pauza curentă | nu conține date despre sănătate |
 | `deviceKey` | O cheie AES neexportabilă, păstrată de browser; există doar cât timp nu este setat un PIN | – |
 
-În afara seifului, în `localStorage`, sunt doar preferințele de afișare (temă, dimensiunea textului, blocarea automată, limba). Limba este salvată la prima pornire, după limba telefonului; preferințele fără limbă, rămase de la versiunile de dinainte de engleză, înseamnă română. Trebuie citite înainte de deblocare, ca ecranul de blocare să respecte tema și dimensiunea textului.
+În afara seifului, în `localStorage`, sunt preferințele de afișare (temă, dimensiunea textului, blocarea automată, limba) și, dacă ai scris unul, gândul personal al capibarei de pe ecranul „Azi” (cel mult 40 de caractere). Gândul este text scris de tine și nu este cifrat: nu conține date despre ciclu și nu părăsește dispozitivul, dar, spre deosebire de jurnal, nu este protejat de criptare. Limba este salvată la prima pornire, după limba telefonului; preferințele fără limbă, rămase de la versiunile de dinainte de engleză, înseamnă română. Trebuie citite înainte de deblocare, ca ecranul de blocare să respecte tema și dimensiunea textului.
 
 ### 6.2 Ierarhia de chei
 

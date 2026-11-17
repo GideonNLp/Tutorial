@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { Pencil } from 'lucide-react';
+import { useEffect, useState, type KeyboardEvent } from 'react';
+import { clearOwnThought, loadOwnThought, saveOwnThought } from '../app/mascotThought';
 import { diffDays } from '../domain/dates';
-import { MASCOT_SHOW_MS, mascotMessage, type MascotMood } from '../domain/mascot';
+import { cleanThought, MASCOT_SHOW_MS, MASCOT_TURN_MS, mascotThought, THOUGHT_DELAY_MS, THOUGHT_MAX, type MascotMood } from '../domain/mascot';
 import { FERTILE_DAYS_AFTER, FERTILE_DAYS_BEFORE, ovulationOffset, phaseAt, type Timeline } from '../domain/prediction';
 import type { Phase } from '../domain/types';
 import { strings } from '../i18n';
@@ -70,7 +72,12 @@ export function phaseSpans(timeline: Timeline, showFertility: boolean): { spans:
 
 const strokeOf = (kind: SpanKind) => (kind === 'overdue' || kind === 'rest' ? 'var(--line-strong)' : `var(--${kind})`);
 
-/** The turning middle of the dial. `text` is what the front shows; `number` is the part the capybara hides behind. */
+/**
+ * The turning middle of the dial. Tapping it turns the card to the capybara; about a second later a
+ * thought bubble appears beside it. Tapping the thought lets the person write their own; while they
+ * do, the dial stays turned. The bubble is a sibling of the turning button, not a child of it, because
+ * a button cannot hold other controls.
+ */
 function DialCenter({
   text,
   number,
@@ -87,34 +94,105 @@ function DialCenter({
   muted?: boolean;
 }) {
   const s = strings();
+  const t = s.mascot;
   const [flipped, setFlipped] = useState(false);
-  // Counts the showings, so each one brings the next message.
+  const [thoughtOn, setThoughtOn] = useState(false);
+  const [editing, setEditing] = useState(false);
+  // Counts the showings, so each one brings the next default thought.
   const [turn, setTurn] = useState(0);
-  const message = mascotMessage(s.mascot.messages[mood], cycleDay, turn);
+  const [own, setOwn] = useState<string | undefined>(() => loadOwnThought());
+  const [draft, setDraft] = useState('');
+  // What assistive technology is told after a save or a reset.
+  const [note, setNote] = useState('');
+  const thought = own ?? mascotThought(t.thoughts[mood], cycleDay, turn);
 
+  // The thought comes once the turn is over, after a short pause.
   useEffect(() => {
     if (!flipped) return;
-    const timer = setTimeout(() => setFlipped(false), MASCOT_SHOW_MS);
+    const timer = setTimeout(() => setThoughtOn(true), MASCOT_TURN_MS + THOUGHT_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [flipped, turn]);
+  }, [flipped]);
+
+  // The dial turns back on its own, unless someone is writing a thought.
+  useEffect(() => {
+    if (!flipped || editing) return;
+    const timer = setTimeout(() => {
+      setFlipped(false);
+      setThoughtOn(false);
+    }, MASCOT_SHOW_MS);
+    return () => clearTimeout(timer);
+  }, [flipped, editing]);
 
   const toggle = () => {
+    setNote('');
+    if (editing) {
+      // A tap on the dial while writing only stops writing; the draft is dropped, the dial stays turned.
+      setEditing(false);
+      return;
+    }
     haptic('light');
-    if (!flipped) setTurn((t) => t + 1);
-    setFlipped(!flipped);
+    if (flipped) {
+      setFlipped(false);
+      setThoughtOn(false);
+      return;
+    }
+    setTurn((n) => n + 1);
+    setFlipped(true);
   };
 
-  const front = muted ? s.mascot.show : `${text}${phaseLabel ? `, ${phaseLabel}` : ''}. ${s.mascot.show}`;
-  const label = flipped ? `${message} ${s.mascot.hide}` : front;
+  const startEdit = () => {
+    setNote('');
+    setDraft(thought);
+    setEditing(true);
+  };
+
+  const save = () => {
+    const clean = cleanThought(draft);
+    if (!clean) {
+      setEditing(false);
+      return;
+    }
+    saveOwnThought(clean);
+    setOwn(clean);
+    setEditing(false);
+    setNote(t.thought.saved);
+  };
+
+  const reset = () => {
+    clearOwnThought();
+    setOwn(undefined);
+    setEditing(false);
+    setNote(t.thought.resetDone);
+  };
+
+  const onDraftKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      save();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setEditing(false);
+    }
+  };
+
+  const front = muted ? t.show : `${text}${phaseLabel ? `, ${phaseLabel}` : ''}. ${t.show}`;
   const at = text.lastIndexOf(number);
   const before = at >= 0 ? text.slice(0, at) : text;
   const after = at >= 0 ? text.slice(at + number.length) : '';
+  const showBubble = thoughtOn || editing;
 
   return (
     <>
       <div className="dial-center">
         {/* Named after the face that shows, so the name always contains the visible text. */}
-        <button type="button" className="dial-flip" data-flipped={flipped || undefined} aria-label={label} onClick={toggle}>
+        <button
+          type="button"
+          className="dial-flip"
+          data-flipped={flipped || undefined}
+          data-editing={editing || undefined}
+          aria-label={flipped ? t.hide : front}
+          onClick={toggle}
+        >
           <span className="dial-card">
             <span className="dial-face dial-front" aria-hidden="true">
               <span className={muted ? 'dial-day muted' : 'dial-day'}>
@@ -130,13 +208,56 @@ function DialCenter({
             </span>
             <span className="dial-face dial-back" data-mood={mood} aria-hidden="true">
               <Capybara mood={mood} />
-              <span className="dial-say">{message}</span>
             </span>
           </span>
         </button>
+
+        {flipped && showBubble && (
+          <div className="dial-thought" data-editing={editing || undefined}>
+            <div className="dial-bubble">
+              {editing ? (
+                <>
+                  <textarea
+                    className="dial-draft"
+                    rows={2}
+                    maxLength={THOUGHT_MAX}
+                    value={draft}
+                    placeholder={t.thought.placeholder}
+                    aria-label={t.thought.label}
+                    autoFocus
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={onDraftKey}
+                  />
+                  <div className="dial-actions">
+                    <button type="button" className="dial-action" onClick={save}>
+                      {t.thought.save}
+                    </button>
+                    {own && (
+                      <button type="button" className="dial-action dial-quiet" onClick={reset}>
+                        {t.thought.reset}
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <button type="button" className="dial-say" aria-label={`${thought}. ${t.thought.edit}`} onClick={startEdit}>
+                  <span>{thought}</span>
+                  <Pencil size={11} strokeWidth={2.4} aria-hidden="true" className="dial-pencil" />
+                </button>
+              )}
+            </div>
+            {!editing && (
+              <span className="dial-trail" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <p className="sr-only" aria-live="polite">
-        {flipped ? message : ''}
+        {note || (flipped && thoughtOn && !editing ? thought : '')}
       </p>
     </>
   );
