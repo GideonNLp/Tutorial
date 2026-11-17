@@ -153,6 +153,7 @@ export function sampleJournal(today: ISODate, nowISO: string): { logs: DayLogs; 
     typicalCycleLength: 28,
     typicalPeriodLength: 5,
     showFertility: true,
+    showIntimacy: true,
   };
   return { logs, profile };
 }

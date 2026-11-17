@@ -4,6 +4,8 @@ import {
   FLOWS,
   GOALS,
   MUCUS_TYPES,
+  PROTECTIONS,
+  SEX_ACTIVITIES,
   SYMPTOM_IDS,
   emptyAppData,
   type AppData,
@@ -91,6 +93,13 @@ function sanitizeLog(date: string, raw: unknown, fallbackTime: string): DayLog |
   if (typeof raw.mucus === 'string' && (MUCUS_TYPES as readonly string[]).includes(raw.mucus)) {
     log.mucus = raw.mucus as DayLog['mucus'];
   }
+  if (isObject(raw.intimacy)) {
+    const i = raw.intimacy;
+    const pick = <T extends string>(values: unknown, allowed: readonly T[]): T[] =>
+      Array.isArray(values) ? allowed.filter((v) => (values as unknown[]).includes(v)) : [];
+    log.intimacy = { activities: pick(i.activities, SEX_ACTIVITIES), protection: pick(i.protection, PROTECTIONS) };
+    if (i.condomFailed === true && log.intimacy.protection.includes('condom')) log.intimacy.condomFailed = true;
+  }
   const note = text(raw.note, MAX_NOTE);
   if (note) log.note = note;
   return isEmptyLog(log) ? undefined : log;
@@ -119,6 +128,7 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
     data.profile.typicalCycleLength = intIn(p.typicalCycleLength, 21, 45);
     data.profile.typicalPeriodLength = intIn(p.typicalPeriodLength, 2, 10);
     data.profile.showFertility = p.showFertility !== false;
+    data.profile.showIntimacy = p.showIntimacy !== false;
   }
 
   data.user = sanitizeUser(raw.user);

@@ -9,6 +9,7 @@ export function isEmptyLog(log: DayLog): boolean {
     log.energy === undefined &&
     log.bbt === undefined &&
     log.mucus === undefined &&
+    log.intimacy === undefined &&
     !log.note &&
     (!log.symptoms || Object.keys(log.symptoms).length === 0)
   );

@@ -394,6 +394,58 @@
   width: 1.5rem;
 }
 
+/* ---------------------------------------------------------------- intimacy & pregnancy risk */
+
+/* Hearts are ink, like the other journal marks: colour stays reserved for the cycle phases. */
+.mark-heart {
+  width: 10px;
+  height: 10px;
+  margin-block: -2px;
+  color: var(--ink);
+}
+.legend-mark .mark-heart {
+  width: 11px;
+  height: 11px;
+}
+.mark-heart-inline {
+  flex: none;
+  color: var(--ink);
+  transform: translateY(0.1rem);
+}
+.risk-today {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.risk-scale {
+  display: inline-flex;
+  gap: 3px;
+}
+.risk-scale i {
+  display: block;
+  width: 0.875rem;
+  height: 0.5rem;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--r-pill);
+}
+.risk-scale[data-level='low'] i:nth-child(-n + 1),
+.risk-scale[data-level='medium'] i:nth-child(-n + 2),
+.risk-scale[data-level='high'] i {
+  background: var(--ink);
+}
+.risk-scale[data-level='unknown'] i {
+  border-style: dashed;
+  border-color: var(--muted);
+}
+.risk-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s4);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+}
+
 /* ---------------------------------------------------------------- journal */
 
 .weekstrip {

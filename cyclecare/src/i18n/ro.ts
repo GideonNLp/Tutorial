@@ -206,6 +206,75 @@ export const ro = {
     },
   },
 
+  sexActivity: { vaginal: 'Penetrare vaginală', oral: 'Sex oral', anal: 'Sex anal', toys: 'Jucării sexuale' },
+  protection: {
+    condom: 'Prezervativ',
+    pill: 'Pilulă contraceptivă',
+    iud: 'Sterilet (DIU)',
+    hormonal_other: 'Altă metodă hormonală',
+    withdrawal: 'Retragere',
+    none: 'Fără protecție',
+    emergency: 'Pilula de urgență',
+  },
+  protectionHelp: {
+    hormonal_other: 'implant, inel, plasture, injecție',
+    withdrawal: 'înainte de ejaculare',
+    emergency: 'luată după contact',
+  } as Partial<Record<string, string>>,
+
+  pregnancy: {
+    titleRisk: 'Risc de sarcină',
+    titleChance: 'Șansa de sarcină',
+    today: (level: string) => `Azi: ${level}`,
+    chance: { high: 'ridicată', medium: 'medie', low: 'scăzută, dar nu zero', unknown: 'nu poate fi estimată' },
+    reason: {
+      fertile: 'Ești în fereastra fertilă estimată.',
+      near_fertile: 'Ești aproape de fereastra fertilă estimată, iar estimarea poate greși cu câteva zile.',
+      uncertain: 'Ai încă puține cicluri înregistrate sau cicluri neregulate, așa că nicio zi nu poate fi socotită cu șanse mici.',
+      period: 'În timpul menstruației șansa este mică, dar nu zero, mai ales la cicluri scurte.',
+      outside: 'Ești în afara ferestrei fertile estimate. Ovulația se poate totuși muta de la un ciclu la altul.',
+      late: 'Menstruația întârzie, așa că ziua ovulației nu mai poate fi estimată.',
+      no_data: 'Notează prima zi a menstruației ca să putem estima.',
+      hidden: 'Estimările de fertilitate sunt oprite (Setări → Ciclul meu), așa că ziua nu poate fi plasată în ciclu.',
+    },
+    dayReason: {
+      fertile: 'Ziua era în fereastra fertilă estimată.',
+      near_fertile: 'Ziua era aproape de fereastra fertilă estimată, iar estimarea poate greși cu câteva zile.',
+      uncertain: 'Ciclurile înregistrate sunt încă puține sau neregulate, așa că ziua nu poate fi socotită cu șanse mici.',
+      period: 'Ziua era în timpul menstruației: șansa este mică, dar nu zero.',
+      outside: 'Ziua era în afara ferestrei fertile estimate: șansa este mică, dar nu zero.',
+      late: 'Menstruația întârzia, așa că ziua nu poate fi plasată în ciclu.',
+      no_data: 'Fără o menstruație notată, ziua nu poate fi plasată în ciclu.',
+      hidden: 'Estimările de fertilitate sunt oprite, așa că ziua nu poate fi plasată în ciclu.',
+    },
+    risk: { none: 'fără risc de sarcină', very_low: 'foarte scăzut', low: 'scăzut', moderate: 'moderat', high: 'ridicat' },
+    contactRisk: (level: string) => `Risc de sarcină: ${level}.`,
+    explain: {
+      not_relevant: 'Sexul oral și jucăriile nu pot duce singure la o sarcină, cât timp spermatozoizii nu ajung în vagin.',
+      anal: 'La sexul anal riscul este foarte mic, dar nu zero: spermatozoizii ajunși lângă vagin pot duce, rar, la o sarcină.',
+      ongoing: 'Pilula, steriletul și celelalte metode hormonale protejează foarte bine când sunt folosite corect (de exemplu, fără pastile uitate).',
+      condom: 'Prezervativul folosit corect reduce mult riscul.',
+      condom_failed: 'Un prezervativ rupt sau alunecat nu mai protejează, așa că contactul contează ca neprotejat.',
+      withdrawal: 'Retragerea nu este o protecție de încredere, așa că contactul contează ca neprotejat.',
+      unprotected: 'Contactul a fost fără protecție.',
+      unspecified: 'Protecția nu este notată, așa că am socotit contactul neprotejat.',
+    },
+    cycleNone: 'Nu ai notat contacte intime în acest ciclu.',
+    cycleContacts: (n: number) => `În acest ciclu: ${count(n, 'contact intim notat', 'contacte intime notate', 'de contacte intime notate')}.`,
+    cycleHighest: (level: string, date: string) => `Cel mai mare risc: ${level}, pe ${date}.`,
+    emergency: (until: string) =>
+      `După un contact fără protecție sau cu prezervativul rupt, contracepția de urgență funcționează cel mai bine cât mai devreme, în cel mult 5 zile (până pe ${until}). Întreabă un farmacist sau un medic.`,
+    emergencyTaken:
+      'Ai notat contracepția de urgență. Ea reduce riscul, dar nu îl elimină: dacă menstruația întârzie mai mult de 7 zile, fă un test de sarcină.',
+    testNow:
+      'Un test de sarcină îți poate da acum un răspuns de încredere. Dacă iese negativ și menstruația tot nu vine, repetă-l peste câteva zile.',
+    testFrom: (date: string) => `Un test de sarcină dă un răspuns de încredere din ${date}, ziua în care este așteptată menstruația.`,
+    testAfter: (date: string) => `Un test de sarcină dă un răspuns de încredere din ${date}, la trei săptămâni după contact.`,
+    disclaimer:
+      'Este o estimare făcută din datele tale, nu o metodă de contracepție și nici un test de sarcină. Protecția de încredere vine dintr-o metodă de contracepție folosită corect.',
+    log: 'Notează un contact intim',
+  },
+
   profile: {
     title: 'Profil',
     open: 'Profil',
@@ -303,6 +372,7 @@ export const ro = {
       energy: (label: string) => `energie ${label.toLowerCase()}`,
       note: 'o notă',
       bbt: (value: string) => `${value} °C`,
+      intimacy: 'contact intim',
     },
     reminders: {
       title: 'Memento-uri azi',
@@ -337,6 +407,7 @@ export const ro = {
       ovulation: 'Ovulație estimată',
       entry: 'Zi cu notițe',
       bleed: 'Spotting sau sângerare între menstruații',
+      intimacy: 'Contact intim',
     },
     aria: {
       today: 'azi',
@@ -349,6 +420,7 @@ export const ro = {
       bleed: 'sângerare între menstruații',
       spotting: 'spotting',
       overdue: 'după data estimată a menstruației',
+      intimacy: 'contact intim notat',
     },
     detail: {
       cycleDay: (n: number) => `Ziua ${n} a ciclului`,
@@ -405,6 +477,17 @@ export const ro = {
       clear: 'Șterge temperatura',
     },
     mucus: { title: 'Secreție cervicală' },
+    intimacy: {
+      title: 'Viață intimă',
+      hint: 'Opțional. Rămâne criptat pe acest dispozitiv și nu apare în raportul PDF.',
+      had: 'Am avut un contact intim',
+      activities: 'Ce fel de contact?',
+      activitiesHint: 'Poți alege mai multe sau niciunul.',
+      protection: 'Contracepție folosită',
+      protectionHint: 'Alege tot ce se potrivește, inclusiv „Fără protecție” dacă a fost și un contact neprotejat.',
+      condomFailed: 'Prezervativul s-a rupt sau a alunecat',
+      removed: 'Contactul intim a fost șters.',
+    },
     note: {
       title: 'Notă',
       label: 'Notă pentru această zi',
@@ -642,6 +725,10 @@ export const ro = {
       },
       storageNotPersistent:
         'Browserul nu a garantat păstrarea acestor date: le poate șterge dacă dispozitivul rămâne fără spațiu sau dacă nu deschizi aplicația mult timp. Instaleaz-o pe ecranul principal și păstrează din când în când un export.',
+      discretionTitle: 'Discreție',
+      showIntimacy: 'Arată contactele intime în calendar',
+      showIntimacyHint:
+        'Oprit, inimioarele dispar din calendar și din rezumatele zilelor. Ce ai notat rămâne în jurnal și în estimarea riscului de sarcină.',
       sharingTitle: 'Partajare cu terți',
       sharing:
         'Nimic nu este partajat. Dacă o funcție viitoare ar presupune trimiterea de date către altcineva, îți vom cere un acord separat, pentru acel caz, și îl vei putea retrage oricând.',

@@ -144,6 +144,7 @@ export async function completeOnboarding(answers: OnboardingAnswers): Promise<vo
     typicalCycleLength: answers.cycleLength,
     typicalPeriodLength: answers.periodLength,
     showFertility: true,
+    showIntimacy: true,
   };
   if (answers.lastPeriodStart) {
     // The declared period becomes journal entries without an intensity, up to today at most.

@@ -49,6 +49,28 @@ export interface BbtReading {
   device?: string;
 }
 
+/** What happened, as far as the person chooses to say. Only vaginal intercourse can lead to pregnancy directly. */
+export const SEX_ACTIVITIES = ['vaginal', 'oral', 'anal', 'toys'] as const;
+export type SexActivity = (typeof SEX_ACTIVITIES)[number];
+
+/**
+ * Contraception in use for that day's contact(s). `none` is an explicit "no protection";
+ * `emergency` is emergency contraception taken afterwards.
+ */
+export const PROTECTIONS = ['condom', 'pill', 'iud', 'hormonal_other', 'withdrawal', 'none', 'emergency'] as const;
+export type Protection = (typeof PROTECTIONS)[number];
+
+/**
+ * Sexual activity on a day (shown as a heart in the calendar). Both lists may be empty:
+ * "something happened" is enough, and details are optional.
+ */
+export interface IntimacyLog {
+  activities: SexActivity[];
+  protection: Protection[];
+  /** The condom broke or slipped off. */
+  condomFailed?: boolean;
+}
+
 export interface DayLog {
   date: ISODate;
   flow?: Flow;
@@ -57,6 +79,7 @@ export interface DayLog {
   energy?: Scale5;
   bbt?: BbtReading;
   mucus?: CervicalMucus;
+  intimacy?: IntimacyLog;
   note?: string;
   updatedAt: ISOTimestamp;
 }
@@ -71,6 +94,8 @@ export interface Profile {
   typicalPeriodLength?: number;
   /** Lets the person hide ovulation / fertile-day estimates (e.g. on hormonal contraception). */
   showFertility: boolean;
+  /** Hearts for intimate contacts in the calendar; off keeps the calendar discreet. */
+  showIntimacy: boolean;
 }
 
 /**
@@ -147,7 +172,7 @@ export function emptyAppData(): AppData {
   return {
     schemaVersion: 1,
     consents: [],
-    profile: { goals: [], showFertility: true },
+    profile: { goals: [], showFertility: true, showIntimacy: true },
     user: {},
     logs: {},
     reminders: {

@@ -617,6 +617,17 @@ function PrivacySettings() {
           )}
         </Group>
 
+        <Group title={p.discretionTitle}>
+          <div className="card tight">
+            <Switch
+              label={p.showIntimacy}
+              hint={p.showIntimacyHint}
+              checked={data.profile.showIntimacy}
+              onChange={(on) => update((d) => ({ ...d, profile: { ...d.profile, showIntimacy: on } }))}
+            />
+          </div>
+        </Group>
+
         <Group title={p.storageTitle}>
           <p>{p.storage[storage]}</p>
           {storage === 'encrypted' && persisted === false && <p className="small ink-2">{p.storageNotPersistent}</p>}

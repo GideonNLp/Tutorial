@@ -22,4 +22,4 @@ export function startsFrom(first: ISODate, lengths: number[]): ISODate[] {
   return out;
 }
 
-export const profile = (over: Partial<Profile> = {}): Profile => ({ goals: [], showFertility: true, ...over });
+export const profile = (over: Partial<Profile> = {}): Profile => ({ goals: [], showFertility: true, showIntimacy: true, ...over });

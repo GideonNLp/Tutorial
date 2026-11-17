@@ -15,12 +15,18 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { update, useData, useTimeline, useToday } from '../app/store';
-import { setJournalDate, useJournalDate } from '../app/ui';
+import { setJournalDate, toast, useJournalDate } from '../app/ui';
+import { assessContact } from '../domain/pregnancyRisk';
 import { addDays, parts, startOfWeek } from '../domain/dates';
 import { updateDay, type DayPatch } from '../domain/journal';
 import {
   FLOWS,
   MUCUS_TYPES,
+  PROTECTIONS,
+  SEX_ACTIVITIES,
+  type IntimacyLog,
+  type Protection,
+  type SexActivity,
   SYMPTOM_GROUPS,
   SYMPTOM_IDS,
   type DayLog,
@@ -31,7 +37,8 @@ import {
   type SymptomId,
 } from '../domain/types';
 import { formatDate, formatNumber, strings } from '../i18n';
-import { ChoiceChips, ErrorText, MultiChips, Scale, Segmented } from '../ui/controls';
+import { ChoiceChips, ErrorText, MultiChips, Scale, Segmented, Switch } from '../ui/controls';
+import { contactExplanation } from '../ui/PregnancyRisk';
 import { ImportTempsSheet } from '../ui/ImportTempsSheet';
 import { Screen } from '../ui/Shell';
 import { visiblePhase } from '../ui/summaries';
@@ -237,11 +244,85 @@ export function JournalScreen() {
           />
         </Section>
 
+        <IntimacySection key={`intimacy-${date}`} date={date} log={log} onChange={patch} />
+
         <Section title={j.note.title}>
           <NoteField key={date} initial={log?.note ?? ''} onChange={(note) => patch({ note })} />
         </Section>
       </div>
     </Screen>
+  );
+}
+
+/**
+ * Sexual activity for the day: one switch, then optional details. The risk of pregnancy for
+ * the day is shown right under them, so the person sees what the details change.
+ */
+function IntimacySection({ date, log, onChange }: { date: ISODate; log: DayLog | undefined; onChange: (patch: DayPatch) => void }) {
+  const s = strings();
+  const j = s.journal.intimacy;
+  const data = useData();
+  const timeline = useTimeline();
+  const intimacy = log?.intimacy;
+  const set = (next: IntimacyLog | undefined) => onChange({ intimacy: next });
+
+  const toggle = (on: boolean) => {
+    if (on) return set({ activities: [], protection: [] });
+    const before = intimacy;
+    set(undefined);
+    toast(j.removed, { action: { label: s.common.undo, run: () => set(before) } });
+  };
+
+  const assessment = intimacy ? assessContact(timeline, date, intimacy, data.profile.showFertility) : undefined;
+
+  return (
+    <Section title={j.title} hint={j.hint}>
+      <Switch label={j.had} checked={!!intimacy} onChange={toggle} />
+      {intimacy && assessment && (
+        <>
+          <MultiChips
+            legend={j.activities}
+            hint={j.activitiesHint}
+            options={SEX_ACTIVITIES.map((a) => ({ value: a, label: s.sexActivity[a] }))}
+            values={intimacy.activities}
+            onToggle={(activity: SexActivity, on) =>
+              set({ ...intimacy, activities: on ? [...intimacy.activities, activity] : intimacy.activities.filter((a) => a !== activity) })
+            }
+          />
+          <MultiChips
+            legend={j.protection}
+            hint={j.protectionHint}
+            options={PROTECTIONS.map((p) => ({ value: p, label: s.protection[p], hint: s.protectionHelp[p] }))}
+            values={intimacy.protection}
+            onToggle={(method: Protection, on) => {
+              const protection = on ? [...intimacy.protection, method] : intimacy.protection.filter((p) => p !== method);
+              const next: IntimacyLog = { ...intimacy, protection };
+              if (!protection.includes('condom')) delete next.condomFailed;
+              set(next);
+            }}
+          />
+          {intimacy.protection.includes('condom') && (
+            <Switch
+              label={j.condomFailed}
+              checked={!!intimacy.condomFailed}
+              onChange={(failed) => {
+                const next: IntimacyLog = { ...intimacy };
+                if (failed) next.condomFailed = true;
+                else delete next.condomFailed;
+                set(next);
+              }}
+            />
+          )}
+          <div className="risk-note" role="status">
+            {contactExplanation(assessment, intimacy).map((line, i) => (
+              <p key={line} className={i === 0 ? 'strong' : 'small ink-2'}>
+                {line}
+              </p>
+            ))}
+          </div>
+        </>
+      )}
+    </Section>
   );
 }
 

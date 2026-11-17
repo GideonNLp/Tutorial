@@ -110,6 +110,7 @@ Unul singur pe instalare. Nu identifică persoana.
 | `typicalCycleLength` | întreg, opțional | 21–45 | Durata declarată a ciclului; punct de plecare până există trei cicluri înregistrate |
 | `typicalPeriodLength` | întreg, opțional | 2–10 | Durata declarată a menstruației |
 | `showFertility` | boolean | implicit `true` | Oprit: se afișează doar menstruația, fără faze estimate și fără fertilitate |
+| `showIntimacy` | boolean | implicit `true` | Oprit: inimioarele dispar din calendar și din rezumatele zilelor; contactele rămân în jurnal și în estimarea riscului |
 | `onboardedAt` | moment | – | Când s-a încheiat prima configurare |
 | `schemaVersion` | întreg | acum `1` | Pentru migrări |
 
@@ -151,6 +152,7 @@ Cel mult una pe zi; cheia este data. O zi fără niciun câmp completat este șt
 | `energy` | 1–5 | foarte scăzută … foarte ridicată |
 | `bbt` | temperatură | `celsius` 34–42 cu două zecimale; `source` `manual` sau `import`; `device` pentru valorile importate |
 | `mucus` | `dry`, `sticky`, `creamy`, `watery`, `eggwhite` | – |
+| `intimacy` | contact intim, opțional | `activities`: listă din `vaginal`, `oral`, `anal`, `toys` (poate fi goală); `protection`: listă din `condom`, `pill`, `iud`, `hormonal_other`, `withdrawal`, `none`, `emergency` (poate fi goală); `condomFailed`: adevărat doar împreună cu `condom` |
 | `note` | text | cel mult 2000 de caractere |
 | `updatedAt` | moment | ultima modificare |
 
@@ -286,6 +288,20 @@ CREATE TABLE day_log (
   mucus      TEXT CHECK (mucus IN ('dry', 'sticky', 'creamy', 'watery', 'eggwhite')),
   note       TEXT CHECK (length(note) <= 2000),
   updated_at TEXT NOT NULL
+);
+CREATE TABLE intimacy_entry (
+  date           TEXT PRIMARY KEY REFERENCES day_log(date) ON DELETE CASCADE,
+  condom_failed  INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE intimacy_activity (
+  date     TEXT NOT NULL REFERENCES intimacy_entry(date) ON DELETE CASCADE,
+  activity TEXT NOT NULL CHECK (activity IN ('vaginal', 'oral', 'anal', 'toys')),
+  PRIMARY KEY (date, activity)
+);
+CREATE TABLE intimacy_protection (
+  date   TEXT NOT NULL REFERENCES intimacy_entry(date) ON DELETE CASCADE,
+  method TEXT NOT NULL CHECK (method IN ('condom', 'pill', 'iud', 'hormonal_other', 'withdrawal', 'none', 'emergency')),
+  PRIMARY KEY (date, method)
 );
 CREATE TABLE symptom_entry (
   date      TEXT NOT NULL REFERENCES day_log(date) ON DELETE CASCADE,

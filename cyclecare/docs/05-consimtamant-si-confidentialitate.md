@@ -1,7 +1,7 @@
 # Texte pentru consimțământ și declarația de confidențialitate
 
 > **Statut: schiță. De verificat de un specialist juridic înainte de orice lansare.**
-> Versiunea textelor: `2026-11-schita-3`, actualizată la 2026-11-17.
+> Versiunea textelor: `2026-11-schita-4`, actualizată la 2026-11-17.
 >
 > Document generat din `src/content/ro/legal.ts` cu `npm run docs:content`. Aplicația afișează exact aceste texte: ecranul de consimțământ din onboarding și „Setări → Confidențialitate și securitate → Citește declarația de confidențialitate”.
 
@@ -22,7 +22,7 @@ Dacă produsul primește funcții online, textele trebuie rescrise și consimț�
 
 ### Datele tale rămân la tine
 
-Ca să funcționeze, CycleCare păstrează date despre sănătatea ta: zilele de menstruație, simptomele, dispoziția, temperatura și notele pe care le scrii. Înainte să notezi ceva, iată ce se întâmplă cu ele.
+Ca să funcționeze, CycleCare păstrează date despre sănătatea ta: zilele de menstruație, simptomele, dispoziția, temperatura, notele pe care le scrii și, numai dacă alegi să le notezi, contactele intime și contracepția folosită. Înainte să notezi ceva, iată ce se întâmplă cu ele.
 
 **Unde sunt păstrate.** Doar pe acest dispozitiv, criptate. Nu există cont și nu există server, iar noi nu le putem vedea.
 
@@ -34,7 +34,7 @@ Ca să funcționeze, CycleCare păstrează date despre sănătatea ta: zilele de
 
 Căsuțe de bifat (ambele obligatorii, nebifate din oficiu):
 
-- [ ] Sunt de acord ca CycleCare să prelucreze, pe acest dispozitiv, datele privind sănătatea pe care le introduc, în scopurile descrise mai sus.
+- [ ] Sunt de acord ca CycleCare să prelucreze, pe acest dispozitiv, datele privind sănătatea și viața intimă pe care le introduc, în scopurile descrise mai sus.
 - [ ] Am cel puțin 16 ani sau am acordul unui părinte ori al unui tutore.
 
 | Element | Text |
@@ -80,6 +80,7 @@ Aplicația lucrează doar cu informațiile pe care le introduci sau le imporți 
 
 - date despre ciclu: zilele de menstruație și intensitatea fluxului, durata obișnuită a ciclului și a menstruației;
 - jurnalul zilnic: simptome și intensitatea lor, dispoziție, nivel de energie, temperatură bazală, secreție cervicală, note libere;
+- viața intimă, numai dacă alegi să o notezi: zilele cu contact intim, felul contactului și contracepția folosită;
 - profilul, dacă îl completezi: un nume sau o poreclă și o poză de profil, micșorată pe dispozitiv la 256 × 256 de pixeli (fișierul original nu este păstrat);
 - obiectivele alese la început (de exemplu, urmărire generală sau planificarea unei sarcini);
 - setări: memento-uri, denumirile medicamentelor pentru care ceri memento, temă, dimensiunea textului;
@@ -88,6 +89,8 @@ Aplicația lucrează doar cu informațiile pe care le introduci sau le imporți 
 ### 4. Date privind sănătatea
 
 Cele mai multe dintre aceste informații sunt date privind sănătatea, pe care Regulamentul general privind protecția datelor (GDPR) le protejează în mod special. Le prelucrăm numai pe baza consimțământului tău explicit, dat la prima deschidere a aplicației (art. 6 alin. (1) lit. a) și art. 9 alin. (2) lit. a) din GDPR).
+
+Contactele intime și contracepția pe care alegi să le notezi sunt date privind viața sexuală, protejate la fel de strict. Notarea lor este opțională, ele nu apar în raportul PDF, iar inimioarele din calendar pot fi ascunse din Setări → Confidențialitate și securitate.
 
 Îți poți retrage consimțământul oricând, din Setări → Confidențialitate și securitate. Retragerea șterge datele de pe dispozitiv și nu afectează legalitatea prelucrării de până atunci.
 
@@ -108,6 +111,7 @@ Toate aceste calcule se fac pe dispozitivul tău. Nu luăm decizii automate cu e
 - pentru a-ți arăta statistici, sfaturi potrivite și observații despre ce ai notat;
 - pentru a-ți afișa memento-urile pe care le-ai cerut;
 - pentru a-ți afișa numele și poza în profil, dacă le-ai adăugat;
+- pentru a estima, din contactele intime notate și din ciclul tău, riscul sau șansa de sarcină;
 - pentru a crea, la cererea ta, raportul PDF sau exportul de date.
 
 ### 7. Cu cine partajăm datele
@@ -172,6 +176,7 @@ Punctele de mai jos nu apar în aplicație. Sunt deciziile și verificările de 
 7. Notificările și ePrivacy. Stocarea locală este strict necesară serviciului cerut de utilizator; de confirmat că nu este nevoie de un acord separat de tip cookie (Legea nr. 506/2004).
 8. Versiunile din magazinele de aplicații. Apple și Google cer declarații proprii despre date („privacy nutrition labels”, „Data safety”) și au reguli speciale pentru aplicațiile de sănătate și pentru HealthKit / Health Connect. Textele trebuie aliniate cu acestea.
 9. Funcții viitoare. Copia în cloud, sincronizarea sau trimiterea raportului către medic schimbă fundamental analiza: apar persoane împuternicite, transferuri, durate de păstrare, obligații de securitate și de notificare a incidentelor. Fiecare are nevoie de acord separat (șablonul este inclus) și de o actualizare a declarației.
-10. Profilul. Numele și poza de profil sunt opționale, rămân pe dispozitiv și nu sunt folosite pentru identificare (poza nu este prelucrată ca dată biometrică). De confirmat că mențiunea din secțiunea 3 este suficientă și că poza poate înfățișa și alte persoane decât utilizatorul (de exemplu, o fotografie de grup).
-11. Datele celor apropiați. Notele libere pot conține informații despre alte persoane (de exemplu, partener). De decis dacă este nevoie de o mențiune.
-12. Limba și accesibilitatea. Declarația trebuie să rămână ușor de înțeles (art. 12 GDPR), inclusiv pentru adolescenți, și disponibilă în fiecare limbă în care este oferită aplicația.
+10. Viața intimă și riscul de sarcină. Datele despre viața sexuală sunt o categorie specială distinctă (art. 9 alin. (1) GDPR). Schița le include în acordul general, cu mențiune explicită în textul căsuței; de decis dacă este nevoie de un acord separat, cerut la prima notare a unui contact intim, și ce se întâmplă cu utilizatorii care și-au dat acordul pe o versiune anterioară a textului. Estimarea riscului de sarcină trebuie verificată față de Regulamentul (UE) 2017/745: aplicațiile care spun în ce zile se poate evita o sarcină sunt certificate ca dispozitive medicale. Formulările evită „zi sigură”, nivelul cel mai mic este „scăzut, dar nu zero”, iar fiecare afișare amintește că estimarea nu este o metodă de contracepție. Textele despre contracepția de urgență și testul de sarcină trebuie validate de un medic.
+11. Profilul. Numele și poza de profil sunt opționale, rămân pe dispozitiv și nu sunt folosite pentru identificare (poza nu este prelucrată ca dată biometrică). De confirmat că mențiunea din secțiunea 3 este suficientă și că poza poate înfățișa și alte persoane decât utilizatorul (de exemplu, o fotografie de grup).
+12. Datele celor apropiați. Notele libere pot conține informații despre alte persoane (de exemplu, partener). De decis dacă este nevoie de o mențiune.
+13. Limba și accesibilitatea. Declarația trebuie să rămână ușor de înțeles (art. 12 GDPR), inclusiv pentru adolescenți, și disponibilă în fiecare limbă în care este oferită aplicația.
