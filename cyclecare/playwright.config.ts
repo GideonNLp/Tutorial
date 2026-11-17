@@ -31,5 +31,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // Partner mode talks to the relay that `vite preview` serves itself (see vite.config.ts).
+    env: { VITE_PARTNER_SYNC_URL: '/api/partner' },
   },
 });

@@ -4,6 +4,8 @@ import {
   FLOWS,
   GOALS,
   MUCUS_TYPES,
+  PROTECTIONS,
+  SEX_ACTIVITIES,
   SYMPTOM_IDS,
   emptyAppData,
   type AppData,
@@ -49,7 +51,10 @@ export interface BackupFile {
 }
 
 export function exportBackup(data: AppData, now: Date): string {
-  const file: BackupFile = { app: APP_ID, format: BACKUP_FORMAT, exportedAt: now.toISOString(), data };
+  // A backup carries the journal, not the keys of a partner link: whoever holds the file must not be able to read along.
+  const { partnerView: _view, ...rest } = data;
+  const portable: AppData = { ...rest, partner: { permissions: data.partner.permissions } };
+  const file: BackupFile = { app: APP_ID, format: BACKUP_FORMAT, exportedAt: now.toISOString(), data: portable };
   return JSON.stringify(file, null, 2);
 }
 
@@ -91,6 +96,13 @@ function sanitizeLog(date: string, raw: unknown, fallbackTime: string): DayLog |
   if (typeof raw.mucus === 'string' && (MUCUS_TYPES as readonly string[]).includes(raw.mucus)) {
     log.mucus = raw.mucus as DayLog['mucus'];
   }
+  if (isObject(raw.intimacy)) {
+    const i = raw.intimacy;
+    const pick = <T extends string>(values: unknown, allowed: readonly T[]): T[] =>
+      Array.isArray(values) ? allowed.filter((v) => (values as unknown[]).includes(v)) : [];
+    log.intimacy = { activities: pick(i.activities, SEX_ACTIVITIES), protection: pick(i.protection, PROTECTIONS) };
+    if (i.condomFailed === true && log.intimacy.protection.includes('condom')) log.intimacy.condomFailed = true;
+  }
   const note = text(raw.note, MAX_NOTE);
   if (note) log.note = note;
   return isEmptyLog(log) ? undefined : log;
@@ -119,9 +131,14 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
     data.profile.typicalCycleLength = intIn(p.typicalCycleLength, 21, 45);
     data.profile.typicalPeriodLength = intIn(p.typicalPeriodLength, 2, 10);
     data.profile.showFertility = p.showFertility !== false;
+    data.profile.showIntimacy = p.showIntimacy !== false;
   }
 
   data.user = sanitizeUser(raw.user);
+  if (isObject(raw.partner) && isObject(raw.partner.permissions)) {
+    const p = raw.partner.permissions;
+    data.partner.permissions = { phase: p.phase !== false, calendar: p.calendar !== false, journal: p.journal !== false, notes: p.notes !== false };
+  }
 
   if (isObject(raw.logs)) {
     for (const [date, value] of Object.entries(raw.logs)) {
@@ -159,6 +176,12 @@ export function sanitizeAppData(raw: unknown, nowISO: string): AppData {
   if (isObject(raw.dismissedFlags)) {
     for (const [id, date] of Object.entries(raw.dismissedFlags)) {
       if (id.length <= 80 && isValidISODate(date)) data.dismissedFlags[id] = date;
+    }
+  }
+
+  if (isObject(raw.appliedTips)) {
+    for (const [id, date] of Object.entries(raw.appliedTips)) {
+      if (/^[a-z]{3}-[a-z]{3}-\d{1,2}$/.test(id) && isValidISODate(date)) data.appliedTips[id] = date;
     }
   }
 

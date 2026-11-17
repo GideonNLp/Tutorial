@@ -18,7 +18,16 @@ function scrollToTop(page: Element | null | undefined): void {
  * page scrolls, the bar turns into frosted glass over the content and shows the title in small,
  * centred, while the large title scrolls away underneath — the way iOS navigation bars behave.
  */
-export function Screen(props: { title: string; subtitle?: string; back?: boolean; settings?: boolean; children: ReactNode }) {
+export function Screen(props: {
+  title: string;
+  subtitle?: string;
+  back?: boolean;
+  settings?: boolean;
+  /** The profile picture beside the settings button (tab pages of the owner's app). */
+  profile?: boolean;
+  children: ReactNode;
+}) {
+  const withProfile = props.settings && props.profile !== false;
   const barRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const s = strings();
@@ -49,11 +58,13 @@ export function Screen(props: { title: string; subtitle?: string; back?: boolean
   }, []);
 
   // Tab pages carry two buttons on the right: settings, then the profile picture in the corner.
-  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? 'has-trailing-2' : ''].filter(Boolean).join(' ');
+  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? (withProfile ? 'has-trailing-2' : 'has-trailing') : '']
+    .filter(Boolean)
+    .join(' ');
   return (
     <>
       <header
-        className={props.settings ? 'navbar has-actions-2' : 'navbar'}
+        className={withProfile ? 'navbar has-actions-2' : 'navbar'}
         ref={barRef}
         onClick={(e) => {
           // Like tapping the status bar: a tap on the bar itself returns to the top.
@@ -76,7 +87,7 @@ export function Screen(props: { title: string; subtitle?: string; back?: boolean
               <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
                 <Settings size={20} aria-hidden="true" />
               </button>
-              <ProfileButton />
+              {withProfile && <ProfileButton />}
             </div>
           ) : (
             <span />
@@ -98,7 +109,13 @@ export function Screen(props: { title: string; subtitle?: string; back?: boolean
   );
 }
 
-const TABS: Array<{ route: Route; icon: LucideIcon; label: () => string }> = [
+export interface TabItem {
+  route: Route;
+  icon: LucideIcon;
+  label: () => string;
+}
+
+const TABS: TabItem[] = [
   { route: 'azi', icon: CircleDot, label: () => strings().nav.today },
   { route: 'calendar', icon: CalendarDays, label: () => strings().nav.calendar },
   { route: 'jurnal', icon: NotebookPen, label: () => strings().nav.journal },
@@ -106,12 +123,12 @@ const TABS: Array<{ route: Route; icon: LucideIcon; label: () => string }> = [
   { route: 'statistici', icon: ChartColumn, label: () => strings().nav.stats },
 ];
 
-export function TabBar() {
+export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
   const route = useRoute();
   return (
     <nav className="tabbar" aria-label={strings().nav.label}>
-      <ul>
-        {TABS.map(({ route: to, icon: Icon, label }) => (
+      <ul style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+        {tabs.map(({ route: to, icon: Icon, label }) => (
           <li key={to}>
             <a
               className="tab"

@@ -11,13 +11,21 @@ import { renderLegalDoc, renderTipsDoc } from '../scripts/content-docs.mjs';
 const doc = (name: string) => readFileSync(new URL(`../docs/${name}`, import.meta.url), 'utf8');
 
 describe('content', () => {
-  it('has two tips per theme for every phase, with unique ids', () => {
+  it('has seven tips per theme for every phase, each with a "why", and unique ids', () => {
     const ids: string[] = [];
     for (const phase of PHASES) {
       expect(tips.phaseTips[phase].summary.length).toBeGreaterThan(40);
+      expect(tips.phaseTips[phase].hormones.length, `${phase} hormones`).toBeGreaterThan(120);
       for (const category of tips.TIP_CATEGORIES) {
         const list = tips.phaseTips[phase].tips[category];
-        expect(list.length, `${phase}/${category}`).toBe(2);
+        expect(list.length, `${phase}/${category}`).toBe(7);
+        for (const tip of list) {
+          expect(tip.id, tip.id).toMatch(/^[a-z]{3}-[a-z]{3}-\d$/);
+          expect(tip.title.length, tip.id).toBeLessThanOrEqual(40);
+          expect(tip.body.length, tip.id).toBeLessThanOrEqual(220);
+          expect(tip.why.length, tip.id).toBeGreaterThan(40);
+          expect(tip.why.length, tip.id).toBeLessThanOrEqual(220);
+        }
         ids.push(...list.map((t) => t.id));
       }
     }

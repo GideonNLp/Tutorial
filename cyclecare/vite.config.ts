@@ -2,8 +2,10 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { handleRelay, memoryRelayStore } from './server/relay.ts';
 
 /**
  * Content-Security-Policy for the production PWA build.
@@ -11,19 +13,24 @@ import react from '@vitejs/plugin-react';
  * which is the guarantee the privacy texts rely on. (Not applied in dev: HMR needs inline scripts + websockets.)
  * With `default-src 'self'` on an HTTPS origin nothing can be loaded over plain HTTP either, so there is no mixed content.
  */
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "worker-src 'self'",
-  "manifest-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'none'",
-].join('; ');
+function csp(site: SiteConfig): string {
+  // The partner relay normally lives on the same origin (/api/partner). Only if it is configured on
+  // another host does that one origin join `connect-src`.
+  const relayOrigin = /^https:\/\//.test(site.partnerSyncUrl) ? new URL(site.partnerSyncUrl).origin : '';
+  return [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    `connect-src 'self'${relayOrigin ? ` ${relayOrigin}` : ''}`,
+    "worker-src 'self'",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'none'",
+  ].join('; ');
+}
 
 /** Colours repeated outside the stylesheet (manifest, 404 page). They mirror `bg` / `ink` in src/styles/tokens.json. */
 const COLORS = { lightBg: '#F6F5FB', lightInk: '#1F1B3A', darkBg: '#14121E', darkInk: '#F1EEF8' };
@@ -34,6 +41,11 @@ interface SiteConfig {
   /** Absolute address of the published app, with a trailing slash, when known. */
   publicUrl: string | undefined;
   allowIndexing: boolean;
+  /**
+   * Where the partner relay answers: a same-origin path (`/api/partner`) or an https URL.
+   * Empty: Partner mode is not offered (for example on GitHub Pages, which cannot run the relay).
+   */
+  partnerSyncUrl: string;
 }
 
 function siteConfig(mode: string): SiteConfig {
@@ -45,6 +57,8 @@ function siteConfig(mode: string): SiteConfig {
     description: `${appName} – urmărirea ciclului menstrual, cu datele păstrate criptat pe dispozitivul tău.`,
     publicUrl: rawUrl ? rawUrl.replace(/\/*$/, '/') : undefined,
     allowIndexing: env.VITE_ALLOW_INDEXING === 'true',
+    // Netlify builds get the bundled function by default (NETLIFY=true is set by Netlify's build image).
+    partnerSyncUrl: (env.VITE_PARTNER_SYNC_URL ?? (process.env.NETLIFY === 'true' ? '/api/partner' : '')).trim().replace(/\/+$/, ''),
   };
 }
 
@@ -56,7 +70,7 @@ function htmlMeta(site: SiteConfig, production: boolean): Plugin {
     name: 'cyclecare-html-meta',
     transformIndexHtml(html) {
       const head = [
-        production ? `<meta http-equiv="Content-Security-Policy" content="${CSP}">` : '',
+        production ? `<meta http-equiv="Content-Security-Policy" content="${csp(site)}">` : '',
         site.allowIndexing ? '' : '<meta name="robots" content="noindex, nofollow">',
         site.allowIndexing && site.publicUrl ? `<link rel="canonical" href="${escapeHtml(site.publicUrl)}">` : '',
       ]
@@ -156,9 +170,9 @@ function notFoundPage(site: SiteConfig): string {
  * Response headers for hosts that read a `_headers` file (Netlify, Cloudflare Pages).
  * Other hosts ignore the file; the meta Content-Security-Policy in index.html still applies there.
  */
-function headersFile(): string {
+function headersFile(site: SiteConfig): string {
   return `/*
-  Content-Security-Policy: ${CSP}; frame-ancestors 'none'
+  Content-Security-Policy: ${csp(site)}; frame-ancestors 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
@@ -202,9 +216,42 @@ function siteFiles(site: SiteConfig): Plugin {
       const emit = (fileName: string, source: string) => this.emitFile({ type: 'asset', fileName, source });
       emit('manifest.webmanifest', manifest(site));
       emit('404.html', notFoundPage(site));
-      emit('_headers', headersFile());
+      emit('_headers', headersFile(site));
       emit('robots.txt', robotsFile(site));
     },
+  };
+}
+
+/**
+ * The partner relay inside `vite` and `vite preview`, with an in-memory store, so Partner mode works
+ * locally and in the end-to-end tests. Production uses the Netlify Function (netlify/functions/partner.mts).
+ */
+function localPartnerRelay(site: SiteConfig): Plugin {
+  const store = memoryRelayStore();
+  const mount = (middlewares: { use: (fn: (req: IncomingMessage, res: ServerResponse, next: () => void) => void) => void }) => {
+    const base = site.partnerSyncUrl;
+    if (!base.startsWith('/')) return;
+    middlewares.use((req, res, next) => {
+      if (!req.url?.startsWith(base)) return next();
+      const chunks: Buffer[] = [];
+      req.on('data', (chunk: Buffer) => chunks.push(chunk));
+      req.on('end', () => {
+        const headers = new Headers();
+        for (const [key, value] of Object.entries(req.headers)) if (typeof value === 'string') headers.set(key, value);
+        const body = chunks.length && req.method !== 'GET' && req.method !== 'HEAD' ? Buffer.concat(chunks) : undefined;
+        const request = new Request(`http://localhost${req.url}`, { method: req.method, headers, body });
+        void handleRelay(request, store, base).then(async (response) => {
+          res.statusCode = response.status;
+          response.headers.forEach((value, key) => res.setHeader(key, value));
+          res.end(Buffer.from(await response.arrayBuffer()));
+        });
+      });
+    });
+  };
+  return {
+    name: 'cyclecare-local-partner-relay',
+    configureServer: (server) => mount(server.middlewares),
+    configurePreviewServer: (server) => mount(server.middlewares),
   };
 }
 
@@ -259,8 +306,11 @@ export default defineConfig(({ mode, command }) => {
   return {
     // Relative addresses everywhere: the build works from a domain root or from any sub-folder.
     base: './',
-    plugins: [react(), htmlMeta(site, command === 'build' && !single), ...(single ? [] : [siteFiles(site), precacheList()])],
+    plugins: [react(), htmlMeta(site, command === 'build' && !single), ...(single ? [] : [siteFiles(site), precacheList(), localPartnerRelay(site)])],
     define: {
+      // The single-file preview has no relay to talk to.
+      // Unit tests talk to an in-process relay at this path (see tests/partnerFlows.test.ts).
+      __PARTNER_SYNC_URL__: JSON.stringify(process.env.VITEST ? '/api/partner' : single ? '' : site.partnerSyncUrl),
       __APP_VERSION__: JSON.stringify((JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version),
       __PREVIEW__: JSON.stringify(single),
     },
@@ -284,6 +334,7 @@ export default defineConfig(({ mode, command }) => {
         VITE_CONTACT_EMAIL: '',
         VITE_DPO_CONTACT: '',
         VITE_LEGAL_REVIEWED: '',
+        VITE_PARTNER_SYNC_URL: '',
       },
     },
   };

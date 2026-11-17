@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { dumpStorage, startEmpty, startWithJournal, tab } from './helpers';
+import { dumpStorage, editJournalSection, startEmpty, startWithJournal, tab } from './helpers';
 
 test('logging the first period day starts a cycle and a prediction', async ({ page }) => {
   await startEmpty(page);
@@ -33,6 +33,11 @@ test('journal entries are saved automatically, survive a reload and are encrypte
 
   await page.reload();
   await tab(page, 'Jurnal');
+  // A day with entries opens as a summary.
+  await expect(page.locator('[data-section="symptoms"] .tag')).toHaveText(['Crampe · sever']);
+  await expect(page.locator('[data-section="bbt"] .tag')).toHaveText(['36,55 °C']);
+  await expect(page.locator('[data-section="note"]')).toContainText('Zi grea, am stat acasă.');
+  for (const section of ['Flux', 'Simptome', 'Temperatură bazală', 'Notă']) await editJournalSection(page, section);
   await expect(page.getByRole('radio', { name: 'Abundent' })).toBeChecked();
   await expect(page.getByRole('checkbox', { name: 'Crampe' })).toBeChecked();
   await expect(page.getByRole('radio', { name: 'Sever' })).toBeChecked();
@@ -62,6 +67,8 @@ test('future days cannot be journalled', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Săptămâna următoare' })).toBeDisabled();
   await page.getByRole('button', { name: 'Săptămâna anterioară' }).click();
   await expect(page.getByRole('heading', { level: 2, name: 'Duminică, 8 noiembrie' })).toBeVisible();
+  await expect(page.locator('[data-section="flow"] .tag')).toHaveText(['Ușor']);
+  await editJournalSection(page, 'Flux');
   await expect(page.getByRole('radio', { name: 'Ușor', exact: true })).toBeChecked(); // sample journal: last period day, light flow
 });
 
@@ -97,7 +104,8 @@ test('tips follow the phase and the recently logged symptoms; a flag can be dism
   await startWithJournal(page);
   await tab(page, 'Sfaturi');
   await expect(page.getByRole('radio', { name: /Faza foliculară/ })).toBeChecked();
-  await expect(page.getByRole('heading', { name: 'Farfurie variată' })).toBeVisible();
+  // Cycle day 12: the follicular set that starts with the second tip.
+  await expect(page.getByRole('heading', { name: 'Proteine la fiecare masă' })).toBeVisible();
   await page.getByRole('radio', { name: 'Somn' }).check();
   await expect(page.getByRole('heading', { name: 'Lumină dimineața' })).toBeVisible();
   await expect(page.getByRole('heading', { level: 3, name: 'Crampe', exact: true })).toBeVisible();

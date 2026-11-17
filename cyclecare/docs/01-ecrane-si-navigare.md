@@ -103,10 +103,11 @@ Răspunde la „unde sunt în ciclu și ce urmează?”.
 3. **Cadranul ciclului.** Ziua 1 este sus, sensul este cel al acelor de ceas. Arcele sunt cele patru faze estimate, bila marchează ziua de azi, arcul întrerupt de sus este intervalul în care este așteptată următoarea menstruație, iar arcul punctat din exterior marchează zilele fertile estimate. În centru: „Ziua 12” și faza. Dedesubt, legenda cu zilele fiecărei faze.
 4. **Următoarea menstruație**: intervalul („Probabil între 29 noiembrie și 5 decembrie”), data cea mai probabilă, peste câte zile, precizia estimării și pe ce se bazează.
 5. **Fertilitate**: zilele fertile și ovulația estimate, cu avertismentul de contracepție. Lipsește dacă estimările de fertilitate sunt oprite.
-6. **Cum e azi?**: fluxul de azi dintr-o atingere, rezumatul a ceea ce s-a notat, buton către jurnal.
-7. **Memento-uri azi**, dacă există.
-8. **De urmărit**: cel mult două observații, cu legătură către toate.
-9. **Un sfat pentru azi**: unul pe zi, pentru faza curentă.
+6. **Risc de sarcină** („Șansa de sarcină” când obiectivul este planificarea unei sarcini): șansa de azi, pe trei trepte, cu motivul; contactele intime din ciclul curent și cel mai mare risc; după un contact cu risc, contracepția de urgență (în primele 5 zile) și ziua din care un test de sarcină este de încredere; mereu, nota că este o estimare, nu o metodă de contracepție. Regulile sunt în `03-algoritm-predictie.md`, secțiunea 8.
+7. **Cum e azi?**: fluxul de azi dintr-o atingere, rezumatul a ceea ce s-a notat, buton către jurnal.
+8. **Memento-uri azi**, dacă există.
+9. **De urmărit**: cel mult două observații, cu legătură către toate.
+10. **Un sfat pentru azi**: unul pe zi, pentru faza curentă.
 
 Stări: fără nicio menstruație notată (cadran gol și invitația de a nota prima zi); menstruație așteptată („poate începe în orice zi”); menstruație întârziată (numărul de zile și trimitere către sfaturi).
 
@@ -119,7 +120,8 @@ Stări: fără nicio menstruație notată (cadran gol și invitația de a nota p
 
 1. Navigare pe luni (săgeți, „Înapoi la azi”).
 2. **Grila lunii**, cu săptămâna începând lunea. Fiecare fază este o bandă colorată, cu o linie în culoarea fazei dedesubt. Semne: cerc plin pentru menstruație notată, cerc întrerupt pentru menstruație estimată, inel dublu pentru ovulația estimată, punct pentru zi fertilă estimată, romb pentru spotting sau sângerare între menstruații, pătrat pentru o zi cu notițe; ziua de azi este subliniată.
-3. **Detaliile zilei selectate**: ziua ciclului, faza, ce este estimat, ce s-a notat, buton către jurnal. Zilele viitoare arată doar estimări.
+3. **Detaliile zilei selectate**: ziua ciclului, faza, ce este estimat, ce s-a notat, riscul de sarcină pentru un contact intim notat, buton către jurnal. Zilele viitoare arată doar estimări.
+   Zilele cu un contact intim au o **inimioară** printre semnele de sub număr. Inimioara are culoarea textului, nu o culoare de fază, și poate fi ascunsă din „Confidențialitate și securitate → Discreție”.
 4. **Editarea zilelor de menstruație**: un mod în care atingerea unei zile trecute o marchează sau o demarchează, pentru completarea rapidă a istoricului.
 5. Legenda și avertismentul de contracepție.
 
@@ -142,9 +144,18 @@ O zi pe ecran, aleasă dintr-o bandă cu zilele săptămânii. Zilele viitoare n
 | Energie | scală cu cinci trepte | foarte scăzută … foarte ridicată |
 | Temperatură bazală | câmp numeric și „Importă din fișier” | 34–42 °C, cu două zecimale |
 | Secreție cervicală | alegere unică | uscat, lipicios, cremos, apos, albuș de ou |
+| Viață intimă | comutator „Am avut un contact intim”, apoi alegere multiplă pentru felul contactului și pentru contracepție; „Prezervativul s-a rupt sau a alunecat” | penetrare vaginală, sex oral, sex anal, jucării sexuale; prezervativ, pilulă, sterilet, altă metodă hormonală, retragere, fără protecție, pilula de urgență |
 | Notă | text liber | până la 2000 de caractere |
 
-Nu există buton de salvare: fiecare schimbare se salvează pe loc, iar sub dată apare „Salvat”.
+Fiecare alegere se păstrează pe loc, iar sub dată apare „Salvat”, așa că nimic nu se pierde dacă pagina este părăsită. În plus, cât timp o secțiune este deschisă, butonul **„Salvare”** stă fixat jos, deasupra barei de file, și ajunge la capătul listei când derulezi până acolo. La apăsare:
+
+1. modificările sunt scrise imediat pe dispozitiv, butonul devine „Salvat ✓” și apare mesajul „Salvat ✓”;
+2. după o clipă toate secțiunile se restrâng într-un **rezumat**: titlul secțiunii, alegerile ca etichete mici (de exemplu „Crampe · sever”, „Mediu”, „36,55 °C”), primele rânduri ale notei sau „Nimic notat”; pagina revine sus;
+3. fiecare secțiune restrânsă are un buton mic **„Editează”** (sau „Adaugă”, dacă e goală) care o redeschide doar pe ea și mută focusul pe primul ei control.
+
+O zi care are deja ceva notat se deschide direct ca rezumat; o zi goală se deschide cu toate secțiunile. O temperatură care nu poate fi păstrată (de exemplu 50) oprește restrângerea: câmpul rămâne deschis, cu mesajul lângă el.
+
+Sub detaliile unui contact intim apare riscul de sarcină pentru acel contact și motivul (de exemplu „Risc de sarcină: scăzut. Prezervativul folosit corect reduce mult riscul.”). Oprirea comutatorului șterge contactul, cu „Anulează” în mesajul de confirmare. Contactele intime nu apar în raportul PDF.
 
 <p>
 <img src="screenshots/09-jurnal.png" width="230" alt="Jurnalul zilei: flux și simptome">
@@ -153,7 +164,10 @@ Nu există buton de salvare: fiecare schimbare se salvează pe loc, iar sub dat�
 ### 4.4 Sfaturi
 
 1. **De urmărit**: observațiile active, fiecare cu „Am înțeles” (o ascunde 30 de zile).
-2. **Pentru faza în care ești**: faza curentă este preselectată și marcată „acum”; celelalte pot fi răsfoite. Patru teme: alimentație, mișcare, somn, piele.
+2. **Pentru faza în care ești**: faza curentă este preselectată și marcată „acum”; celelalte pot fi răsfoite.
+   - Un card în culoarea fazei cu rezumatul ei și butonul extensibil **„De ce se întâmplă asta?”**, care explică pe scurt ce fac hormonii în acea fază.
+   - Patru teme (alimentație, mișcare, somn, piele), fiecare cu 7 sfaturi. Se văd câte **3 carduri**, alese după ziua ciclului, deci altele în fiecare zi; **„Alte idei ↻”** arată imediat următoarele trei.
+   - Fiecare card are tema (cu pictogramă), un titlu care spune ce faci, textul, **„De ce ajută?”** (legătura cu hormonii, închisă până la apăsare) și **„Am aplicat ✓”**, care marchează cardul pentru ziua de azi; o a doua apăsare anulează marcajul.
 3. **Pentru ce ai notat recent**: câte o fișă pentru fiecare simptom notat de curând, cu „Ce poate ajuta” și „Când merită să ceri sfatul unui medic”.
 4. Mențiunea că sfaturile sunt informații generale.
 
@@ -201,7 +215,8 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 |---|---|
 | Ciclul meu | Duratele obișnuite (sau „Nu știu”), obiectivele, comutatorul „Arată fazele ciclului și estimările de fertilitate” |
 | Memento-uri | Starea permisiunii de notificare; text discret; începutul menstruației estimate și zilele fertile (cu câte zile înainte, ora, repetare zilnică); pilulă și alte medicamente (denumire, oră, în fiecare zi sau în anumite zile) |
-| Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; unde sunt datele; partajarea cu terți; acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
+| Confidențialitate și securitate | PIN (setare, schimbare, dezactivare), deblocare biometrică, blocare automată, „Blochează acum”; discreție (inimioarele din calendar); unde sunt datele; partajarea cu terți (ce se partajează prin Modul Partener, cu legătură către Setări → Partener); acordul dat și retragerea lui; declarația de confidențialitate; ștergerea tuturor datelor |
+| Partener | Ce poate vedea partenerul, invitația și oprirea partajării (secțiunea 5.1) |
 | Datele mele | Raportul PDF; exportul și restaurarea unei copii JSON; importul de temperaturi și istoricul importurilor |
 | Aspect și accesibilitate | Tema (ca dispozitivul, luminoasă, întunecată), dimensiunea textului (patru trepte), limba |
 | Despre CycleCare | Versiunea, limitele aplicației, instalarea pe ecranul principal, actualizarea la o versiune nouă, licențe |
@@ -212,6 +227,20 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 <img src="screenshots/15-confidentialitate.png" width="230" alt="Confidențialitate și securitate">
 <img src="screenshots/18-blocare.png" width="230" alt="Ecranul de blocare cu PIN">
 </p>
+
+### 5.1 Modul Partener
+
+**Pe telefonul proprietarei, Setări → Partener.** Bifele „Ce poate vedea partenerul” (faza curentă; calendarul și estimările; cum te simți; notițele personale, doar împreună cu „cum te simți”), toate pornite la început, și nota cu ce nu este trimis niciodată (contactele intime, temperatura, secreția cervicală, poza de profil). „Invită partenerul” cere întâi un acord separat, apoi afișează codul de 6 caractere, timpul rămas (10 minute) și „Trimite linkul”. Când partenerul introduce codul, apar cele 6 cifre de verificare, cu „Aprob” și „Nu sunt aceleași”. După conectare: data conectării, starea sincronizării („Ultima actualizare trimisă: acum”, „Fără internet: actualizarea pleacă de îndată ce revii online”), bifele și „Oprește partajarea”, cu confirmare. Unde aplicația nu are server (GitHub Pages), ecranul spune doar că modul nu este disponibil.
+
+**Pe telefonul partenerului.** Primul ecran are și „Conectează-te ca partener”: codul (sau linkul de invitație, care îl completează), apoi cele 6 cifre de arătat. După aprobare, aplicația are trei file, doar pentru citire:
+
+| Filă | Conținut |
+|---|---|
+| Azi | Faza și ziua ciclului, peste câte zile este așteptată menstruația (cu intervalul), „Cum se simte azi” (flux, simptome, dispoziție, energie, nota zilei), „Cum poți ajuta” (două sfaturi pentru faza curentă, cu „Alte idei ↻”) |
+| Calendar | Luna, cu fazele, menstruația notată și estimată, zilele fertile; detaliile zilei alese |
+| Istoric | Zilele notate din ultimele 14, cu etichete și note, după permisiuni |
+
+Sus, pe fiecare filă: „Actualizat acum” și „Actualizează”; fără internet, momentul ultimei actualizări primite; după oprirea partajării, „Partajarea a fost oprită”. Ce nu este împărtășit apare ca atare („Jurnalul nu este împărtășit.”). Avatarul din colț deschide setările partenerului: conexiunea și „Deconectează-te” (care șterge tot de pe telefonul lui), PIN, aspect, despre.
 
 ## 6. Blocare
 
@@ -254,7 +283,8 @@ Fiecare ecran are o adresă simplă, astfel încât butonul „înapoi” al tel
 | `#statistici` | Statistici |
 | `#profil` | Profil |
 | `#setari` | Setări |
-| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
+| `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-partener`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
+| `#partener=COD` | Linkul de invitație: deschide conectarea partenerului cu codul completat, apoi adresa revine la `#azi` |
 | `#politica` | Declarația de confidențialitate |
 
 Ziua deschisă în jurnal și luna din calendar nu apar în adresă.

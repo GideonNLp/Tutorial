@@ -27,3 +27,8 @@ export const OPERATOR = {
 
 /** Set to `true` once a lawyer has approved the consent and privacy texts: it removes the "draft" notice. */
 export const LEGAL_REVIEWED = import.meta.env.VITE_LEGAL_REVIEWED === 'true';
+
+/** Base address of the partner relay; empty when this build offers no Partner mode. */
+// (Read defensively: the docs generator loads this module without the build's defines.)
+export const PARTNER_SYNC_URL: string = typeof __PARTNER_SYNC_URL__ === 'string' ? __PARTNER_SYNC_URL__ : '';
+export const partnerAvailable = (): boolean => PARTNER_SYNC_URL !== '';

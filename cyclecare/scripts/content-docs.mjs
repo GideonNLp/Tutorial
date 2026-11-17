@@ -57,11 +57,17 @@ export function renderTipsDoc({ tips, ro, thresholds: T, severity, symptomGroups
     '',
     '| Parte | Când apare în aplicație | Structură |',
     '|---|---|---|',
-    '| Sfaturi pe faze | Ecranul „Sfaturi” (faza curentă este preselectată) și „Un sfat pentru azi” pe ecranul principal | 4 faze × 4 teme (alimentație, mișcare, somn, piele) × 2 sfaturi; fiecare sfat are identificator, titlu și text |',
+    '| Sfaturi pe faze | Ecranul „Sfaturi” (faza curentă este preselectată) și „Un sfat pentru azi” pe ecranul principal | pentru fiecare fază: un rezumat și o explicație hormonală („De ce se întâmplă asta?”); 4 teme (alimentație, mișcare, somn, piele) × 7 sfaturi; fiecare sfat are identificator, titlu, text și explicația „De ce ajută?” |',
     '| Sfaturi pe simptome | Ecranul „Sfaturi”, pentru simptomele notate recent | pentru fiecare simptom: 2–3 sugestii („Ce poate ajuta”) și un paragraf „Când merită să ceri sfatul unui medic” |',
     '| Semnalizări | Ecranele „Azi” și „Sfaturi”, când o regulă este îndeplinită | titlu și mesaj cu valori completate automat; fiecare are o regulă de declanșare |',
     '',
-    'Pentru o limbă nouă se copiază fișierul în `src/content/<limbă>/tips.ts` și se traduc textele, păstrând identificatorii.',
+    'Pentru o limbă nouă se copiază fișierele în `src/content/<limbă>/` (`tips.ts` și `phaseTips.ts`) și se traduc textele, păstrând identificatorii.',
+    '',
+    '### Cum sunt afișate sfaturile pe faze',
+    '',
+    '- Ecranul „Sfaturi” arată câte **3 sfaturi** din cele 7 ale temei alese, sub formă de carduri. Setul se alege după ziua ciclului (fără ciclu cunoscut, după dată): în zile consecutive începe din locuri diferite, așa că același set revine abia după o săptămână. Butonul „Alte idei ↻” trece la setul următor.',
+    '- Fiecare card are tema (cu pictogramă), titlul, textul, explicația „De ce ajută?” (închisă până la apăsare) și butonul „Am aplicat ✓”, care marchează sfatul pentru ziua de azi. Marcajele se păstrează criptat, cu jurnalul, și sunt uitate după 60 de zile.',
+    '- Rezumatul fazei apare într-un card colorat în culoarea fazei, cu explicația „De ce se întâmplă asta?”.',
     '',
     '### Reguli de ton',
     '',
@@ -80,6 +86,7 @@ export function renderTipsDoc({ tips, ro, thresholds: T, severity, symptomGroups
     '| `id` | da | Identificator stabil (de ex. `men-nut-1`), folosit la traducere și la urmărirea reviziei medicale |',
     '| `title` | da | Cel mult ~40 de caractere; spune ce face sfatul, nu ce promite |',
     '| `body` | da | 1–2 propoziții, cel mult ~220 de caractere |',
+    '| `why` | da | „De ce ajută?”: legătura cu hormonii din fază, 1–2 propoziții, fără promisiuni |',
     '| revizuit de / data | la lansare | De adăugat în fluxul editorial: cine a validat medical textul și când |',
     '| sursă | recomandat | Ghidul sau sursa pe care se sprijină afirmația |',
     '',
@@ -89,10 +96,12 @@ export function renderTipsDoc({ tips, ro, thresholds: T, severity, symptomGroups
 
   for (const phase of PHASE_ORDER) {
     const content = tips.phaseTips[phase];
-    out(`### ${ro.phase[phase]}`, '', `**Pe scurt:** ${content.summary}`, '');
-    out('| ID | Temă | Titlu | Text |', '|---|---|---|---|');
+    out(`### ${ro.phase[phase]}`, '', `**Pe scurt:** ${content.summary}`, '', `**De ce se întâmplă asta?** ${content.hormones}`, '');
+    out('| ID | Temă | Titlu | Text | De ce ajută? |', '|---|---|---|---|---|');
     for (const category of CATEGORY_ORDER) {
-      for (const tip of content.tips[category]) out(`| \`${tip.id}\` | ${ro.tips.category[category]} | ${cell(tip.title)} | ${cell(tip.body)} |`);
+      for (const tip of content.tips[category]) {
+        out(`| \`${tip.id}\` | ${ro.tips.category[category]} | ${cell(tip.title)} | ${cell(tip.body)} | ${cell(tip.why)} |`);
+      }
     }
     out('');
   }

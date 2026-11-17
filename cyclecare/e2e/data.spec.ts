@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
-import { openSettings, startEmpty, startWithJournal, tab } from './helpers';
+import { editJournalSection, openSettings, startEmpty, startWithJournal, tab } from './helpers';
 
 test('the doctor report is generated on the device as a real PDF', async ({ page }) => {
   await startWithJournal(page);
@@ -99,6 +99,8 @@ test('basal temperatures are imported from a wearable CSV file', async ({ page }
   await expect(page.getByLabel('Temperatura, în °C')).toHaveValue('36,40');
 
   await page.getByRole('button', { name: /sâmbătă, 14 noiembrie/ }).click();
+  await expect(page.locator('[data-section="bbt"] .tag')).toHaveText(['36,48 °C · importată din inel']);
+  await editJournalSection(page, 'Temperatură bazală');
   await expect(page.getByLabel('Temperatura, în °C')).toHaveValue('36,48');
   await expect(page.getByText('Importată din inel')).toBeVisible();
 

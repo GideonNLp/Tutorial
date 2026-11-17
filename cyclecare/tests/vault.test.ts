@@ -187,6 +187,8 @@ describe('backup', () => {
           '2026-13-45': { flow: 'light' },
           '2026-11-02': { flow: 'tsunami', bbt: { celsius: 99 } },
           '2026-11-03': { bbt: { celsius: 36.456, source: 'import', device: 'Ring' }, mucus: 'creamy' },
+          '2026-11-04': { intimacy: { activities: ['oral', 'dance'], protection: ['condom', 'magic'], condomFailed: true } },
+          '2026-11-05': { intimacy: { activities: 'oral', protection: null, condomFailed: true } },
         },
         reminders: {
           discreet: false,
@@ -198,8 +200,17 @@ describe('backup', () => {
       },
       NOW,
     );
-    expect(data.profile).toEqual({ goals: ['conception'], typicalCycleLength: undefined, typicalPeriodLength: 4, showFertility: false });
-    expect(Object.keys(data.logs)).toEqual(['2026-11-01', '2026-11-03']);
+    expect(data.profile).toEqual({
+      goals: ['conception'],
+      typicalCycleLength: undefined,
+      typicalPeriodLength: 4,
+      showFertility: false,
+      showIntimacy: true,
+    });
+    expect(Object.keys(data.logs)).toEqual(['2026-11-01', '2026-11-03', '2026-11-04', '2026-11-05']);
+    expect(data.logs['2026-11-04']!.intimacy).toEqual({ activities: ['oral'], protection: ['condom'], condomFailed: true });
+    // A heart with no valid details is still a heart; "condom failed" means nothing without a condom.
+    expect(data.logs['2026-11-05']!.intimacy).toEqual({ activities: [], protection: [] });
     expect(data.logs['2026-11-01']).toMatchObject({ flow: 'heavy', symptoms: { headache: 2 }, energy: 3 });
     expect(data.logs['2026-11-01']!.mood).toBeUndefined();
     expect(data.logs['2026-11-01']!.note).toHaveLength(2000);

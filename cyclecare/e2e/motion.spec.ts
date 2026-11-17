@@ -422,7 +422,7 @@ test.describe('small movements', () => {
     await withMotion(page);
     await page.getByRole('radio', { name: 'Somn' }).check();
     const delays = await page
-      .locator('.tip-list > li')
+      .locator('.tip-cards > li')
       .evaluateAll((items) => items.map((li) => li.getAnimations().map((a) => Number(a.effect?.getTiming().delay))[0]));
     expect(delays.length).toBeGreaterThan(1);
     expect(delays[0]).toBe(0);

@@ -340,6 +340,10 @@
   background: var(--menstruation);
   transform: rotate(45deg);
 }
+/* The partner's read-only calendar marks the chosen day the same way. */
+.cal:not(.editing) .cal-day[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
 .cal.editing .cal-day[aria-pressed='true'] {
   box-shadow: inset 0 0 0 2px var(--menstruation);
 }
@@ -392,6 +396,58 @@
   place-items: center;
   flex: none;
   width: 1.5rem;
+}
+
+/* ---------------------------------------------------------------- intimacy & pregnancy risk */
+
+/* Hearts are ink, like the other journal marks: colour stays reserved for the cycle phases. */
+.mark-heart {
+  width: 10px;
+  height: 10px;
+  margin-block: -2px;
+  color: var(--ink);
+}
+.legend-mark .mark-heart {
+  width: 11px;
+  height: 11px;
+}
+.mark-heart-inline {
+  flex: none;
+  color: var(--ink);
+  transform: translateY(0.1rem);
+}
+.risk-today {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.risk-scale {
+  display: inline-flex;
+  gap: 3px;
+}
+.risk-scale i {
+  display: block;
+  width: 0.875rem;
+  height: 0.5rem;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--r-pill);
+}
+.risk-scale[data-level='low'] i:nth-child(-n + 1),
+.risk-scale[data-level='medium'] i:nth-child(-n + 2),
+.risk-scale[data-level='high'] i {
+  background: var(--ink);
+}
+.risk-scale[data-level='unknown'] i {
+  border-style: dashed;
+  border-color: var(--muted);
+}
+.risk-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  padding: var(--s4);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
 }
 
 /* ---------------------------------------------------------------- journal */
@@ -493,19 +549,198 @@
   background: var(--surface);
 }
 
-/* ---------------------------------------------------------------- tips */
-
-.tip-list {
+/* Folded sections: the heading, a small edit button and what was chosen, as tags. */
+.journal-summary {
   display: flex;
   flex-direction: column;
+  gap: var(--s2);
+  padding-top: var(--s4);
+  animation: summary-in 0.28s var(--ease-out) backwards;
 }
-.tip-list > li {
-  padding-block: var(--s4);
-  border-top: 1px solid var(--line);
+.journal-summary + .journal-summary {
+  padding-top: var(--s3);
 }
-.tip-list > li:first-child {
-  border-top: 0;
-  padding-top: 0;
+@keyframes summary-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.summary-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.summary-head h2 {
+  font-size: var(--fs-h3);
+}
+.summary-edit {
+  min-height: 2.75rem;
+  margin-right: -0.5rem;
+  text-decoration: none;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s2);
+}
+.tag {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.tag-detail {
+  font-weight: 450;
+  color: var(--ink-2);
+  white-space: pre;
+}
+.note-preview {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* The save button stays at the bottom of the screen while sections are open, above the tab bar. */
+.save-bar {
+  position: sticky;
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s3));
+  z-index: 4;
+  padding-top: var(--s2);
+}
+.save-bar .btn {
+  box-shadow: 0 6px 20px var(--shadow);
+}
+.btn-saved {
+  animation: saved-pop 0.45s var(--ease-spring);
+}
+@keyframes saved-pop {
+  from {
+    transform: scale(0.96);
+  }
+}
+@media (min-width: 56rem) {
+  .save-bar {
+    bottom: var(--s5);
+  }
+}
+
+/* ---------------------------------------------------------------- tips */
+
+/* The phase in a few words, on the phase's own tint, with the hormonal "why" behind it. */
+.phase-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-left: 4px solid var(--c);
+  border-radius: var(--r-control);
+  background: var(--tint);
+}
+.phase-card .phase-line {
+  font-size: var(--fs-small);
+}
+
+.tips-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: calc(-1 * var(--s2));
+}
+.tips-toolbar .btn {
+  flex: none;
+  margin-right: -0.5rem;
+}
+
+.tip-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.tip-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  transition: border-color 0.2s ease-out;
+}
+.tip-card[data-applied] {
+  border-color: var(--ink);
+}
+.tip-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  line-height: 1.25;
+}
+.tip-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+.tip-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.65rem;
+  border-radius: var(--r-pill);
+  background: var(--tint);
+  font-size: var(--fs-caption);
+  font-weight: 650;
+}
+.tip-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--fs-caption);
+  font-weight: 650;
+}
+
+/* "De ce ajută?" — a quiet disclosure; the chevron turns when it opens. */
+.why summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.75rem;
+  font-size: var(--fs-small);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  list-style: none;
+}
+.why summary::-webkit-details-marker {
+  display: none;
+}
+.why summary svg {
+  transition: transform 0.2s var(--ease-out);
+}
+.why[open] summary svg {
+  transform: rotate(180deg);
+}
+.why p {
+  padding: var(--s3);
+  border-radius: var(--r-control);
+  background: var(--surface-2);
+  line-height: 1.5;
+}
+.phase-card .why p {
+  background: var(--surface);
+}
+.why[open] p {
+  animation: summary-in 0.24s var(--ease-out) backwards;
 }
 .symptom-card h3 {
   font-family: var(--font-display);
@@ -785,6 +1020,20 @@ details.table-view > summary {
   justify-content: center;
 }
 
+/* ---------------------------------------------------------------- partner */
+
+.pair-code {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+.pair-card {
+  text-align: left;
+}
+
 /* ---------------------------------------------------------------- install guide */
 
 .install-steps {
@@ -862,4 +1111,15 @@ details.table-view > summary {
   .tiles {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+.onb-partner {
+  margin-top: var(--s3);
+  text-align: center;
+}
+.partner-day {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 650;
+  line-height: 1.2;
 }

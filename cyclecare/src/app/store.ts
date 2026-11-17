@@ -2,7 +2,17 @@ import { useMemo } from 'react';
 import { content } from '../content';
 import { addDays, diffDays, todayISO } from '../domain/dates';
 import { buildTimeline, DEFAULT_PERIOD_LENGTH, type Timeline } from '../domain/prediction';
-import { emptyAppData, type AppData, type Goal, type ISODate, type UserProfile } from '../domain/types';
+import {
+  emptyAppData,
+  type AppData,
+  type Goal,
+  type ISODate,
+  type PartnerPermissions,
+  type PartnerShare,
+  type PartnerView,
+  type UserProfile,
+} from '../domain/types';
+import { deleteShare } from '../partner/flows';
 import { cryptoAvailable } from '../storage/crypto';
 import { openBestStore } from '../storage/kv';
 import { Vault, type UnlockResult } from '../storage/vault';
@@ -56,6 +66,7 @@ function withDefaults(data: AppData): AppData {
     ...base,
     ...data,
     profile: { ...base.profile, ...data.profile },
+    partner: { ...base.partner, ...data.partner, permissions: { ...base.partner.permissions, ...data.partner?.permissions } },
     user: { ...base.user, ...data.user },
     reminders: { ...base.reminders, ...data.reminders },
   };
@@ -144,6 +155,7 @@ export async function completeOnboarding(answers: OnboardingAnswers): Promise<vo
     typicalCycleLength: answers.cycleLength,
     typicalPeriodLength: answers.periodLength,
     showFertility: true,
+    showIntimacy: true,
   };
   if (answers.lastPeriodStart) {
     // The declared period becomes journal entries without an intensity, up to today at most.
@@ -240,6 +252,9 @@ export async function wipeEverything(): Promise<void> {
   if (saveTimer !== undefined) clearTimeout(saveTimer);
   saveTimer = undefined;
   await saveQueue;
+  // A shared summary goes with the journal: ask the relay to delete it (briefly; offline it simply stays unreadable).
+  const share = store.get().data?.partner.share ?? store.get().data?.partner.pendingRevoke;
+  if (share) await Promise.race([deleteShare({ ...share, dataKey: '', connectedAt: '' }), new Promise((r) => setTimeout(r, 3000))]);
   await vault?.destroy();
   clearPrefs();
   applyPrefs(DEFAULT_PREFS);
@@ -256,6 +271,10 @@ export function replaceJournal(incoming: AppData): void {
   update((current) => ({
     ...incoming,
     user: incoming.user.nickname || incoming.user.photo ? incoming.user : current.user,
+    // A partner link belongs to this device: a restored file neither breaks nor replaces it.
+    role: current.role,
+    partner: { ...incoming.partner, share: current.partner.share },
+    partnerView: current.partnerView,
     consents: current.consents,
     onboardedAt: current.onboardedAt,
   }));
@@ -268,6 +287,66 @@ export function setUser(patch: Partial<Record<keyof UserProfile, string | undefi
     for (const key of Object.keys(user) as Array<keyof UserProfile>) if (!user[key]) delete user[key];
     return { ...d, user };
   });
+}
+
+// ---- Partner mode ---------------------------------------------------------------------------
+
+export function setPartnerPermissions(permissions: PartnerPermissions): void {
+  update((d) => ({ ...d, partner: { ...d.partner, permissions } }));
+}
+
+/** The partner approved and paired: from now on the summary is kept up to date (see partner/OwnerSync). */
+export function startShare(share: PartnerShare): void {
+  const now = new Date().toISOString();
+  update((d) => ({
+    ...d,
+    partner: { ...d.partner, share },
+    consents: [
+      ...d.consents.filter((c) => c.type !== 'partner_sharing'),
+      { type: 'partner_sharing', textVersion: content().legal.LEGAL_VERSION, grantedAt: now },
+    ],
+  }));
+}
+
+/** Stops sharing at once. The server copy is deleted now, or as soon as the device is back online. */
+export async function stopShare(): Promise<'deleted' | 'pending'> {
+  const share = store.get().data?.partner.share;
+  if (!share) return 'deleted';
+  update((d) => ({
+    ...d,
+    partner: { permissions: d.partner.permissions, pendingRevoke: { channelId: share.channelId, writeToken: share.writeToken } },
+    consents: d.consents.filter((c) => c.type !== 'partner_sharing'),
+  }));
+  return (await retryPendingRevoke()) ? 'deleted' : 'pending';
+}
+
+/** True once nothing is left on the server. */
+export async function retryPendingRevoke(): Promise<boolean> {
+  const pending = store.get().data?.partner.pendingRevoke;
+  if (!pending) return true;
+  const res = await deleteShare({ ...pending, dataKey: '', connectedAt: '' });
+  if (!res.ok && res.reason !== 'not_found' && res.reason !== 'forbidden') return false;
+  update((d) => ({ ...d, partner: { permissions: d.partner.permissions, share: d.partner.share } }));
+  return true;
+}
+
+/** This device becomes a partner's viewer: a vault holding only the link and the summaries it receives. */
+export async function startPartnerDevice(credentials: { channelId: string; dataKey: string }): Promise<void> {
+  const nowISO = new Date().toISOString();
+  const data = emptyAppData();
+  data.role = 'partner';
+  data.onboardedAt = nowISO;
+  data.consents = [{ type: 'partner_view', textVersion: content().legal.LEGAL_VERSION, grantedAt: nowISO }];
+  data.partnerView = { ...credentials, connectedAt: nowISO };
+  if (vault) await vault.create(data);
+  resetUi();
+  resetRoute();
+  patch({ status: 'ready', data, today: todayISO(), ...lockInfo() });
+}
+
+/** What the partner's device received last; `undefined` fields are left as they were. */
+export function updatePartnerView(changes: Partial<PartnerView>): void {
+  update((d) => (d.partnerView ? { ...d, partnerView: { ...d.partnerView, ...changes } } : d));
 }
 
 // ---- Preferences and clock --------------------------------------------------------------------
@@ -305,6 +384,8 @@ export function useData(): AppData {
 
 /** The name and picture, or `undefined` while locked (the avatar then shows nothing personal). */
 export const useUser = (): UserProfile | undefined => useStore(store, (s) => s.data?.user);
+/** `partner` on a device that only views what someone shares with it. */
+export const useRole = () => useStore(store, (s) => s.data?.role ?? 'owner');
 
 export function useTimeline(): Timeline {
   const data = useData();

@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Info, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart, Info, Pencil } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { update, useData, useTimeline, useToday } from '../app/store';
 import { openJournal, selectCalendarDay, shiftMonth, toast, useCalendarMonth, useCalendarSelected, useCalendarYear } from '../app/ui';
@@ -8,9 +8,11 @@ import type { DayInfo } from '../domain/prediction';
 import { isPeriodFlow, PHASES, type ISODate } from '../domain/types';
 import { formatDate, strings } from '../i18n';
 import { Notice, Screen } from '../ui/Shell';
+import { contactExplanation } from '../ui/PregnancyRisk';
 import { summarizeLog, visiblePhase } from '../ui/summaries';
 import { haptic } from '../ui/haptics';
 import { useEnterOnChange } from '../ui/useEnterOnChange';
+import { assessContact } from '../domain/pregnancyRisk';
 
 export function CalendarScreen() {
   const s = strings();
@@ -22,6 +24,7 @@ export function CalendarScreen() {
   const month = useCalendarMonth();
   const selected = useCalendarSelected();
   const showFertility = data.profile.showFertility;
+  const showIntimacy = data.profile.showIntimacy;
   const [editing, setEditing] = useState(false);
   const [focusTarget, setFocusTarget] = useState<ISODate | null>(null);
   const gridRef = useRef<HTMLTableElement>(null);
@@ -102,6 +105,7 @@ export function CalendarScreen() {
     if (info.spotting) partsList.push(c.aria.spotting);
     if (info.overdue) partsList.push(c.aria.overdue);
     if (hasEntry(date)) partsList.push(c.aria.entry);
+    if (showIntimacy && data.logs[date]?.intimacy) partsList.push(c.aria.intimacy);
     return partsList.join(', ');
   };
 
@@ -120,7 +124,9 @@ export function CalendarScreen() {
 
   const selectedInfo = timeline.dayInfo(selected);
   const selectedPhase = visiblePhase(selectedInfo.phase, showFertility);
-  const selectedSummary = summarizeLog(data.logs[selected]);
+  const selectedSummary = summarizeLog(data.logs[selected], showIntimacy);
+  const selectedIntimacy = showIntimacy ? data.logs[selected]?.intimacy : undefined;
+  const selectedRisk = selectedIntimacy ? assessContact(timeline, selected, selectedIntimacy, showFertility) : undefined;
 
   return (
     <Screen title={c.title} settings>
@@ -187,6 +193,7 @@ export function CalendarScreen() {
                             {showFertility && info.fertile && <i className="mark mark-fertile" />}
                             {(info.intermenstrualBleed || info.spotting) && <i className="mark mark-bleed" />}
                             {hasEntry(date) && <i className="mark mark-entry" />}
+                            {showIntimacy && data.logs[date]?.intimacy && <Heart className="mark mark-heart" fill="currentColor" strokeWidth={0} />}
                           </span>
                         </button>
                       </td>
@@ -252,6 +259,12 @@ export function CalendarScreen() {
               ) : (
                 <>
                   <p className="small">{selectedSummary.length ? `${selectedSummary.join(', ')}.` : c.detail.nothing}</p>
+                  {selectedRisk && selectedIntimacy && (
+                    <p className="small phase-line">
+                      <Heart className="mark-heart-inline" size={14} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                      <span>{contactExplanation(selectedRisk, selectedIntimacy)[0]}</span>
+                    </p>
+                  )}
                   <button type="button" className="btn btn-secondary btn-small" onClick={() => openJournal(selected)}>
                     {c.detail.open}
                   </button>
@@ -305,6 +318,14 @@ export function CalendarScreen() {
                 </span>
                 {c.legend.entry}
               </li>
+              {showIntimacy && (
+                <li>
+                  <span className="legend-mark" aria-hidden="true">
+                    <Heart className="mark mark-heart" fill="currentColor" strokeWidth={0} />
+                  </span>
+                  {c.legend.intimacy}
+                </li>
+              )}
             </ul>
             {showFertility && (
               <Notice icon={<Info size={18} aria-hidden="true" />}>

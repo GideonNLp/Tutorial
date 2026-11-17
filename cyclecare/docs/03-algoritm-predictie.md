@@ -281,3 +281,55 @@ interval   ← [următoarea − h, următoarea + h]
 ovulație   ← ziua (L − 14) a ciclului
 fertile    ← ovulație − 5 … ovulație + 1
 ```
+
+## 8. Riscul de sarcină
+
+Cod: `src/domain/pregnancyRisk.ts`; teste: `tests/pregnancyRisk.test.ts`. Este o estimare informativă construită peste pașii de mai sus. **Nu este o metodă de contracepție** și nu spune niciodată că o zi este „sigură”: nivelul cel mai mic este „scăzută, dar nu zero”.
+
+### 8.1 Șansa de sarcină într-o zi
+
+| Situație | Nivel | Motiv afișat |
+|---|---|---|
+| Estimările de fertilitate sunt oprite | nu poate fi estimată | ziua nu poate fi plasată în ciclu |
+| Menstruația întârzie (sau ziua este după data așteptată, fără menstruație notată) | nu poate fi estimată | ovulația nu mai poate fi plasată |
+| Nicio menstruație notată, sau un ciclu de peste 90 de zile | nu poate fi estimată | lipsesc datele |
+| Ziua este în fereastra fertilă estimată (cu 5 zile înainte de ovulație până la o zi după) | ridicată | spermatozoizii pot supraviețui până la 5 zile, ovulul o zi |
+| Ziua este cu cel mult 3 zile înaintea ferestrei sau cel mult 2 zile după ea | medie | estimarea poate greși cu câteva zile |
+| Ziua este în menstruație | scăzută, dar nu zero | la cicluri scurte fereastra se poate apropia de menstruație |
+| Încrederea în estimare este scăzută (puține cicluri sau cicluri neregulate, vezi pasul 7), în ciclul curent sau în cele viitoare | medie | nicio zi nu poate fi socotită cu șanse mici |
+| Altfel | scăzută, dar nu zero | ovulația se poate muta de la un ciclu la altul |
+
+Pentru ciclurile încheiate se folosește ovulația plasată înapoi de la durata reală a ciclului (pasul 9).
+
+### 8.2 Riscul unui contact notat
+
+Pasul 1, felul contactului: dacă nu este notat niciun fel de contact, sau este notată penetrarea vaginală, contactul poate duce la o sarcină. Doar sex oral sau jucării: **fără risc de sarcină**. Sex anal fără penetrare vaginală: **foarte scăzut**.
+
+Pasul 2, protecția care contează:
+
+| Ce s-a notat | Protecția socotită |
+|---|---|
+| „Fără protecție” (chiar alături de alte metode: a existat și un contact neprotejat) | neprotejat |
+| pilulă, sterilet sau altă metodă hormonală | metodă continuă |
+| prezervativ | prezervativ; dacă s-a rupt sau a alunecat, neprotejat |
+| retragere | neprotejat (nu este o protecție de încredere) |
+| nimic, sau doar pilula de urgență (luată după) | neprotejat |
+
+Pasul 3, combinarea cu șansa zilei:
+
+| Șansa zilei | Neprotejat | Prezervativ | Metodă continuă |
+|---|---|---|---|
+| ridicată | ridicat | scăzut | foarte scăzut |
+| medie | moderat | scăzut | foarte scăzut |
+| nu poate fi estimată | moderat | scăzut | foarte scăzut |
+| scăzută | scăzut | foarte scăzut | foarte scăzut |
+
+### 8.3 Rezumatul pentru ciclul curent
+
+Se iau contactele notate de la începutul ciclului curent până azi (fără un ciclu, ultimele 35 de zile).
+
+1. **Cel mai mare risc** dintre ele, cu data.
+2. **Contracepția de urgență**: dacă un contact moderat sau ridicat a avut loc în ultimele 5 zile și nu s-a notat pilula de urgență, se amintește că ea funcționează cel mai bine cât mai devreme, în cel mult 5 zile, și că un farmacist sau un medic poate ajuta. Dacă s-a notat, se amintește că reduce riscul fără să îl elimine și că, la o întârziere de peste 7 zile, merită făcut un test.
+3. **Testul de sarcină**: după un contact moderat sau ridicat, ori dacă menstruația întârzie după orice contact cu risc, testul dă un răspuns de încredere din ziua în care este așteptată menstruația; fără o estimare a ciclului, la 21 de zile după contact. Cu menstruația întârziată, testul este recomandat imediat.
+
+Fiecare afișare repetă că rezultatul este o estimare, nu o metodă de contracepție și nici un test de sarcină. Textele despre contracepția de urgență și testul de sarcină trebuie validate de un medic înainte de lansare.

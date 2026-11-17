@@ -18,6 +18,8 @@ import { InstallCard } from '../ui/InstallApp';
 import { Notice, Screen } from '../ui/Shell';
 import { flagText, summarizeLog, visiblePhase } from '../ui/summaries';
 import { haptic } from '../ui/haptics';
+import { summarizePregnancyRisk } from '../domain/pregnancyRisk';
+import { ChanceScale, RiskIcons } from '../ui/PregnancyRisk';
 
 export function TodayScreen() {
   const s = strings();
@@ -38,6 +40,7 @@ export function TodayScreen() {
     () => visibleFlags(computeFlags(timeline, data.logs), data.dismissedFlags, today),
     [timeline, data.logs, data.dismissedFlags, today],
   );
+  const risk = useMemo(() => summarizePregnancyRisk(timeline, data.logs, showFertility), [timeline, data.logs, showFertility]);
   const reminders = useMemo(
     () => reminderOccurrences(data.reminders, prediction, showFertility, today, today),
     [data.reminders, prediction, showFertility, today],
@@ -55,13 +58,17 @@ export function TodayScreen() {
   const phaseLabel = late ? s.today.late : todayInfo.periodLogged && current ? s.phase.menstruation : phase ? s.phase[phase] : '';
   const { spans } = phaseSpans(timeline, showFertility);
   const forecast = prediction.forecasts[0];
-  const summary = summarizeLog(todayLog);
+  const summary = summarizeLog(todayLog, data.profile.showIntimacy);
 
   const setFlow = (flow: Flow | undefined) => {
     haptic('medium');
     update((d) => ({ ...d, logs: updateDay(d.logs, today, { flow }, new Date().toISOString()) }));
     toast(s.common.saved);
   };
+
+  // The goals chosen at the start only change what comes first.
+  const fertilityFirst = goals.includes('conception') && !goals.includes('contraception');
+  const symptomsFirst = goals.includes('symptoms');
 
   const nextBlock = current && forecast && (
     <section aria-labelledby="next-heading" className="stack stack-2">
@@ -120,6 +127,52 @@ export function TodayScreen() {
       </Notice>
     </section>
   );
+  const p = s.pregnancy;
+  const showRisk = risk.contacts.length > 0 || (!!current && showFertility);
+  const pregnancyBlock = showRisk && (
+    <section aria-labelledby="pregnancy-heading" className="stack stack-2">
+      <h2 id="pregnancy-heading">{fertilityFirst ? p.titleChance : p.titleRisk}</h2>
+      <p className="risk-today">
+        <ChanceScale level={risk.today.level} />
+        <span className="strong">{p.today(p.chance[risk.today.level])}</span>
+      </p>
+      <p className="ink-2">{p.reason[risk.today.reason]}</p>
+      <p>
+        {risk.contacts.length === 0
+          ? p.cycleNone
+          : `${p.cycleContacts(risk.contacts.length)} ${risk.highest ? p.cycleHighest(p.risk[risk.highest.risk], formatDate(risk.highest.date, 'dayMonthLong')) : ''}`}
+      </p>
+      {risk.emergency && (
+        <Notice attention icon={<RiskIcons.emergency size={20} aria-hidden="true" />}>
+          <p>{p.emergency(formatDate(risk.emergency.until, 'dayMonthLong'))}</p>
+        </Notice>
+      )}
+      {risk.emergencyTaken && (
+        <Notice icon={<RiskIcons.taken size={20} aria-hidden="true" />}>
+          <p>{p.emergencyTaken}</p>
+        </Notice>
+      )}
+      {risk.test && (
+        <Notice attention={risk.test.now} icon={<RiskIcons.test size={20} aria-hidden="true" />}>
+          <p>
+            {risk.test.now
+              ? p.testNow
+              : current
+                ? p.testFrom(formatDate(risk.test.from, 'dayMonthLong'))
+                : p.testAfter(formatDate(risk.test.from, 'dayMonthLong'))}
+          </p>
+        </Notice>
+      )}
+      <p className="caption">{p.disclaimer}</p>
+      <div>
+        <button type="button" className="btn btn-secondary btn-small" onClick={() => openJournal(today)}>
+          <RiskIcons.log size={16} aria-hidden="true" />
+          {p.log}
+        </button>
+      </div>
+    </section>
+  );
+
   const quickBlock = (
     <section className="card stack stack-3" aria-labelledby="quick-heading">
       <h2 id="quick-heading">{s.today.quick.title}</h2>
@@ -187,10 +240,6 @@ export function TodayScreen() {
     </section>
   );
 
-  // The goals chosen at the start only change what comes first.
-  const fertilityFirst = goals.includes('conception') && !goals.includes('contraception');
-  const symptomsFirst = goals.includes('symptoms');
-
   return (
     <Screen title={s.today.title} subtitle={formatDate(today, 'weekdayDayMonth')} settings>
       <div className="stack stack-5">
@@ -237,6 +286,7 @@ export function TodayScreen() {
           <div className="stack stack-5">
             {fertilityFirst ? fertilityBlock : nextBlock}
             {fertilityFirst ? nextBlock : fertilityBlock}
+            {pregnancyBlock}
           </div>
         </div>
 
