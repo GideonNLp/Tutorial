@@ -13,6 +13,7 @@ Tipurile sunt definite în `src/domain/types.ts`; stocarea este în `src/storage
 
 ```mermaid
 erDiagram
+    PROFIL ||--o| PROFIL_PERSONAL : "are, opțional"
     PROFIL ||--o{ ACORD : "a dat"
     PROFIL ||--o{ ZI_JURNAL : "notează"
     PROFIL ||--|| SETARI_MEMENTO : "configurează"
@@ -35,6 +36,10 @@ erDiagram
         bool arata_fertilitatea
         timestamp inregistrat_la
         int versiune_schema
+    }
+    PROFIL_PERSONAL {
+        string nume_sau_porecla "opțional, max 30"
+        string poza "opțional, JPEG 256x256"
     }
     ACORD {
         enum tip
@@ -109,6 +114,17 @@ Unul singur pe instalare. Nu identifică persoana.
 | `schemaVersion` | întreg | acum `1` | Pentru migrări |
 
 În cod, ultimele trei câmpuri stau pe documentul-rădăcină (`AppData`), alături de profil; logic, descriu aceeași instalare.
+
+### 3.1.1 Profil personal
+
+Opțional. Câmpul `user` din documentul-rădăcină. Este singura parte a datelor care poate identifica persoana, de aceea nu apare pe ecranul de blocare, în notificări sau în raportul PDF.
+
+| Câmp | Tip | Reguli | Rol |
+|---|---|---|---|
+| `nickname` | text, opțional | cel mult 30 de caractere, cu spațiile curățate; cel puțin o literă, o cifră sau un emoji | Apare în profil și ca inițiale în poza din colț |
+| `photo` | text, opțional | `data:image/jpeg;base64,…`, 256 × 256 px, de obicei 20–40 kB; la restaurare se acceptă doar imagini JPEG, PNG sau WebP încorporate, de cel mult 400 kB | Poza de profil |
+
+La restaurarea unei copii care nu are profil personal (de exemplu, una mai veche), numele și poza de pe dispozitiv rămân.
 
 ### 3.2 Acord
 
@@ -246,6 +262,11 @@ CREATE TABLE profile (
   show_fertility        INTEGER NOT NULL DEFAULT 1,
   onboarded_at          TEXT,
   schema_version        INTEGER NOT NULL
+);
+CREATE TABLE user_profile (
+  id        INTEGER PRIMARY KEY CHECK (id = 1),
+  nickname  TEXT CHECK (length(nickname) <= 30),
+  photo     BLOB                                   -- JPEG, 256 × 256
 );
 CREATE TABLE profile_goal (
   goal TEXT PRIMARY KEY CHECK (goal IN ('contraception', 'conception', 'general', 'symptoms'))

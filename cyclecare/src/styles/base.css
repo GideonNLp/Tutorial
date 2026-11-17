@@ -357,10 +357,18 @@ main:focus {
 .screen-head.has-trailing {
   padding-right: calc(2.75rem + var(--s3));
 }
+.screen-head.has-trailing-2 {
+  padding-right: calc(2 * 2.75rem + var(--s2) + var(--s3));
+}
 .screen-head .titles {
   flex: 1 1 0;
   min-width: 0;
   padding-top: 0.2rem;
+  container-type: inline-size;
+}
+/* On a narrow phone with large text the title shrinks a little rather than breaking a word in two. */
+.screen-head h1 {
+  font-size: min(var(--fs-h1), 17cqi);
 }
 .screen-head .caption {
   margin-top: 0.15rem;
@@ -373,6 +381,8 @@ main:focus {
  * (compact), turns to glass and shows the small centred title.
  */
 .navbar {
+  /* Width of the buttons on each side, so the small centred title never runs under them. */
+  --navbar-side: 2.75rem;
   --navbar-h: calc(var(--safe-top) + var(--screen-pad-top) + 2.75rem + var(--s2));
   position: sticky;
   top: calc(var(--s2) - var(--screen-pad-top));
@@ -409,7 +419,7 @@ main:focus {
   position: absolute;
   left: 50%;
   top: calc(var(--safe-top) + var(--screen-pad-top));
-  max-width: calc(100% - 2 * (2.75rem + var(--s4)) - var(--gutter-l) - var(--gutter-r));
+  max-width: calc(100% - 2 * (var(--navbar-side) + var(--s4)) - var(--gutter-l) - var(--gutter-r));
   overflow: hidden;
   font-family: var(--font-display);
   font-size: var(--fs-body);
@@ -424,6 +434,58 @@ main:focus {
     transform 0.2s var(--ease-out);
   pointer-events: none;
 }
+.navbar.has-actions-2 {
+  --navbar-side: calc(2 * 2.75rem + var(--s2));
+}
+.navbar-actions {
+  display: flex;
+  gap: var(--s2);
+}
+
+/* Profile picture: a photo, initials on ink, or a neutral figure. */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-family: var(--font-display);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-select: none;
+}
+img.avatar,
+.avatar-empty {
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+}
+.avatar-small {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1rem;
+}
+.avatar-large {
+  width: 6.5rem;
+  height: 6.5rem;
+  font-size: 2.5rem;
+}
+.avatar-btn {
+  display: inline-grid;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+}
+.avatar-btn:focus-visible {
+  border-radius: 50%;
+}
+
 .navbar[data-collapsed] .navbar-title {
   opacity: 1;
   transform: translate(-50%, 0);
@@ -1238,6 +1300,7 @@ dialog.sheet::backdrop {
 @media (prefers-reduced-motion: no-preference) {
   .btn,
   .icon-btn,
+  .avatar-btn,
   .chip-face,
   .scale-face,
   .segmented-face,
@@ -1260,6 +1323,7 @@ dialog.sheet::backdrop {
     transition-timing-function: ease-out;
   }
   .icon-btn[data-pressed],
+  .avatar-btn[data-pressed],
   .tab[data-pressed] .tab-icon,
   .cal-day[data-pressed],
   .weekday[data-pressed],

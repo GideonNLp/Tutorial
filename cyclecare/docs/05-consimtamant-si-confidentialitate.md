@@ -1,7 +1,7 @@
 # Texte pentru consimțământ și declarația de confidențialitate
 
 > **Statut: schiță. De verificat de un specialist juridic înainte de orice lansare.**
-> Versiunea textelor: `2026-11-schita-2`, actualizată la 2026-11-15.
+> Versiunea textelor: `2026-11-schita-3`, actualizată la 2026-11-17.
 >
 > Document generat din `src/content/ro/legal.ts` cu `npm run docs:content`. Aplicația afișează exact aceste texte: ecranul de consimțământ din onboarding și „Setări → Confidențialitate și securitate → Citește declarația de confidențialitate”.
 
@@ -58,12 +58,12 @@ Butoane: „Sunt de acord cu această partajare” / „Nu acum”.
 
 ## 4. Declarație de confidențialitate
 
-> Schiță de lucru, versiunea din 15 noiembrie 2026. Textul nu a fost încă verificat de un specialist juridic.
+> Schiță de lucru, versiunea din 17 noiembrie 2026. Textul nu a fost încă verificat de un specialist juridic.
 
 ### 1. Pe scurt
 
 - CycleCare păstrează datele tale doar pe dispozitivul tău, criptate.
-- Nu îți cerem nume, e-mail, număr de telefon sau cont.
+- Nu îți cerem e-mail, număr de telefon sau cont. Numele (sau o poreclă) și poza de profil sunt opționale și rămân, și ele, doar pe dispozitiv.
 - Nu avem acces la datele tale și nu le transmitem nimănui.
 - Nu folosim reclame, instrumente de analiză sau alte servicii ale unor terți.
 - Poți exporta sau șterge totul oricând.
@@ -80,6 +80,7 @@ Aplicația lucrează doar cu informațiile pe care le introduci sau le imporți 
 
 - date despre ciclu: zilele de menstruație și intensitatea fluxului, durata obișnuită a ciclului și a menstruației;
 - jurnalul zilnic: simptome și intensitatea lor, dispoziție, nivel de energie, temperatură bazală, secreție cervicală, note libere;
+- profilul, dacă îl completezi: un nume sau o poreclă și o poză de profil, micșorată pe dispozitiv la 256 × 256 de pixeli (fișierul original nu este păstrat);
 - obiectivele alese la început (de exemplu, urmărire generală sau planificarea unei sarcini);
 - setări: memento-uri, denumirile medicamentelor pentru care ceri memento, temă, dimensiunea textului;
 - dovada acordului tău: data și versiunea textului acceptat.
@@ -106,6 +107,7 @@ Toate aceste calcule se fac pe dispozitivul tău. Nu luăm decizii automate cu e
 - pentru a calcula ziua ciclului, fazele, estimarea următoarei menstruații și a zilelor fertile;
 - pentru a-ți arăta statistici, sfaturi potrivite și observații despre ce ai notat;
 - pentru a-ți afișa memento-urile pe care le-ai cerut;
+- pentru a-ți afișa numele și poza în profil, dacă le-ai adăugat;
 - pentru a crea, la cererea ta, raportul PDF sau exportul de date.
 
 ### 7. Cu cine partajăm datele
@@ -170,5 +172,6 @@ Punctele de mai jos nu apar în aplicație. Sunt deciziile și verificările de 
 7. Notificările și ePrivacy. Stocarea locală este strict necesară serviciului cerut de utilizator; de confirmat că nu este nevoie de un acord separat de tip cookie (Legea nr. 506/2004).
 8. Versiunile din magazinele de aplicații. Apple și Google cer declarații proprii despre date („privacy nutrition labels”, „Data safety”) și au reguli speciale pentru aplicațiile de sănătate și pentru HealthKit / Health Connect. Textele trebuie aliniate cu acestea.
 9. Funcții viitoare. Copia în cloud, sincronizarea sau trimiterea raportului către medic schimbă fundamental analiza: apar persoane împuternicite, transferuri, durate de păstrare, obligații de securitate și de notificare a incidentelor. Fiecare are nevoie de acord separat (șablonul este inclus) și de o actualizare a declarației.
-10. Datele celor apropiați. Notele libere pot conține informații despre alte persoane (de exemplu, partener). De decis dacă este nevoie de o mențiune.
-11. Limba și accesibilitatea. Declarația trebuie să rămână ușor de înțeles (art. 12 GDPR), inclusiv pentru adolescenți, și disponibilă în fiecare limbă în care este oferită aplicația.
+10. Profilul. Numele și poza de profil sunt opționale, rămân pe dispozitiv și nu sunt folosite pentru identificare (poza nu este prelucrată ca dată biometrică). De confirmat că mențiunea din secțiunea 3 este suficientă și că poza poate înfățișa și alte persoane decât utilizatorul (de exemplu, o fotografie de grup).
+11. Datele celor apropiați. Notele libere pot conține informații despre alte persoane (de exemplu, partener). De decis dacă este nevoie de o mențiune.
+12. Limba și accesibilitatea. Declarația trebuie să rămână ușor de înțeles (art. 12 GDPR), inclusiv pentru adolescenți, și disponibilă în fiecare limbă în care este oferită aplicația.

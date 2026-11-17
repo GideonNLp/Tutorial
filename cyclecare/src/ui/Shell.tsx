@@ -4,6 +4,7 @@ import { goBack, navigate, useRoute, type Route } from '../app/router';
 import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
 import { prefersReducedMotion } from './motion';
+import { ProfileButton } from './Avatar';
 import { haptic } from './haptics';
 
 function scrollToTop(page: Element | null | undefined): void {
@@ -47,11 +48,12 @@ export function Screen(props: { title: string; subtitle?: string; back?: boolean
     };
   }, []);
 
-  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? 'has-trailing' : ''].filter(Boolean).join(' ');
+  // Tab pages carry two buttons on the right: settings, then the profile picture in the corner.
+  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? 'has-trailing-2' : ''].filter(Boolean).join(' ');
   return (
     <>
       <header
-        className="navbar"
+        className={props.settings ? 'navbar has-actions-2' : 'navbar'}
         ref={barRef}
         onClick={(e) => {
           // Like tapping the status bar: a tap on the bar itself returns to the top.
@@ -70,9 +72,12 @@ export function Screen(props: { title: string; subtitle?: string; back?: boolean
             {props.title}
           </span>
           {props.settings ? (
-            <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
-              <Settings size={20} aria-hidden="true" />
-            </button>
+            <div className="navbar-actions">
+              <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
+                <Settings size={20} aria-hidden="true" />
+              </button>
+              <ProfileButton />
+            </div>
           ) : (
             <span />
           )}

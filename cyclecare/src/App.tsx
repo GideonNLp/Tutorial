@@ -11,6 +11,7 @@ import { CalendarScreen } from './screens/Calendar';
 import { JournalScreen } from './screens/Journal';
 import { BrokenVaultScreen, LockScreen } from './screens/Lock';
 import { BrandMark, Onboarding } from './screens/Onboarding';
+import { ProfileScreen } from './screens/Profile';
 import { SettingsScreen } from './screens/Settings';
 import { StatsScreen } from './screens/Stats';
 import { TipsScreen } from './screens/Tips';
@@ -32,6 +33,8 @@ function screenFor(route: Route): ReactNode {
       return <TipsScreen />;
     case 'statistici':
       return <StatsScreen />;
+    case 'profil':
+      return <ProfileScreen />;
     default:
       return <SettingsScreen route={route} />;
   }

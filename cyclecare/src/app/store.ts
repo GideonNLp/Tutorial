@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { content } from '../content';
 import { addDays, diffDays, todayISO } from '../domain/dates';
 import { buildTimeline, DEFAULT_PERIOD_LENGTH, type Timeline } from '../domain/prediction';
-import { emptyAppData, type AppData, type Goal, type ISODate } from '../domain/types';
+import { emptyAppData, type AppData, type Goal, type ISODate, type UserProfile } from '../domain/types';
 import { cryptoAvailable } from '../storage/crypto';
 import { openBestStore } from '../storage/kv';
 import { Vault, type UnlockResult } from '../storage/vault';
@@ -52,7 +52,13 @@ const lockInfo = () => ({ hasPin: vault?.hasPin ?? false, hasBiometric: vault?.b
 
 function withDefaults(data: AppData): AppData {
   const base = emptyAppData();
-  return { ...base, ...data, profile: { ...base.profile, ...data.profile }, reminders: { ...base.reminders, ...data.reminders } };
+  return {
+    ...base,
+    ...data,
+    profile: { ...base.profile, ...data.profile },
+    user: { ...base.user, ...data.user },
+    reminders: { ...base.reminders, ...data.reminders },
+  };
 }
 
 export async function initApp(): Promise<void> {
@@ -111,6 +117,7 @@ export function update(recipe: (data: AppData) => AppData): void {
 // ---- Onboarding -------------------------------------------------------------------------------
 
 export interface OnboardingAnswers {
+  nickname?: string;
   lastPeriodStart?: ISODate;
   cycleLength?: number;
   periodLength?: number;
@@ -131,6 +138,7 @@ export async function completeOnboarding(answers: OnboardingAnswers): Promise<vo
     { type: 'age_confirmation', textVersion: legalVersion, grantedAt: nowISO },
   ];
 
+  if (answers.nickname) data.user = { nickname: answers.nickname };
   data.profile = {
     goals: answers.goals,
     typicalCycleLength: answers.cycleLength,
@@ -240,9 +248,26 @@ export async function wipeEverything(): Promise<void> {
   patch({ status: 'onboarding', data: null, hasPin: false, hasBiometric: false, prefs: DEFAULT_PREFS, today: todayISO() });
 }
 
-/** Replaces the journal (restore from a backup) but keeps this device's consent records. */
+/**
+ * Replaces the journal (restore from a backup) but keeps this device's consent records.
+ * A backup without a name or picture (an older one, for example) keeps the ones on this device.
+ */
 export function replaceJournal(incoming: AppData): void {
-  update((current) => ({ ...incoming, consents: current.consents, onboardedAt: current.onboardedAt }));
+  update((current) => ({
+    ...incoming,
+    user: incoming.user.nickname || incoming.user.photo ? incoming.user : current.user,
+    consents: current.consents,
+    onboardedAt: current.onboardedAt,
+  }));
+}
+
+/** Changes the name or picture; `undefined` removes that field. */
+export function setUser(patch: Partial<Record<keyof UserProfile, string | undefined>>): void {
+  update((d) => {
+    const user: UserProfile = { ...d.user, ...patch };
+    for (const key of Object.keys(user) as Array<keyof UserProfile>) if (!user[key]) delete user[key];
+    return { ...d, user };
+  });
 }
 
 // ---- Preferences and clock --------------------------------------------------------------------
@@ -277,6 +302,9 @@ export function useData(): AppData {
   if (!data) throw new Error('Journal requested while locked');
   return data;
 }
+
+/** The name and picture, or `undefined` while locked (the avatar then shows nothing personal). */
+export const useUser = (): UserProfile | undefined => useStore(store, (s) => s.data?.user);
 
 export function useTimeline(): Timeline {
   const data = useData();

@@ -13,6 +13,10 @@ test('asks the four questions, needs explicit consent, and predicts from the ans
   await page.getByRole('button', { name: 'Închide' }).click();
   await acceptConsent(page);
 
+  await expect(page.getByRole('heading', { name: 'Cum să-ți spunem?' })).toBeFocused();
+  await page.getByLabel('Nume sau poreclă').fill('  Ana  Maria ');
+  await page.getByRole('button', { name: 'Continuă' }).click();
+
   await expect(page.getByRole('heading', { name: 'Când a început ultima ta menstruație?' })).toBeFocused();
   await page.getByLabel('Prima zi a ultimei menstruații').fill('2026-11-04');
   await page.getByRole('button', { name: 'Continuă' }).click();
@@ -37,6 +41,12 @@ test('asks the four questions, needs explicit consent, and predicts from the ans
   await expect(page.getByText('Precizie scăzută. Pe baza duratei declarate de tine.')).toBeVisible();
   await expect(page.getByText('Zile fertile estimate: 14–20 nov.')).toBeVisible();
   await expect(page.getByText(/CycleCare nu este un mijloc de contracepție/)).toBeVisible();
+
+  // The name is in the profile, behind the round picture in the top-right corner.
+  await expect(page.locator('.page[data-active] .avatar-btn .avatar')).toHaveText('AM');
+  await page.getByRole('button', { name: 'Profil', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
+  await expect(page.getByLabel('Nume sau poreclă')).toHaveValue('Ana Maria');
 });
 
 test('every optional question can be skipped', async ({ page }) => {
@@ -53,10 +63,26 @@ test('declining consent stores nothing', async ({ page }) => {
   expect(await dumpStorage(page)).toBe('');
 });
 
+test('a name needs at least one letter or digit', async ({ page }) => {
+  await openApp(page);
+  await page.getByRole('button', { name: 'Începe' }).click();
+  await acceptConsent(page);
+  const field = page.getByLabel('Nume sau poreclă');
+  await field.fill('...');
+  await page.getByRole('button', { name: 'Continuă' }).click();
+  await expect(field).toHaveAttribute('aria-invalid', 'true');
+  await expect(field).toHaveAccessibleDescription(/cel puțin o literă/);
+  await field.fill('Ana');
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await field.press('Enter');
+  await expect(page.getByRole('heading', { name: 'Când a început ultima ta menstruație?' })).toBeVisible();
+});
+
 test('a date in the future is rejected', async ({ page }) => {
   await openApp(page);
   await page.getByRole('button', { name: 'Începe' }).click();
   await acceptConsent(page);
+  await page.getByRole('button', { name: 'Sari peste' }).click();
   await page.getByRole('button', { name: 'Continuă' }).click();
   await expect(page.getByRole('alert')).toContainText('Alege o zi de până azi');
 });

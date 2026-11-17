@@ -16,6 +16,7 @@ export const ROUTES = [
   'jurnal',
   'sfaturi',
   'statistici',
+  'profil',
   'setari',
   'setari-ciclu',
   'setari-memento',
@@ -34,14 +35,14 @@ export const isTab = (route: Route): boolean => (TAB_ROUTES as readonly Route[])
 /** How deep a page sits: tabs are the ground floor, each push goes one level up. */
 export function depthOf(route: Route): number {
   if (isTab(route)) return 0;
-  if (route === 'setari') return 1;
+  if (route === 'setari' || route === 'profil') return 1;
   return route === 'politica' ? 3 : 2;
 }
 
 /** Where "back" leads when there is no history to return to (the page was opened from a link). */
 export function parentOf(route: Route): Route | undefined {
   if (isTab(route)) return undefined;
-  if (route === 'setari') return HOME;
+  if (route === 'setari' || route === 'profil') return HOME;
   return route === 'politica' ? 'setari-confidentialitate' : 'setari';
 }
 
