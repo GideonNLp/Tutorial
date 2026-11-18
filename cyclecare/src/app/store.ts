@@ -13,6 +13,8 @@ import {
   type UserProfile,
 } from '../domain/types';
 import { deviceLocale } from '../i18n';
+import { generateRecoveryCode } from '../backup/crypto';
+import { backupIdentity, deleteBackup } from '../backup/flows';
 import { deleteShare } from '../partner/flows';
 import { cryptoAvailable } from '../storage/crypto';
 import { openBestStore } from '../storage/kv';
@@ -259,13 +261,26 @@ export async function disableBiometrics(): Promise<void> {
 // ---- Whole-journal operations -----------------------------------------------------------------
 
 /** Deletes keys, journal and preferences from this device and returns to the first screen. */
-export async function wipeEverything(): Promise<void> {
+/**
+ * Erases this device. `keepServerCopy`: leave the encrypted backup on the server. A forgotten PIN is
+ * what the backup is for, so that path keeps it (the journal is locked then, so the code is out of
+ * reach anyway); deleting everything, withdrawing consent and turning the backup off delete it.
+ */
+export async function wipeEverything(options: { keepServerCopy?: boolean } = {}): Promise<void> {
   if (saveTimer !== undefined) clearTimeout(saveTimer);
   saveTimer = undefined;
   await saveQueue;
+  const brief = (work: Promise<unknown>) => Promise.race([work, new Promise((r) => setTimeout(r, 3000))]);
   // A shared summary goes with the journal: ask the relay to delete it (briefly; offline it simply stays unreadable).
   const share = store.get().data?.partner.share ?? store.get().data?.partner.pendingRevoke;
-  if (share) await Promise.race([deleteShare({ ...share, dataKey: '', connectedAt: '' }), new Promise((r) => setTimeout(r, 3000))]);
+  if (share) await brief(deleteShare({ ...share, dataKey: '', connectedAt: '' }));
+  // So does the copy of the journal, unless the person is erasing the phone because they cannot open it.
+  const backup = store.get().data?.backup;
+  if (backup && !options.keepServerCopy) {
+    const doomed = [...(backup.pendingDelete ?? [])];
+    if (backup.auto) doomed.push(await backupIdentity(backup.code));
+    await brief(Promise.all(doomed.map((c) => deleteBackup(c.id, c.token))));
+  }
   await vault?.destroy();
   clearPrefs();
   applyPrefs(DEFAULT_PREFS);
@@ -286,6 +301,8 @@ export function replaceJournal(incoming: AppData): void {
     role: current.role,
     partner: { ...incoming.partner, share: current.partner.share },
     partnerView: current.partnerView,
+    // The code and the state of the copy belong to this device and to no file.
+    backup: current.backup,
     consents: current.consents,
     onboardedAt: current.onboardedAt,
   }));
@@ -298,6 +315,152 @@ export function setUser(patch: Partial<Record<keyof UserProfile, string | undefi
     for (const key of Object.keys(user) as Array<keyof UserProfile>) if (!user[key]) delete user[key];
     return { ...d, user };
   });
+}
+
+// ---- Backup ----------------------------------------------------------------------------------
+
+/** The recovery code of this journal: made the first time it is needed, and kept in the encrypted journal. */
+export function ensureRecoveryCode(): string {
+  const existing = store.get().data?.backup?.code;
+  if (existing) return existing;
+  const code = generateRecoveryCode();
+  update((d) => ({ ...d, backup: { code, createdAt: new Date().toISOString() } }));
+  // The person is about to write it down: it is on disk before they have finished.
+  void flush();
+  return code;
+}
+
+/** The person typed back a group of the code: it was written down. */
+export function confirmRecoveryCode(): void {
+  update((d) => (d.backup ? { ...d, backup: { ...d.backup, confirmed: true } } : d));
+  void flush();
+}
+
+/**
+ * A new code in place of the old one. If the copy on the server was on, a new copy is made under the new
+ * code and the old one is deleted only once that exists, so there is never a moment with no copy.
+ */
+export async function replaceRecoveryCode(): Promise<string> {
+  const old = store.get().data?.backup;
+  const code = generateRecoveryCode();
+  const stale = old?.auto ? await backupIdentity(old.code) : undefined;
+  const now = new Date().toISOString();
+  update((d) => ({
+    ...d,
+    backup: {
+      code,
+      createdAt: now,
+      ...(old?.auto ? { auto: { since: old.auto.since } } : {}),
+      ...(old?.pendingDelete || stale ? { pendingDelete: [...(old?.pendingDelete ?? []), ...(stale ? [stale] : [])] } : {}),
+    },
+  }));
+  void flush();
+  return code;
+}
+
+/** The person agreed to the encrypted copy on the server: from now on it is kept up to date (see backup/BackupSync). */
+export function startAutoBackup(): void {
+  const now = new Date().toISOString();
+  update((d) =>
+    d.backup
+      ? {
+          ...d,
+          backup: { ...d.backup, auto: { since: now } },
+          consents: [
+            ...d.consents.filter((c) => c.type !== 'cloud_backup'),
+            { type: 'cloud_backup', textVersion: content().legal.LEGAL_VERSION, grantedAt: now },
+          ],
+        }
+      : d,
+  );
+}
+
+/**
+ * Turns the copy off and deletes what the server holds for this code: now, or as soon as the device is
+ * back online. The code stays. Also for a phone that never turned the copy on but restored one: it
+ * still has the code, so it can still delete what the code opens.
+ */
+export async function stopAutoBackup(): Promise<'deleted' | 'pending'> {
+  const backup = store.get().data?.backup;
+  if (!backup) return 'deleted';
+  const identity = await backupIdentity(backup.code);
+  update((d) => {
+    if (!d.backup) return d;
+    const { auto: _auto, ...rest } = d.backup;
+    return {
+      ...d,
+      backup: { ...rest, pendingDelete: [...(rest.pendingDelete ?? []), identity] },
+      consents: d.consents.filter((c) => c.type !== 'cloud_backup'),
+    };
+  });
+  return (await retryPendingBackupDelete()) ? 'deleted' : 'pending';
+}
+
+/** What the last copy left on this device: the version it was, what it held, when. `undefined` fields are left as they were. */
+export function updateAutoBackup(changes: Partial<NonNullable<NonNullable<AppData['backup']>['auto']>>): void {
+  update((d) => (d.backup?.auto ? { ...d, backup: { ...d.backup, auto: { ...d.backup.auto, ...changes } } } : d));
+}
+
+/**
+ * True once nothing is left to delete on the server. A copy replaced by a new code waits for the new
+ * one to exist first, so a failed upload never leaves the person with no copy at all.
+ */
+export async function retryPendingBackupDelete(): Promise<boolean> {
+  const backup = store.get().data?.backup;
+  const pending = backup?.pendingDelete;
+  if (!backup || !pending?.length) return true;
+  if (backup.auto && !backup.auto.etag) return false;
+  const gone: string[] = [];
+  for (const copy of pending) {
+    const res = await deleteBackup(copy.id, copy.token);
+    if (res.ok || res.reason === 'not_found' || res.reason === 'forbidden') gone.push(copy.id);
+  }
+  update((d) => {
+    if (!d.backup) return d;
+    const left = (d.backup.pendingDelete ?? []).filter((c) => !gone.includes(c.id));
+    const { pendingDelete: _p, ...rest } = d.backup;
+    return { ...d, backup: left.length ? { ...rest, pendingDelete: left } : rest };
+  });
+  return gone.length === pending.length;
+}
+
+/**
+ * Restores a journal from a copy (the server's or a file) onto a device that already has one.
+ * A device without a code takes the one that opened the copy; a device that has one keeps it. When it
+ * is the same code and the copy is the server's latest, the device now has that version, so its next
+ * write is not taken for another phone's.
+ */
+export function restoreFromBackup(incoming: AppData, code: string, etag?: string): void {
+  replaceJournal(incoming);
+  update((d) => {
+    if (!d.backup) return { ...d, backup: { code, createdAt: new Date().toISOString(), confirmed: true } };
+    if (d.backup.code === code && d.backup.auto && etag) {
+      const { taken: _t, ...auto } = d.backup.auto;
+      return { ...d, backup: { ...d.backup, auto: { ...auto, etag } } };
+    }
+    return d;
+  });
+}
+
+/** A new phone: a journal made from a copy, with the code that opened it, behind the usual consent. */
+export async function completeRestore(incoming: AppData, code: string): Promise<void> {
+  const now = new Date();
+  const nowISO = now.toISOString();
+  const legalVersion = content().legal.LEGAL_VERSION;
+  const data: AppData = {
+    ...incoming,
+    role: 'owner',
+    onboardedAt: nowISO,
+    consents: [
+      { type: 'health_data_processing', textVersion: legalVersion, grantedAt: nowISO },
+      { type: 'age_confirmation', textVersion: legalVersion, grantedAt: nowISO },
+    ],
+    backup: { code, createdAt: nowISO, confirmed: true },
+  };
+  if (vault) await vault.create(data);
+  resetUi();
+  resetRoute();
+  patch({ status: 'ready', data, today: todayISO(now), ...lockInfo() });
 }
 
 // ---- Partner mode ---------------------------------------------------------------------------

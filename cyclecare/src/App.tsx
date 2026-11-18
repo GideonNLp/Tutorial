@@ -16,6 +16,7 @@ import { SettingsScreen } from './screens/Settings';
 import { StatsScreen } from './screens/Stats';
 import { TipsScreen } from './screens/Tips';
 import { TodayScreen } from './screens/Today';
+import { BackupSync } from './backup/BackupSync';
 import { OwnerSync } from './partner/OwnerSync';
 import { PartnerSync } from './partner/PartnerSync';
 import { PARTNER_TABS, partnerRoutes } from './screens/PartnerScreens';
@@ -124,7 +125,14 @@ export function App() {
       {/* A partner's device shows the same app, read-only, built from what is shared with it. */}
       <Navigator render={role === 'partner' ? partnerRoutes : screenFor} />
       <TabBar tabs={role === 'partner' ? PARTNER_TABS : undefined} />
-      {role === 'partner' ? <PartnerSync /> : <OwnerSync />}
+      {role === 'partner' ? (
+        <PartnerSync />
+      ) : (
+        <>
+          <OwnerSync />
+          <BackupSync />
+        </>
+      )}
       <Toaster />
     </div>
   );

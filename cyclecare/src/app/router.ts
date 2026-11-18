@@ -23,6 +23,7 @@ export const ROUTES = [
   'setari-confidentialitate',
   'setari-date',
   'setari-partener',
+  'setari-copie',
   'setari-aspect',
   'setari-despre',
   'politica',

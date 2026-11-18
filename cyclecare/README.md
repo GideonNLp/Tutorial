@@ -78,6 +78,18 @@ Persoana care folosește aplicația poate invita un partener să vadă, pe telef
 
 Cheile canalului stau în seiful criptat al fiecărui telefon și nu intră în copia de siguranță JSON.
 
+## Copia de siguranță
+
+Fără cont, fără e-mail. Aplicația generează pe telefon un **cod de recuperare** de 24 de caractere; din el, cu HKDF-SHA-256, se derivă trei valori: un identificator public (locul copiei), un token (dovada dreptului de acces, pe server doar ca hash) și cheia AES-256-GCM. Jurnalul (JSON portabil, comprimat) este criptat pe telefon înainte să plece oriunde, deci serverul vede doar text criptat, mărimea și momentul.
+
+| Cale                | Ce face                                                                                                                                                                                                                                                                  | Ce ajunge la server                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| Fișier `.cyclecare` | Se salvează pe telefon sau oriunde alege persoana; se deschide cu codul.                                                                                                                                                                                                 | Nimic                                       |
+| Copie automată      | Opțională, cu acord separat. Se trimite la 45 de secunde după o schimbare, cu concurență optimistă (`If-Match`): un al doilea telefon nu poate suprascrie în tăcere. Se păstrează cel mult trei versiuni: ultima, una de cel puțin o zi și una de cel puțin o săptămână. | Plic criptat, mărime, moment, hash de token |
+| Restaurare          | Cu codul, de pe server sau dintr-un fișier, pe orice telefon, cu previzualizare (data, zilele) și avertisment că înlocuiește datele locale.                                                                                                                              | Cerere de citire cu token                   |
+
+Codul stă doar în seiful criptat al telefonului și nu intră în export, în fișier sau în copia de pe server. Funcția apare numai unde aplicația are server (Netlify, la `/api/partner/backup/<id>`; logica în `server/relay.ts`), nu pe GitHub Pages. Dacă persoana uită PIN-ul și pornește de la zero, copia de pe server rămâne, ca să poată fi restaurată cu codul; „Șterge toate datele” și retragerea acordului o șterg.
+
 **Serverul.** O funcție Netlify (`netlify/functions/partner.mts`) cu stocare Netlify Blobs, pe același domeniu, la `/api/partner`; logica este în `server/relay.ts`. Pe Netlify este inclusă automat (`netlify.toml` la rădăcina depozitului). Pe GitHub Pages, care nu poate rula funcții, Modul Partener nu apare. Pentru altă gazdă, `VITE_PARTNER_SYNC_URL` poate indica o adresă https care rulează același cod; acea origine este adăugată automat în politica de securitate.
 
 ## Configurare
@@ -127,6 +139,7 @@ Fluxul din `.github/workflows/cyclecare-pages.yml` rulează verificările și pu
 | Viață intimă și risc de sarcină    | Contact intim în jurnal (fel, contracepție, prezervativ rupt), inimioare în calendar, risc de sarcină pe „Azi”, cu contracepția de urgență și testul                                                           | `src/domain/pregnancyRisk.ts`, `src/screens/Journal.tsx`, `src/ui/PregnancyRisk.tsx`                         | `tests/pregnancyRisk.test.ts`, `e2e/intimacy.spec.ts`                                          |
 | Profil                             | Nume sau poreclă întrebat la prima deschidere (opțional), poză rotundă în colțul din dreapta sus, ecran pentru nume și poză                                                                                    | `src/screens/Profile.tsx`, `src/ui/Avatar.tsx`, `src/app/photo.ts`, `src/domain/user.ts`                     | `tests/user.test.ts`, `e2e/profile.spec.ts`                                                    |
 | Modul Partener                     | Invitație cu cod și cifre de verificare, permisiuni, sincronizare criptată cap-coadă, vizualizare doar pentru citire pe telefonul partenerului                                                                 | `src/partner/`, `src/domain/partner.ts`, `src/screens/PartnerScreens.tsx`, `server/relay.ts`                 | `tests/partner.test.ts`, `tests/relay.test.ts`, `e2e/partner.spec.ts`                          |
+| Copia de siguranță                 | Cod de recuperare, fișier criptat `.cyclecare`, copie automată criptată pe server cu acord separat, restaurare, versiuni în timp                                                                               | `src/backup/`, `src/screens/BackupSettings.tsx`, `server/relay.ts`                                           | `tests/backup.test.ts`, `tests/relay.test.ts`, `e2e/backup.spec.ts`                            |
 | Navigare și mișcare                | Stivă de ecrane cu tranziții, glisare înapoi, ferestre care se trag în jos, sticlă, reacție la apăsare, apariție în trepte, cerc care se desenează, grafice care cresc; totul se oprește la „Reducere mișcare” | `src/app/router.ts`, `src/ui/Navigator.tsx`, `src/ui/motion.ts`, `src/styles/motion.css`, `src/ui/Sheet.tsx` | `tests/router.test.ts`, `tests/motion.test.ts`, `e2e/motion.spec.ts`, `e2e/animations.spec.ts` |
 | Instalare și producție             | Manifest, pictograme, pornire fără internet, actualizări acceptate de persoană, pagină 404, tratarea erorilor, anulare, validări lângă câmp                                                                    | `vite.config.ts`, `public/sw.js`, `src/app/pwa.ts`, `src/app/errors.ts`                                      | `e2e/pwa.spec.ts`, `e2e/polish.spec.ts`                                                        |
 
@@ -162,6 +175,7 @@ src/
   screens/     ecranele
   ui/          cadrul aplicației, tranziții și gesturi, ferestre, controale, cadranul ciclului, grafice
   partner/     Modul Partener: criptografie, asociere, sincronizare
+  backup/      Copia de siguranță: cod de recuperare, criptare, sincronizare, restaurare
   pdf/         cititor TrueType și generator PDF, fără dependențe
   i18n/        texte de interfață și formatare
   content/     sfaturi și texte juridice, pe limbi

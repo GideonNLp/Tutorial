@@ -156,6 +156,8 @@ export const en: Dictionary = {
         'No account: your data stays encrypted on this device',
       ],
       start: 'Get started',
+      restoreHint: 'Used the app on another phone?',
+      restoreAction: 'Restore from a copy',
       previewNote: 'Preview version. What you log stays only in this browser and disappears if you clear your browsing data.',
     },
     nickname: {
@@ -449,8 +451,10 @@ export const en: Dictionary = {
     forgot: 'I forgot my PIN',
     forgotTitle: 'The PIN cannot be recovered',
     forgotBody:
-      'Your data is encrypted with your PIN and there is no copy of it anywhere else. If you can’t remember it, the only way forward is to delete all data and start again.',
+      'Your data is encrypted with your PIN and there is no copy of it on this phone. If you can’t remember it, the only way forward is to delete all data from here and start again.',
     wipe: 'Delete all data',
+    keepsServerCopy:
+      'If you turned on the backup on the server, it stays there: once you start from scratch you can restore it with your recovery code.',
     unavailableTitle: 'The data can’t be opened',
     unavailableBody:
       'The encryption key kept by the browser is missing or has changed (for example, after site data was partly cleared). The journal can no longer be read.',
@@ -522,6 +526,110 @@ export const en: Dictionary = {
       session:
         'The browser doesn’t allow saving on this device (private window or blocked storage). What you log is kept only until you close the page.',
       plain: 'Encryption isn’t available here (the page isn’t served over HTTPS). What you log is kept only for this session.',
+    },
+  },
+
+  backup: {
+    intro:
+      'Your data is only on this phone. If you lose it or clear the app’s data, it is gone. An encrypted copy that only a recovery code can open brings it back.',
+    code: {
+      title: 'Recovery code',
+      create: 'Create the recovery code',
+      lead: 'This is your code. Without it, nobody can open a copy, not even us, and the code cannot be remade. Write it on paper or keep it somewhere safe, not only on this phone: if the phone is lost, so is the code.',
+      label: (code: string) => `The recovery code is ${code.split('').join(' ')}`,
+      show: 'Show the code',
+      hide: 'Hide the code',
+      copy: 'Copy the code',
+      copied: 'The code has been copied.',
+      share: 'Send the code',
+      confirmTitle: 'Confirm you wrote it down',
+      confirmAsk: (n: number) => `Type group ${n} of 6 of the code (four characters).`,
+      confirmLabel: 'The group of four characters',
+      confirmWrong: 'That is not the right group. Check what you wrote down.',
+      confirm: 'I wrote it down',
+      unconfirmed: 'The code is not confirmed yet. Until you confirm it, don’t rely on it.',
+      replace: 'Generate another code',
+      replaceTitle: 'Generate another code?',
+      replaceBody:
+        'The old code will no longer open any new copy. If you have the copy on the server, a new one is made under the new code and the old one is deleted only after that. Files saved with the old code open only with it.',
+      replaceConfirm: 'Yes, generate',
+      replaced: 'The new code has been created. Write it down.',
+    },
+    file: {
+      title: 'Encrypted file',
+      hint: 'A file you keep yourself (in Files, in Drive, in an email to yourself). It opens only with the recovery code and doesn’t depend on any server.',
+      save: 'Save an encrypted file',
+      saved: 'The file has been saved.',
+      failed: 'The file could not be saved.',
+      filename: (date: string) => `${APP_FILE_NAME}-backup-${date}.cyclecare`,
+    },
+    server: {
+      title: 'Automatic copy on the server',
+      unavailable:
+        'The copy on the server needs the app’s server, which is not available in this version. It is included automatically on Netlify; see the README for other hosts.',
+      hint: 'The app keeps an encrypted copy of your journal on its own server, so you don’t depend on a file. The server cannot read it. It keeps the latest version and two older ones, so you can go back after a mistake.',
+      toggle: 'Keep an encrypted copy on the server',
+      needCode: 'Create and confirm the recovery code first.',
+      consent: {
+        title: 'Separate consent for the copy on the server',
+        body: 'So you don’t lose your journal if you lose your phone, the app sends a copy of the whole journal to its server (the logged days, including sex, notes and profile). The copy is encrypted on your phone with a key made from the recovery code, which the server doesn’t have: the server cannot read it. It keeps at most three versions (the latest, one at least a day older and one at least a week older), updates when you log something and stays there until you turn it off or delete your data; then it is deleted. Without the recovery code nobody can open it, so only you can lose it. You can say no: the rest of the app works the same.',
+        accept: 'I agree to this copy',
+        decline: 'Not now',
+      },
+      status: {
+        synced: (time: string) => `Last copy sent: ${time}.`,
+        syncing: 'Sending the copy…',
+        offline: 'No internet: the copy goes out as soon as you are back online.',
+        error: 'The copy could not be sent. Trying again.',
+        waiting: 'The first copy goes out right away.',
+      },
+      versionsTitle: 'On the server now',
+      roles: { latest: 'The most recent', daily: 'At least a day older', weekly: 'At least a week older' },
+      taken: {
+        title: 'Another copy took its place',
+        body: 'Another phone wrote the copy with the same recovery code. This phone stopped sending, so it doesn’t overwrite it.',
+        useServer: 'Restore the copy from the server',
+        useThis: 'Use this phone',
+        resumed: 'The copy follows this phone again.',
+      },
+      stop: 'Turn off the copy and delete it from the server',
+      delete: 'Delete the copy from the server',
+      deleteConfirmTitle: 'Delete the copy from the server?',
+      deleteConfirmBody:
+        'Everything the server holds for this recovery code is deleted, with all its versions. This can’t be undone. Encrypted files still open with the code.',
+      deleteConfirm: 'Yes, delete',
+      stopConfirmTitle: 'Turn off the copy on the server?',
+      stopConfirmBody:
+        'The encrypted copy is deleted from the server, with all its versions. The recovery code stays, and encrypted files still open with it. You can turn the copy on again at any time.',
+      stopConfirm: 'Yes, turn off and delete',
+      stopped: 'The copy has been deleted from the server.',
+      stopPending: 'The copy is turned off. It is deleted from the server as soon as you are back online.',
+      pending: 'An old copy is waiting to be deleted from the server, as soon as you are back online.',
+    },
+    restore: {
+      title: 'Restore from a copy',
+      open: 'Restore from a copy',
+      lead: 'Enter the recovery code and choose where to take the copy from: the server or an encrypted file.',
+      codeLabel: 'Recovery code',
+      codeHint: '24 letters and digits, with or without dashes',
+      search: 'Look on the server',
+      file: 'Choose an encrypted file',
+      codeInvalid: 'The code has a mistake. It has 24 letters and digits (no I, O, 0 or 1): check what you wrote down.',
+      notFound: 'There is no copy with this code. Check the code.',
+      wrongKey: 'The file doesn’t open with this code.',
+      notABackup: 'The file is not an encrypted CycleCare copy.',
+      unreadable: 'The copy could not be read: it is damaged or comes from a newer version of the app.',
+      offline: 'There is no internet connection. Try again when you are online.',
+      server: 'We couldn’t reach the server. Try again in a little while.',
+      needCode: 'Enter the recovery code first.',
+      found: (days: number, from: string, to: string) =>
+        days === 0 ? 'The copy has no logged days.' : `The copy has ${count(days, 'logged day', 'logged days')}, from ${from} to ${to}.`,
+      savedAt: (date: string) => `Saved on ${date}.`,
+      versionLabel: 'Which version to restore',
+      confirm: 'Restore',
+      replaces: 'The journal on this phone will be replaced by the one in the copy.',
+      done: 'Your data has been restored.',
+      undone: 'We went back to the data from before the restore.',
     },
   },
 
@@ -823,6 +931,7 @@ export const en: Dictionary = {
       privacy: { title: 'Privacy and security', hint: 'PIN, biometrics, consent, deleting data' },
       data: { title: 'My data', hint: 'Export, backup, import from devices' },
       partner: { title: 'Partner', hint: 'Invite someone to see how you are doing, you choose what' },
+      backup: { title: 'Backup', hint: 'Recovery code, encrypted file, copy on the server' },
       appearance: { title: 'Appearance and accessibility', hint: 'Theme, text size, language' },
       about: { title: `About ${APP_NAME}`, hint: 'Version, limits, licences' },
     },
@@ -897,6 +1006,8 @@ export const en: Dictionary = {
       storageTitle: 'Where your data is',
       storage: {
         encrypted: 'On this device, encrypted with AES-256. There is no account, and your journal is not sent anywhere.',
+        encryptedWithBackup:
+          'On this device, encrypted with AES-256. There is no account. You turned on the backup: an encrypted copy of your journal, which the server cannot read, is kept on the app’s server.',
         session: 'Only in this page’s memory: the browser doesn’t allow saving on the device.',
         plain: 'Only in this page’s memory, unencrypted: encryption isn’t available without HTTPS.',
       },
@@ -911,6 +1022,8 @@ export const en: Dictionary = {
         'Nothing is shared. If a future feature involved sending data to someone else, we would ask for your separate consent, for that case, and you could withdraw it at any time.',
       sharingOff:
         'Nothing is shared. Partner mode starts only if you invite someone from Settings → Partner, with a separate consent, and you can stop it at any time.',
+      backupOn:
+        'The backup on the server is on: an encrypted copy of the whole journal, with the key from your recovery code, which the server doesn’t have. You turn it off in Settings → Backup.',
       sharingOn: (date: string) =>
         `Since ${date} you have been sharing an encrypted summary with your partner, with what you chose in Settings → Partner. Nothing else is shared.`,
       consentTitle: 'Your consent',
@@ -920,6 +1033,7 @@ export const en: Dictionary = {
       policy: 'Read the privacy notice',
       deleteTitle: 'Delete all data',
       deleteBody: 'Your journal, settings, PIN and encryption keys are deleted from this device. There is no copy they could be recovered from.',
+      deleteWithBackup: 'The encrypted copy on the server is deleted too: you won’t be able to restore it.',
       deleteAction: 'Delete all data',
       deleteConfirmTitle: 'Delete all data permanently?',
       deleteConfirmBody: 'This can’t be undone. If you want to keep anything, make an export from “My data” first.',
@@ -931,7 +1045,9 @@ export const en: Dictionary = {
       pdfHint: 'You create it from the Statistics screen.',
       pdfOpen: 'Go to Statistics',
       backupTitle: 'Backup',
-      backupHint: 'All your data, in a JSON file you can read and move to another device. The file is not encrypted: keep it somewhere safe.',
+      backupHint:
+        'All your data, in a JSON file you can read and move to another device. The file is not encrypted: keep it somewhere safe. For an encrypted copy, use Backup.',
+      backupOpen: 'Encrypted backup',
       export: 'Export data (JSON)',
       exported: 'The file has been saved.',
       exportFailed: 'The file could not be saved.',

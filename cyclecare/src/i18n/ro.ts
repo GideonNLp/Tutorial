@@ -156,6 +156,8 @@ export const ro = {
         'Fără cont: datele rămân criptate pe acest dispozitiv',
       ],
       start: 'Începe',
+      restoreHint: 'Ai folosit aplicația pe alt telefon?',
+      restoreAction: 'Restaurează dintr-o copie',
       previewNote: 'Versiune de previzualizare. Ce notezi rămâne doar în acest browser și dispare dacă ștergi datele de navigare.',
     },
     nickname: {
@@ -449,8 +451,10 @@ export const ro = {
     forgot: 'Am uitat PIN-ul',
     forgotTitle: 'PIN-ul nu poate fi recuperat',
     forgotBody:
-      'Datele sunt criptate cu PIN-ul tău și nu există nicio copie a lor în altă parte. Dacă nu ți-l mai amintești, singura cale este să ștergi toate datele și să începi din nou.',
+      'Datele sunt criptate cu PIN-ul tău și nu există nicio copie a lor pe acest telefon. Dacă nu ți-l mai amintești, singura cale este să ștergi toate datele de aici și să începi din nou.',
     wipe: 'Șterge toate datele',
+    keepsServerCopy:
+      'Dacă ai pornit copia de siguranță pe server, ea rămâne acolo: după ce începi de la zero, o poți restaura cu codul de recuperare.',
     unavailableTitle: 'Datele nu pot fi deschise',
     unavailableBody:
       'Cheia de criptare păstrată de browser lipsește sau s-a schimbat (de exemplu, după ștergerea parțială a datelor site-ului). Jurnalul nu mai poate fi citit.',
@@ -522,6 +526,112 @@ export const ro = {
       session:
         'Browserul nu permite salvarea pe dispozitiv (fereastră privată sau stocare blocată). Ce notezi se păstrează doar până închizi pagina.',
       plain: 'Criptarea nu este disponibilă aici (pagina nu este servită prin HTTPS). Ce notezi se păstrează doar în această sesiune.',
+    },
+  },
+
+  backup: {
+    intro:
+      'Datele tale sunt doar pe acest telefon. Dacă îl pierzi sau ștergi datele aplicației, dispar. O copie criptată, pe care o poți deschide doar cu un cod de recuperare, le aduce înapoi.',
+    code: {
+      title: 'Codul de recuperare',
+      create: 'Creează codul de recuperare',
+      lead: 'Acesta este codul tău. Fără el, o copie nu poate fi deschisă de nimeni, nici de noi, și codul nu poate fi refăcut. Notează-l pe hârtie sau într-un loc sigur, nu doar pe acest telefon: dacă telefonul se pierde, se pierde și el.',
+      label: (code: string) => `Codul de recuperare este ${code.split('').join(' ')}`,
+      show: 'Arată codul',
+      hide: 'Ascunde codul',
+      copy: 'Copiază codul',
+      copied: 'Codul a fost copiat.',
+      share: 'Trimite codul',
+      confirmTitle: 'Confirmă că l-ai notat',
+      confirmAsk: (n: number) => `Scrie grupul ${n} din 6 al codului (patru caractere).`,
+      confirmLabel: 'Grupul de patru caractere',
+      confirmWrong: 'Nu este grupul corect. Verifică ce ai notat.',
+      confirm: 'Am notat codul',
+      unconfirmed: 'Codul nu este confirmat încă. Până îl confirmi, nu te baza pe el.',
+      replace: 'Generează alt cod',
+      replaceTitle: 'Generezi alt cod?',
+      replaceBody:
+        'Codul vechi nu va mai deschide nicio copie nouă. Dacă ai copie pe server, se face una nouă cu noul cod, iar cea veche se șterge abia după aceea. Fișierele salvate cu codul vechi se deschid doar cu el.',
+      replaceConfirm: 'Da, generează',
+      replaced: 'Noul cod a fost creat. Notează-l.',
+    },
+    file: {
+      title: 'Fișier criptat',
+      hint: 'Un fișier pe care îl păstrezi tu (în Fișiere, în Drive, într-un e-mail către tine). Se deschide doar cu codul de recuperare și nu depinde de niciun server.',
+      save: 'Salvează un fișier criptat',
+      saved: 'Fișierul a fost salvat.',
+      failed: 'Fișierul nu a putut fi salvat.',
+      filename: (date: string) => `${APP_FILE_NAME}-copie-${date}.cyclecare`,
+    },
+    server: {
+      title: 'Copie automată pe server',
+      unavailable:
+        'Copia pe server are nevoie de serverul aplicației, care nu este disponibil în această versiune. Pe Netlify este inclus automat; vezi README pentru alte gazde.',
+      hint: 'Aplicația păstrează singură, pe serverul ei, o copie criptată a jurnalului, ca să nu depinzi de un fișier. Serverul nu o poate citi. Păstrează ultima versiune și două mai vechi, ca să poți reveni după o greșeală.',
+      toggle: 'Păstrează o copie criptată pe server',
+      needCode: 'Creează și confirmă mai întâi codul de recuperare.',
+      consent: {
+        title: 'Acord separat pentru copia pe server',
+        body: 'Ca să nu pierzi jurnalul dacă îți pierzi telefonul, aplicația trimite pe serverul ei o copie a întregului jurnal (zilele notate, inclusiv contactele intime, notele și profilul). Copia este criptată pe telefonul tău, cu o cheie făcută din codul de recuperare pe care serverul nu îl are: serverul nu o poate citi. Păstrează cel mult trei versiuni (ultima, una de cel puțin o zi și una de cel puțin o săptămână mai veche), se actualizează când notezi ceva și rămâne acolo până o oprești sau ștergi datele; atunci este ștearsă. Fără codul de recuperare nimeni nu o poate deschide, deci îl poți pierde doar tu. Poți refuza: restul aplicației funcționează la fel.',
+        accept: 'Sunt de acord cu această copie',
+        decline: 'Nu acum',
+      },
+      status: {
+        synced: (time: string) => `Ultima copie trimisă: ${time}.`,
+        syncing: 'Se trimite copia…',
+        offline: 'Fără internet: copia pleacă de îndată ce revii online.',
+        error: 'Copia nu a putut fi trimisă. Încercăm din nou.',
+        waiting: 'Prima copie pleacă imediat.',
+      },
+      versionsTitle: 'Pe server acum',
+      roles: { latest: 'Cea mai recentă', daily: 'De cel puțin o zi mai veche', weekly: 'De cel puțin o săptămână mai veche' },
+      taken: {
+        title: 'Altă copie a luat locul',
+        body: 'Un alt telefon a scris copia cu același cod de recuperare. Acest telefon a oprit trimiterea, ca să nu o suprascrie.',
+        useServer: 'Restaurează copia de pe server',
+        useThis: 'Folosește acest telefon',
+        resumed: 'Copia urmează din nou acest telefon.',
+      },
+      stop: 'Oprește copia și șterge-o de pe server',
+      delete: 'Șterge copia de pe server',
+      deleteConfirmTitle: 'Ștergi copia de pe server?',
+      deleteConfirmBody:
+        'Tot ce a rămas pe server pentru acest cod de recuperare este șters, cu toate versiunile. Nu poți anula asta. Fișierele criptate se deschid în continuare cu codul.',
+      deleteConfirm: 'Da, șterge',
+      stopConfirmTitle: 'Oprești copia de pe server?',
+      stopConfirmBody:
+        'Copia criptată este ștearsă de pe server, cu toate versiunile. Codul de recuperare rămâne, iar fișierele criptate se deschid în continuare cu el. Poți porni copia din nou oricând.',
+      stopConfirm: 'Da, oprește și șterge',
+      stopped: 'Copia a fost ștearsă de pe server.',
+      stopPending: 'Copia este oprită. Ștergerea de pe server se face de îndată ce revii online.',
+      pending: 'O copie veche așteaptă să fie ștearsă de pe server, de îndată ce revii online.',
+    },
+    restore: {
+      title: 'Restaurează dintr-o copie',
+      open: 'Restaurează dintr-o copie',
+      lead: 'Introdu codul de recuperare și alege de unde luăm copia: de pe server sau dintr-un fișier criptat.',
+      codeLabel: 'Codul de recuperare',
+      codeHint: '24 de litere și cifre, cu sau fără cratime',
+      search: 'Caută pe server',
+      file: 'Alege un fișier criptat',
+      codeInvalid: 'Codul are o greșeală. Are 24 de litere și cifre (fără I, O, 0 sau 1): verifică ce ai notat.',
+      notFound: 'Nu există nicio copie cu acest cod. Verifică codul.',
+      wrongKey: 'Fișierul nu se deschide cu acest cod.',
+      notABackup: 'Fișierul nu este o copie criptată CycleCare.',
+      unreadable: 'Copia nu a putut fi citită: este deteriorată sau vine dintr-o versiune mai nouă a aplicației.',
+      offline: 'Nu există conexiune la internet. Încearcă din nou când ești online.',
+      server: 'Nu am putut contacta serverul. Încearcă din nou peste puțin timp.',
+      needCode: 'Introdu mai întâi codul de recuperare.',
+      found: (days: number, from: string, to: string) =>
+        days === 0
+          ? 'Copia nu conține zile notate.'
+          : `Copia are ${count(days, 'zi notată', 'zile notate', 'de zile notate')}, din ${from} până în ${to}.`,
+      savedAt: (date: string) => `Salvată pe ${date}.`,
+      versionLabel: 'Ce versiune restaurezi',
+      confirm: 'Restaurează',
+      replaces: 'Jurnalul de pe acest telefon va fi înlocuit cu cel din copie.',
+      done: 'Datele au fost restaurate.',
+      undone: 'Am revenit la datele dinainte de restaurare.',
     },
   },
 
@@ -824,6 +934,7 @@ export const ro = {
       privacy: { title: 'Confidențialitate și securitate', hint: 'PIN, biometrie, acorduri, ștergerea datelor' },
       data: { title: 'Datele mele', hint: 'Export, copie de siguranță, import din dispozitive' },
       partner: { title: 'Partener', hint: 'Invită pe cineva să vadă starea ta, alegi tu ce' },
+      backup: { title: 'Copie de siguranță', hint: 'Cod de recuperare, fișier criptat, copie pe server' },
       appearance: { title: 'Aspect și accesibilitate', hint: 'Temă, dimensiunea textului, limbă' },
       about: { title: `Despre ${APP_NAME}`, hint: 'Versiune, limite, licențe' },
     },
@@ -898,6 +1009,8 @@ export const ro = {
       storageTitle: 'Unde sunt datele',
       storage: {
         encrypted: 'Pe acest dispozitiv, criptate cu AES-256. Nu există cont, iar jurnalul nu este trimis nicăieri.',
+        encryptedWithBackup:
+          'Pe acest dispozitiv, criptate cu AES-256. Nu există cont. Ai pornit copia de siguranță: o copie criptată a jurnalului, pe care serverul nu o poate citi, este păstrată pe serverul aplicației.',
         session: 'Doar în memoria acestei pagini: browserul nu permite salvarea pe dispozitiv.',
         plain: 'Doar în memoria acestei pagini, necriptate: criptarea nu este disponibilă fără HTTPS.',
       },
@@ -912,6 +1025,8 @@ export const ro = {
         'Nimic nu este partajat. Dacă o funcție viitoare ar presupune trimiterea de date către altcineva, îți vom cere un acord separat, pentru acel caz, și îl vei putea retrage oricând.',
       sharingOff:
         'Nimic nu este partajat. Modul Partener pornește doar dacă inviți pe cineva din Setări → Partener, cu un acord separat, și îl poți opri oricând.',
+      backupOn:
+        'Copia de siguranță pe server este pornită: o copie criptată a întregului jurnal, cu cheia din codul tău de recuperare, pe care serverul nu o are. O oprești din Setări → Copie de siguranță.',
       sharingOn: (date: string) =>
         `Din ${date} partajezi cu partenerul tău un rezumat criptat, cu ce ai ales în Setări → Partener. Nimic altceva nu este partajat.`,
       consentTitle: 'Acordul tău',
@@ -923,6 +1038,7 @@ export const ro = {
       deleteTitle: 'Șterge toate datele',
       deleteBody:
         'Jurnalul, setările, PIN-ul și cheile de criptare sunt șterse de pe acest dispozitiv. Nu există copie din care să poată fi recuperate.',
+      deleteWithBackup: 'Se șterge și copia criptată de pe server: nu o vei mai putea restaura.',
       deleteAction: 'Șterge toate datele',
       deleteConfirmTitle: 'Ștergi definitiv toate datele?',
       deleteConfirmBody: 'Acțiunea nu poate fi anulată. Dacă vrei să păstrezi ceva, fă mai întâi un export din „Datele mele”.',
@@ -935,7 +1051,8 @@ export const ro = {
       pdfOpen: 'Mergi la Statistici',
       backupTitle: 'Copie de siguranță',
       backupHint:
-        'Toate datele, într-un fișier JSON pe care îl poți citi și muta pe alt dispozitiv. Fișierul nu este criptat: păstrează-l într-un loc sigur.',
+        'Toate datele, într-un fișier JSON pe care îl poți citi și muta pe alt dispozitiv. Fișierul nu este criptat: păstrează-l într-un loc sigur. Pentru o copie criptată, folosește Copia de siguranță.',
+      backupOpen: 'Copie de siguranță criptată',
       export: 'Exportă datele (JSON)',
       exported: 'Fișierul a fost salvat.',
       exportFailed: 'Fișierul nu a putut fi salvat.',

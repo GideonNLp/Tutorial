@@ -135,6 +135,31 @@ export interface PartnerShare {
   connectedAt: ISOTimestamp;
 }
 
+/**
+ * The backup of this journal ("Copie de siguranță"): the recovery code, and the state of the encrypted
+ * copy on the server when the person turned that on. It lives only in the encrypted journal on this
+ * device: a copy or an export never carries it (whoever held the copy would hold its key), and nothing sends it.
+ */
+export interface BackupSettings {
+  code: string;
+  createdAt: ISOTimestamp;
+  /** The person typed back a group of the code: it was written down somewhere safe. */
+  confirmed?: boolean;
+  /** The automatic copy on the server is on (it has its own consent). */
+  auto?: {
+    since: ISOTimestamp;
+    /** The version on the server this device last wrote or restored from; a write must present it. */
+    etag?: string;
+    /** Digest of what was last sent, so an unchanged journal is not sent again. */
+    digest?: string;
+    lastAt?: ISOTimestamp;
+    /** Another phone wrote with the same code since: this one waits until the person decides. */
+    taken?: boolean;
+  };
+  /** Copies turned off (or left behind by a new code) that the server could not be asked to delete yet (offline). */
+  pendingDelete?: Array<{ id: string; token: string }>;
+}
+
 export interface OwnerPartnerSettings {
   permissions: PartnerPermissions;
   share?: PartnerShare;
@@ -156,7 +181,7 @@ export interface PartnerView {
   revoked?: boolean;
 }
 
-export const CONSENT_TYPES = ['health_data_processing', 'age_confirmation', 'partner_sharing', 'partner_view'] as const;
+export const CONSENT_TYPES = ['health_data_processing', 'age_confirmation', 'partner_sharing', 'partner_view', 'cloud_backup'] as const;
 export type ConsentType = (typeof CONSENT_TYPES)[number];
 
 export interface ConsentRecord {
@@ -214,6 +239,7 @@ export interface AppData {
   partner: OwnerPartnerSettings;
   /** Partner side of Partner mode (only when `role` is `partner`). */
   partnerView?: PartnerView;
+  backup?: BackupSettings;
   importBatches: ImportBatch[];
 }
 
