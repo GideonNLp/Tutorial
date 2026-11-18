@@ -254,7 +254,7 @@ export function TodayScreen() {
         <InstallCard />
 
         <div className="today-grid" data-stagger="">
-          <section className="card today-cycle" aria-labelledby="cycle-heading">
+          <section className="card card-hero today-cycle" aria-labelledby="cycle-heading">
             <h2 id="cycle-heading" className="sr-only">
               {s.today.legendTitle}
             </h2>

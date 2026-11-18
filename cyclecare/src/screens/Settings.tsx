@@ -149,7 +149,7 @@ function CycleSettings() {
     max: number,
     key: 'typicalCycleLength' | 'typicalPeriodLength',
   ) => (
-    <div className="card tight stack stack-3">
+    <div className="card card-flat tight stack stack-3">
       {value !== undefined ? (
         <>
           <Stepper label={label} value={value} min={min} max={max} onChange={(n) => setProfile({ [key]: n })} />
@@ -196,7 +196,7 @@ function CycleSettings() {
             </Notice>
           )}
         </Group>
-        <div className="card tight">
+        <div className="card card-flat tight">
           <Switch label={c.fertility} hint={c.fertilityHint} checked={profile.showFertility} onChange={(on) => setProfile({ showFertility: on })} />
         </div>
       </div>
@@ -247,7 +247,7 @@ function ReminderSettingsScreen() {
     const value = reminders[key];
     const change = (patch: Partial<ReminderSettings['period']>) => set({ [key]: { ...value, ...patch } });
     return (
-      <div className="card tight stack stack-3">
+      <div className="card card-flat tight stack stack-3">
         <Switch
           label={title}
           hint={disabledNote}
@@ -313,7 +313,7 @@ function ReminderSettingsScreen() {
           <p className="caption">{r.webNote}</p>
         </Notice>
 
-        <div className="card tight">
+        <div className="card card-flat tight">
           <Switch label={r.discreet} hint={r.discreetHint} checked={reminders.discreet} onChange={(on) => set({ discreet: on })} />
         </div>
 
@@ -323,7 +323,7 @@ function ReminderSettingsScreen() {
         <Group title={r.medications}>
           {reminders.medications.length === 0 && <p className="ink-2">{r.medicationsEmpty}</p>}
           {reminders.medications.map((med) => (
-            <div className="card tight med-card" key={med.id}>
+            <div className="card card-flat tight med-card" key={med.id}>
               <div className="row" style={{ alignItems: 'flex-end' }}>
                 <div className="field grow">
                   <label className="field-label" htmlFor={`${med.id}-name`}>
@@ -574,7 +574,7 @@ function PrivacySettings() {
               <p>{p.pinUnavailable}</p>
             </Notice>
           ) : (
-            <div className="card tight stack">
+            <div className="card card-flat tight stack">
               <div className="stack stack-1">
                 <p className="strong">{hasPin ? p.pinOn : p.pinOff}</p>
                 <p className="field-hint">{p.pinHint}</p>
@@ -629,7 +629,7 @@ function PrivacySettings() {
         </Group>
 
         <Group title={p.discretionTitle}>
-          <div className="card tight">
+          <div className="card card-flat tight">
             <Switch
               label={p.showIntimacy}
               hint={p.showIntimacyHint}

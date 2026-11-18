@@ -4,6 +4,7 @@ import { startLifecycle } from './app/lifecycle';
 import { warmUpHost } from './app/platform';
 import { applyUpdate, registerServiceWorker, requestPersistentStorage, useUpdateReady } from './app/pwa';
 import type { Route } from './app/router';
+import { PhaseTint } from './app/phaseTint';
 import { flush, initApp, usePrefs, useRole, useStatus, useStorageMode } from './app/store';
 import { toast } from './app/ui';
 import { strings } from './i18n';
@@ -112,6 +113,7 @@ export function App() {
 
   return (
     <div className="app with-tabbar view-enter" key={`ready-${locale}-${role}`}>
+      {role === 'owner' && <PhaseTint />}
       <a
         className="skip-link"
         href="#main"

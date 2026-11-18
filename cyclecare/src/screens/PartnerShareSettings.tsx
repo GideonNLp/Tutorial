@@ -164,7 +164,7 @@ export function PartnerShareSettings() {
         {!share && <p className="ink-2">{t.intro}</p>}
 
         {share && (
-          <section className="card tight stack stack-2" aria-labelledby={titleId}>
+          <section className="card card-flat tight stack stack-2" aria-labelledby={titleId}>
             <p className="phase-line" id={titleId}>
               <Users size={18} aria-hidden="true" />
               <span className="strong">{t.connected(formatDate(todayISO(new Date(share.connectedAt)), 'long'))}</span>
@@ -185,7 +185,7 @@ export function PartnerShareSettings() {
 
         <section className="settings-group" aria-labelledby={`${titleId}-perm`}>
           <h2 id={`${titleId}-perm`}>{t.permissionsTitle}</h2>
-          <div className="card tight stack stack-3">
+          <div className="card card-flat tight stack stack-3">
             {(['phase', 'calendar', 'journal', 'notes'] as const).map((key) => (
               <Switch
                 key={key}
@@ -225,7 +225,7 @@ export function PartnerShareSettings() {
         )}
 
         {step.kind === 'waiting' && (
-          <section className="card stack stack-3 pair-card" aria-labelledby={`${titleId}-code`}>
+          <section className="card card-flat stack stack-3 pair-card" aria-labelledby={`${titleId}-code`}>
             <h2 id={`${titleId}-code`} className="h3-like">
               {t.code.title}
             </h2>
@@ -257,7 +257,7 @@ export function PartnerShareSettings() {
         )}
 
         {step.kind === 'verify' && (
-          <section className="card stack stack-3 pair-card" aria-labelledby={`${titleId}-verify`}>
+          <section className="card card-flat stack stack-3 pair-card" aria-labelledby={`${titleId}-verify`}>
             <h2 id={`${titleId}-verify`} className="h3-like">
               {t.verify.title}
             </h2>

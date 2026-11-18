@@ -105,7 +105,7 @@ export function ProfileScreen() {
         </section>
 
         <form
-          className="card tight stack stack-3"
+          className="card card-flat tight stack stack-3"
           noValidate
           onSubmit={(e) => {
             e.preventDefault();

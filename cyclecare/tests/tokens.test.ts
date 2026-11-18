@@ -19,9 +19,11 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-const SURFACES = ['bg', 'surface', 'surface-2'];
-const TINTS = ['menstruation-tint', 'follicular-tint', 'ovulation-tint', 'luteal-tint', 'attention-bg'];
 const PHASES = ['menstruation', 'follicular', 'ovulation', 'luteal'];
+/** The page takes a faint colour from the phase (bg-*), brightest at the top of the page (glow-*). */
+const PAGE_TINTS = PHASES.flatMap((p) => [`bg-${p}`, `glow-${p}`]);
+const SURFACES = ['bg', 'surface', 'surface-2', ...PAGE_TINTS];
+const TINTS = ['menstruation-tint', 'follicular-tint', 'ovulation-tint', 'luteal-tint', 'attention-bg'];
 
 /** [foreground, background, minimum ratio] — WCAG 2.2 AA: 4.5 for text, 3 for UI parts and graphics. */
 const PAIRS: Array<[string, string, number]> = [
