@@ -127,6 +127,30 @@ body {
   height: 100%;
 }
 
+/* Native feel: a long press or a drag across the interface selects nothing and opens no "Copy" menu.
+   Text people write, the recovery code (which must be copied) and the privacy notice (which may be
+   quoted) stay selectable. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input,
+textarea,
+[contenteditable='true'],
+.selectable,
+.selectable * {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+img,
+svg,
+a {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+
 h1,
 h2,
 h3,
