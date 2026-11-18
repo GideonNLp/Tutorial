@@ -4,6 +4,7 @@ import { App } from './App';
 import { installGlobalErrorHandlers, reportError } from './app/errors';
 import './app/pwa'; // listens for the install prompt, which fires early
 import { ErrorBoundary } from './ui/ErrorBoundary';
+import { installNativeFeel } from './ui/native';
 import { installChoicePop } from './ui/pop';
 import { installPressFeedback } from './ui/press';
 import './styles/fonts.css';
@@ -15,6 +16,7 @@ import './styles/motion.css';
 installGlobalErrorHandlers();
 installPressFeedback();
 installChoicePop();
+installNativeFeel();
 
 createRoot(document.getElementById('root')!, {
   // Errors reach the app's own reporter instead of the console.

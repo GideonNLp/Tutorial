@@ -1800,7 +1800,9 @@ details.table-view > summary {
   letter-spacing: 0.1em;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  -webkit-user-select: all;
   user-select: all;
+  -webkit-touch-callout: default;
 }
 .recovery-input {
   letter-spacing: 0.08em;

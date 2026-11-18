@@ -4,7 +4,7 @@ import { content } from '../content';
 export function PolicyText() {
   const { privacyPolicy } = content().legal;
   return (
-    <div className="stack stack-5 policy">
+    <div className="stack stack-5 policy selectable">
       {privacyPolicy.draftNotice && <p className="notice">{privacyPolicy.draftNotice}</p>}
       {privacyPolicy.sections.map((section) => (
         <section key={section.heading} className="stack stack-2">
