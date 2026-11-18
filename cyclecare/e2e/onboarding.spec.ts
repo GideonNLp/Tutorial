@@ -44,7 +44,7 @@ test('asks the four questions, needs explicit consent, and predicts from the ans
 
   // The name is in the profile, behind the round picture in the top-right corner.
   await expect(page.locator('.page[data-active] .avatar-btn .avatar')).toHaveText('AM');
-  await page.getByRole('button', { name: 'Profil', exact: true }).click();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
   await expect(page.getByLabel('Nume sau poreclă')).toHaveValue('Ana Maria');
 });

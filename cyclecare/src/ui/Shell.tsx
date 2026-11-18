@@ -57,14 +57,13 @@ export function Screen(props: {
     };
   }, []);
 
-  // Tab pages carry two buttons on the right: settings, then the profile picture in the corner.
-  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? (withProfile ? 'has-trailing-2' : 'has-trailing') : '']
-    .filter(Boolean)
-    .join(' ');
+  // Tab pages carry one button on the right: the profile picture, which opens the profile and the
+  // settings. A page without a profile (the partner's) has the settings button instead.
+  const classes = ['screen-head', props.back ? 'has-leading' : '', props.settings ? 'has-trailing' : ''].filter(Boolean).join(' ');
   return (
     <>
       <header
-        className={withProfile ? 'navbar has-actions-2' : 'navbar'}
+        className="navbar"
         ref={barRef}
         onClick={(e) => {
           // Like tapping the status bar: a tap on the bar itself returns to the top.
@@ -84,10 +83,13 @@ export function Screen(props: {
           </span>
           {props.settings ? (
             <div className="navbar-actions">
-              <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
-                <Settings size={20} aria-hidden="true" />
-              </button>
-              {withProfile && <ProfileButton />}
+              {withProfile ? (
+                <ProfileButton />
+              ) : (
+                <button type="button" className="icon-btn outlined" aria-label={s.common.openSettings} onClick={() => navigate('setari')}>
+                  <Settings size={20} aria-hidden="true" />
+                </button>
+              )}
             </div>
           ) : (
             <span />

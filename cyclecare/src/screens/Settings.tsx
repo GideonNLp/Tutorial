@@ -1,19 +1,4 @@
-import {
-  Bell,
-  ChevronRight,
-  CircleDot,
-  CircleHelp,
-  Database,
-  DatabaseBackup,
-  FileUp,
-  Info,
-  Palette,
-  RefreshCw,
-  ShieldCheck,
-  Trash2,
-  Users,
-  type LucideIcon,
-} from 'lucide-react';
+import { Bell, FileUp, Info, RefreshCw, ShieldCheck, Trash2 } from 'lucide-react';
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import { notificationStatus, readFileAsText, requestNotifications, saveFile, type NotificationStatus } from '../app/platform';
 import type { AutoLock, TextSize, ThemePref } from '../app/prefs';
@@ -52,6 +37,7 @@ import { PinFields, validateNewPin } from '../ui/PinFields';
 import { PolicyText } from '../ui/PolicyText';
 import { BackupSettings } from './BackupSettings';
 import { PartnerShareSettings } from './PartnerShareSettings';
+import { ProfileScreen } from './Profile';
 import { ConfirmSheet, Sheet } from '../ui/Sheet';
 import { Notice, Screen } from '../ui/Shell';
 import { content } from '../content';
@@ -78,7 +64,8 @@ export function SettingsScreen({ route }: { route: Route }) {
     case 'politica':
       return <Policy />;
     default:
-      return <SettingsIndex />;
+      // The old "Settings" page: the settings now sit on the profile screen, so a link to it lands there.
+      return <ProfileScreen />;
   }
 }
 
@@ -89,47 +76,6 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
       <h2 id={id}>{title}</h2>
       {children}
     </section>
-  );
-}
-
-// ---------------------------------------------------------------- index
-
-function SettingsIndex() {
-  const s = strings().settings;
-  const rows: Array<{ route: Route; icon: LucideIcon; text: { title: string; hint: string } }> = [
-    { route: 'setari-ciclu', icon: CircleDot, text: s.sections.cycle },
-    { route: 'setari-memento', icon: Bell, text: s.sections.reminders },
-    { route: 'setari-confidentialitate', icon: ShieldCheck, text: s.sections.privacy },
-    { route: 'setari-date', icon: Database, text: s.sections.data },
-    { route: 'setari-copie', icon: DatabaseBackup, text: s.sections.backup },
-    { route: 'setari-partener', icon: Users, text: s.sections.partner },
-    { route: 'setari-aspect', icon: Palette, text: s.sections.appearance },
-    { route: 'setari-despre', icon: CircleHelp, text: s.sections.about },
-  ];
-  return (
-    <Screen title={s.title} back>
-      <ul className="list">
-        {rows.map(({ route, icon: Icon, text }) => (
-          <li key={route}>
-            <a
-              className="list-row"
-              href={`#${route}`}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(route);
-              }}
-            >
-              <Icon size={22} aria-hidden="true" />
-              <span className="grow">
-                <span className="strong">{text.title}</span>
-                <span className="caption">{text.hint}</span>
-              </span>
-              <ChevronRight size={20} aria-hidden="true" />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </Screen>
   );
 }
 

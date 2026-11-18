@@ -413,7 +413,7 @@ export const en: Dictionary = {
 
   profile: {
     title: 'Profile',
-    open: 'Profile',
+    open: 'Profile and settings',
     photoTitle: 'Profile photo',
     noName: 'No name',
     nameLabel: 'Name or nickname',

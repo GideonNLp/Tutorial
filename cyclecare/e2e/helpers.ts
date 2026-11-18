@@ -64,8 +64,8 @@ export async function tab(page: Page, name: 'Azi' | 'Calendar' | 'Jurnal' | 'Sfa
 }
 
 export async function openSettings(page: Page, section?: string): Promise<void> {
-  await page.getByRole('button', { name: 'Setări', exact: true }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
   if (section) {
     await page.getByRole('link', { name: new RegExp(section) }).click();
     await expect(page.getByRole('heading', { level: 1, name: section })).toBeVisible();

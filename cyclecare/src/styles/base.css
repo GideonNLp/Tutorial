@@ -381,9 +381,6 @@ main:focus {
 .screen-head.has-trailing {
   padding-right: calc(2.75rem + var(--s3));
 }
-.screen-head.has-trailing-2 {
-  padding-right: calc(2 * 2.75rem + var(--s2) + var(--s3));
-}
 .screen-head .titles {
   flex: 1 1 0;
   min-width: 0;
@@ -457,9 +454,6 @@ main:focus {
     opacity 0.2s ease-out,
     transform 0.2s var(--ease-out);
   pointer-events: none;
-}
-.navbar.has-actions-2 {
-  --navbar-side: calc(2 * 2.75rem + var(--s2));
 }
 .navbar-actions {
   display: flex;
