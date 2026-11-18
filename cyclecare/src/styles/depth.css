@@ -8,8 +8,14 @@
 
 :root {
   --shadow-raised: 0 1px 2px color-mix(in srgb, var(--ink) 7%, transparent), 0 8px 22px -10px color-mix(in srgb, var(--ink) 20%, transparent);
-  --shadow-hero:
-    0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--phase-c, var(--ink)) 34%, transparent);
+  --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--ink) 34%, transparent);
+  --ink-gradient: linear-gradient(155deg, var(--ink) 0%, var(--ink) 100%);
+}
+/* A custom property that holds var(--phase-c) is worked out where it is declared, so the two that use the
+   phase colour are declared again on .app, where it is set; on :root they are plain ink. */
+html[data-phase] .app {
+  --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--phase-c) 34%, transparent);
+  --ink-gradient: linear-gradient(155deg, color-mix(in srgb, var(--ink) 55%, var(--phase-c)) 0%, var(--ink) 90%);
 }
 
 /* ---------------------------------------------------------------- phase on the page */
@@ -47,6 +53,22 @@
   html[data-phase] .app .page {
     background: linear-gradient(180deg, var(--glow) 0, var(--bg) 22rem) var(--bg);
   }
+}
+
+/* ---------------------------------------------------------------- a small gradient on what is chosen
+
+   The dark "ink" of the primary button, the current tab and every selected choice is no longer one flat
+   colour: it starts 45% toward the colour of the current phase (the ink itself where there is none) and
+   settles into plain ink. The text on top keeps its contrast with the lightest end (checked in tokens.test.ts). */
+
+.btn-primary,
+.tab[aria-current='page'] .tab-icon,
+.chip input:checked + .chip-face,
+.scale input:checked + .scale-face,
+.segmented input:checked + .segmented-face,
+.switch-row input:checked + .switch-track,
+.dial-action:not(.dial-quiet) {
+  background-image: var(--ink-gradient);
 }
 
 /* ---------------------------------------------------------------- raised */
@@ -95,6 +117,15 @@
   .card-flat {
     background: var(--surface);
   }
+  .btn-primary,
+  .tab[aria-current='page'] .tab-icon,
+  .chip input:checked + .chip-face,
+  .scale input:checked + .scale-face,
+  .segmented input:checked + .segmented-face,
+  .switch-row input:checked + .switch-track,
+  .dial-action:not(.dial-quiet) {
+    background-image: none;
+  }
 }
 @media (forced-colors: active) {
   .card,
@@ -105,5 +136,15 @@
     border-color: CanvasText;
     box-shadow: none;
     background: Canvas;
+  }
+  /* The system's own highlight colour, not a gradient. */
+  .btn-primary,
+  .tab[aria-current='page'] .tab-icon,
+  .chip input:checked + .chip-face,
+  .scale input:checked + .scale-face,
+  .segmented input:checked + .segmented-face,
+  .switch-row input:checked + .switch-track,
+  .dial-action:not(.dial-quiet) {
+    background-image: none;
   }
 }

@@ -55,3 +55,20 @@ test('"increase contrast" brings the outlines back and drops the colour', async 
   expect(await style(page, hero, 'border-top-width')).toBe('2px');
   expect(await pageBg(page)).toBe('rgb(246, 245, 251)');
 });
+
+test('what is chosen carries a small gradient, and it goes away with "increase contrast"', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await startWithJournal(page);
+  const tabIcon = '.tab[aria-current="page"] .tab-icon';
+  expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
+  await tab(page, 'Jurnal');
+  expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
+
+  // It leans toward the colour of the phase (follicular green here), and so does the hero card's shadow.
+  const app = (prop: string) => page.locator('.app').evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop);
+  expect((await app('--ink-gradient')).toUpperCase()).toContain('#14937C');
+  expect((await app('--shadow-hero')).toUpperCase()).toContain('#14937C');
+
+  await page.emulateMedia({ colorScheme: 'light', contrast: 'more' });
+  expect(await style(page, tabIcon, 'background-image')).toBe('none');
+});
