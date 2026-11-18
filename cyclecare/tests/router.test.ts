@@ -14,7 +14,7 @@ describe('navigation stack', () => {
     expect(depthOf('politica')).toBe(3);
     expect(parentOf('azi')).toBeUndefined();
     expect(parentOf('setari')).toBe('azi');
-    expect(parentOf('setari-memento')).toBe('setari');
+    expect(parentOf('setari-memento')).toBe('profil');
     expect(parentOf('politica')).toBe('setari-confidentialitate');
   });
 

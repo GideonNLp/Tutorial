@@ -19,7 +19,7 @@ async function picture(page: Page): Promise<Buffer> {
 const avatar = (page: Page) => page.locator('.page[data-active] .avatar-btn .avatar');
 
 async function openProfile(page: Page) {
-  await page.getByRole('button', { name: 'Profil', exact: true }).click();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
 }
 
@@ -27,16 +27,16 @@ test('the round picture sits in the top-right corner of every tab and opens the 
   await startEmpty(page);
   for (const name of ['Azi', 'Calendar', 'Jurnal', 'Sfaturi', 'Statistici'] as const) {
     await tab(page, name);
-    const button = page.locator('.page[data-active]').getByRole('button', { name: 'Profil', exact: true });
+    const button = page.locator('.page[data-active]').getByRole('button', { name: 'Profil și setări', exact: true });
     const box = (await button.boundingBox())!;
     const viewport = page.viewportSize()!;
-    // Small, round, in the corner: right of the settings button, at the top.
+    // Small, round, in the corner, at the top; it is the only button there (settings are on the profile).
     expect(box.width).toBeLessThanOrEqual(48);
     expect(Math.abs(box.width - box.height)).toBeLessThan(1);
     expect(viewport.width - (box.x + box.width)).toBeLessThanOrEqual(17);
     expect(box.y).toBeLessThan(40);
-    const settings = (await page.locator('.page[data-active]').getByRole('button', { name: 'Setări', exact: true }).boundingBox())!;
-    expect(settings.x).toBeLessThan(box.x);
+    await expect(page.locator('.page[data-active] .navbar-actions button')).toHaveCount(1);
+    await expect(page.locator('.page[data-active]').getByRole('button', { name: 'Setări', exact: true })).toHaveCount(0);
     expect(await button.locator('.avatar').evaluate((el) => getComputedStyle(el).borderRadius)).toBe('50%');
   }
   // Without a name: a neutral figure, not initials.

@@ -45,8 +45,8 @@ flowchart TD
     jur -- Importă din fișier --> imp[[Import temperaturi]]
     stats -- Creează raportul PDF --> pdf[[Raport pentru medic]]
 
-    tabs -- poza rotundă din colț --> prof[Profil]
-    tabs -- rotița din antet --> set[Setări]
+    tabs -- poza rotundă din colț --> prof[Profil și setări]
+    prof --> set[Setări]
     set --> s1[Ciclul meu]
     set --> s2[Memento-uri]
     set --> s3[Confidențialitate și securitate]
@@ -98,7 +98,7 @@ Ce se întâmplă cu răspunsurile:
 
 Răspunde la „unde sunt în ciclu și ce urmează?”.
 
-1. Antet: titlu, data de azi, rotița pentru setări și, în colțul din dreapta sus, poza de profil (vezi 4.6).
+1. Antet: titlu, data de azi, în colțul din dreapta sus, poza de profil, care deschide profilul și setările (vezi 4.6). Nu există un buton separat pentru setări.
 2. Doar dacă este cazul: anunțul de stocare indisponibilă; invitația „Instalează aplicația” (până la instalare sau până la „Nu acum”).
 3. **Cadranul ciclului.** Ziua 1 este sus, sensul este cel al acelor de ceas. Arcele sunt cele patru faze estimate, bila marchează ziua de azi, arcul întrerupt de sus este intervalul în care este așteptată următoarea menstruație, iar arcul punctat din exterior marchează zilele fertile estimate. În centru: „Ziua 12” și faza, cu o capibara ascunsă în spatele cifrei: capul și urechile se ițesc deasupra, cele două lăbuțe (cu gheruțe și o umbră fină pe cifră) se sprijină pe marginea ei de sus, iar corpul se estompează în fundal; clipește, mișcă din ureche și bate ușor dintr-o lăbuță. Dedesubt, legenda cu zilele fiecărei faze.
 
@@ -196,13 +196,14 @@ Fiecare grafic are și varianta „Vezi datele ca tabel”, iar valorile pot fi 
 <img src="screenshots/19-raport-pdf.png" width="230" alt="Prima pagină a raportului PDF">
 </p>
 
-### 4.6 Profil
+### 4.6 Profil și setări
 
-Se deschide din poza mică și rotundă din colțul din dreapta sus al fiecărei file. Poza arată fotografia aleasă, inițialele numelui (de exemplu „AM” pentru „Ana Maria”) sau, fără nume, o siluetă neutră.
+Se deschide din poza mică și rotundă din colțul din dreapta sus al fiecărei file; este singurul buton de acolo, iar setările sunt chiar pe acest ecran (secțiunea 5). Poza arată fotografia aleasă, inițialele numelui (de exemplu „AM” pentru „Ana Maria”) sau, fără nume, o siluetă neutră.
 
 1. Poza mare, numele (sau „Fără nume”), „Adaugă o poză” / „Schimbă poza” și „Elimină poza” (cu „Anulează” în mesajul de confirmare).
 2. Câmpul „Nume sau poreclă”, cu „Salvează”. Golit și salvat, numele este șters.
-3. O notă despre confidențialitate: numele și poza rămân criptate pe dispozitiv și nu apar pe ecranul de blocare, în notificări sau în raportul PDF.
+3. Secțiunea „Setări”: lista ecranelor din secțiunea 5, direct sub nume. Un link vechi `#setari` duce tot aici.
+4. O notă despre confidențialitate: numele și poza rămân criptate pe dispozitiv și nu apar pe ecranul de blocare, în notificări sau în raportul PDF.
 
 Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijloc; la pozele verticale, puțin mai sus, unde este de obicei fața), micșorată la 256 × 256 de pixeli și păstrată ca JPEG; fișierul original nu este păstrat. Un fișier care nu este imagine sau mai mare de 25 MB primește un mesaj sub buton.
 
@@ -212,6 +213,8 @@ Poza aleasă din galerie sau făcută cu camera este decupată pătrat (pe mijlo
 </p>
 
 ## 5. Setări
+
+Lista lor stă pe ecranul Profil (4.6). Pe telefonul partenerului nu există profil: acolo rămâne un buton cu rotița, care deschide setările lui.
 
 | Ecran | Conținut |
 |---|---|
@@ -297,7 +300,7 @@ Fiecare ecran are o adresă simplă, astfel încât butonul „înapoi” al tel
 | `#sfaturi` | Sfaturi |
 | `#statistici` | Statistici |
 | `#profil` | Profil |
-| `#setari` | Setări |
+| `#setari` | Profil (setările sunt pe același ecran; pe telefonul partenerului, setările lui) |
 | `#setari-ciclu`, `#setari-memento`, `#setari-confidentialitate`, `#setari-date`, `#setari-partener`, `#setari-copie`, `#setari-aspect`, `#setari-despre` | Ecranele din Setări |
 | `#partener=COD` | Linkul de invitație: deschide conectarea partenerului cu codul completat, apoi adresa revine la `#azi` |
 | `#politica` | Declarația de confidențialitate |
@@ -336,8 +339,11 @@ Aplicația are un cadru fix: fiecare ecran derulează în propriul container, su
 | „Înapoi” | Mișcarea inversă. Ecranul părăsit este eliberat; cel de dedesubt a rămas montat, deci revine exact cum a fost lăsat |
 | Glisare de la marginea stângă | Degetul trage ecranul curent, iar cel de dedesubt se vede și îl urmează. Eliberat după o treime din lățime sau cu o mișcare rapidă, gestul se încheie; altfel ecranul revine. O glisare verticală pornită de la margine derulează ca de obicei |
 | Schimbarea filei | Pagina nouă se estompează și urcă puțin, micșorată cu un fir (240 ms), iar cea veche se stinge. Filele deja vizitate rămân montate: poziția în pagină, faza și tema alese la „Sfaturi”, luna din calendar se păstrează. O a doua atingere pe fila curentă duce la începutul paginii |
-| Antetul | În repaus este rândul obișnuit: buton, titlu mare, rotiță. Când pagina derulează, butoanele rămân sus pe o bară de sticlă, titlul mare trece pe sub ea, iar în mijlocul barei apare titlul mic. O atingere pe bară duce la începutul paginii |
+| Antetul | În repaus este rândul obișnuit: buton, titlu mare, poza de profil (pe telefonul partenerului, rotița). Când pagina derulează, butoanele rămân sus pe o bară de sticlă, titlul mare trece pe sub ea, iar în mijlocul barei apare titlul mic. O atingere pe bară duce la începutul paginii |
 | Ferestrele | Pe telefon urcă de la marginea de jos și pot fi trase în jos de antet sau de conținut (când acesta este la început); se închid după un sfert din înălțime sau la o mișcare rapidă, altfel revin cu un mic arc. Escape și atingerea în afara ferestrei le închid la fel. Pe ecrane late sunt dialoguri centrate care se estompează. Stau deasupra tastaturii |
+| Culoare după fază | Fundalul paginii ia o nuanță blândă din faza curentă (menstruație, foliculară, ovulație, luteală), cu un luciu mai intens în partea de sus care se stinge spre restul paginii. Nuanța este aceeași pe toate filele. Lipsește când nu există o fază de arătat (fără ciclu, estimări oprite, menstruație întârziată) și pe telefonul partenerului. Culorile (`bg-*`, `glow-*` în `tokens.json`) sunt amestecuri ale culorilor-tint cu fundalul, verificate pentru contrast în ambele teme; `src/app/phaseTint.ts`, `src/styles/depth.css` |
+| Adâncime și feluri de carduri | Cardurile se ridică din pagină cu umbre moi, nu cu contur. Trei feluri: **ridicat** (`.card`, `.list`, `.tip-card`: cardul obișnuit), **principal** (`.card-hero`: cercul de pe „Azi”, tintat de fază, cu umbră mai adâncă în culoarea fazei) și **plat** (`.card-flat`: panouri secundare din Setări, Partener, Copie de siguranță, translucide, fără umbră). În tema întunecată, unde umbrele se văd puțin, rămâne un contur discret. La „Contrast mărit” revin conturile și fundalul neutru, iar la culori forțate conturul sistemului |
+| Gradient pe ce este ales | Butonul principal, fila curentă și orice alegere bifată (chip, treaptă, comutator) nu mai sunt o singură culoare: pornesc 45% spre culoarea fazei curente și se așază în culoarea obișnuită (în tema deschisă, de la bleumarin spre verdele, roșul, chihlimbarul sau violetul fazei; în cea întunecată, de la lavandă spre aceeași nuanță). Fără fază, rămâne culoarea simplă. Contrastul textului cu cel mai luminos capăt e verificat în ambele teme (`tests/tokens.test.ts`); la „Contrast mărit” și la culori forțate gradientul dispare. `--ink-gradient` în `src/styles/depth.css` |
 | Simțul de aplicație nativă | Pe telefon, o apăsare lungă sau o tragere peste interfață nu selectează text și nu deschide meniul „Copiază” al browserului (`user-select: none`, `-webkit-touch-callout: none`, iar pe Android oprirea evenimentului `contextmenu` pentru degete, nu pentru mouse). Rămân selectabile câmpurile în care se scrie, codul de recuperare (care trebuie copiat) și declarația de confidențialitate (`.selectable`); `src/ui/native.ts`, `src/styles/base.css` |
 | Sticlă | Bara de navigare (după derulare), bara de file, ferestrele și mesajele scurte lasă să se vadă, estompat, ce este dedesubt. Culorile sunt aceleași; fără suport pentru estompare, sau cu „Reducere transparență” ori „Contrast mărit”, suprafețele sunt opace |
 | Apăsarea | Butoanele, pastilele și zilele se micșorează ușor (aproximativ 0,97; cele mici ceva mai mult) și revin cu un arc; rândurile de listă se evidențiază. Cardurile și blocurile de pe „Azi” (următoarea menstruație, fertilitate, risc de sarcină, cum e azi, sfatul zilei), centrul cercului, „De ce ajută?” și butoanele capibarei se micșorează mai discret (0,985, respectiv 0,97) |

@@ -41,7 +41,7 @@ test('a phone set to English gets the whole app in English', async ({ page }) =>
   await startInEnglish(page);
 
   // Restore a filled journal, as a person moving from another device would.
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profile and settings', exact: true }).click();
   await page.getByRole('link', { name: /My data/ }).click();
   await page
     .getByLabel('Restore from a file')
@@ -76,7 +76,7 @@ test('a phone set to English gets the whole app in English', async ({ page }) =>
   expect(await romanianLeftovers(page)).toEqual([]);
 
   // Every settings screen, and the privacy notice.
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profile and settings', exact: true }).click();
   for (const section of ['My cycle', 'Reminders', 'Privacy and security', 'My data', 'Partner', 'Appearance and accessibility', 'About CycleCare']) {
     await page.getByRole('link', { name: new RegExp(section) }).click();
     await expect(page.getByRole('heading', { level: 1, name: section })).toBeVisible();
@@ -99,7 +99,7 @@ test('the language can be changed on the first screen and in Settings, and is re
   await page.getByRole('button', { name: 'English' }).click();
 
   await startInEnglishFromWelcome(page);
-  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Profile and settings', exact: true }).click();
   await page.getByRole('link', { name: /Appearance and accessibility/ }).click();
   await page.getByLabel('Language').selectOption('ro');
   await expect(page.getByRole('heading', { level: 1, name: 'Aspect și accesibilitate' })).toBeVisible();

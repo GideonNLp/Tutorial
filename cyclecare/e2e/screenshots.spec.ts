@@ -78,14 +78,14 @@ test('the app with a filled journal', async ({ page }) => {
   await shot(page, '20-foaie-raport');
   await page.keyboard.press('Escape');
 
-  await page.getByRole('button', { name: 'Profil', exact: true }).click();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
   await page.getByLabel('Nume sau poreclă').fill('Ana Maria');
   await page.getByRole('button', { name: 'Salvează' }).click();
   await clearToasts(page);
   await shot(page, '22-profil');
   await page.getByRole('button', { name: 'Înapoi' }).click();
 
-  await page.getByRole('button', { name: 'Setări', exact: true }).click();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
   await shot(page, '13-setari');
   await page.getByRole('link', { name: /Memento-uri/ }).click();
   await page.getByRole('button', { name: 'Adaugă pilula' }).click();
@@ -130,7 +130,7 @@ test('in motion: a page being pushed', async ({ page }) => {
       return animation;
     };
   });
-  await page.getByRole('button', { name: 'Setări', exact: true }).click();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
   await expect(page.locator('.stage')).toHaveAttribute('data-moving', 'push');
   await shot(page, '21-tranzitie-push');
 });

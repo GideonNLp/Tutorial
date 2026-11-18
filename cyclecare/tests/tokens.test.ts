@@ -19,9 +19,11 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-const SURFACES = ['bg', 'surface', 'surface-2'];
-const TINTS = ['menstruation-tint', 'follicular-tint', 'ovulation-tint', 'luteal-tint', 'attention-bg'];
 const PHASES = ['menstruation', 'follicular', 'ovulation', 'luteal'];
+/** The page takes a faint colour from the phase (bg-*), brightest at the top of the page (glow-*). */
+const PAGE_TINTS = PHASES.flatMap((p) => [`bg-${p}`, `glow-${p}`]);
+const SURFACES = ['bg', 'surface', 'surface-2', ...PAGE_TINTS];
+const TINTS = ['menstruation-tint', 'follicular-tint', 'ovulation-tint', 'luteal-tint', 'attention-bg'];
 
 /** [foreground, background, minimum ratio] — WCAG 2.2 AA: 4.5 for text, 3 for UI parts and graphics. */
 const PAIRS: Array<[string, string, number]> = [
@@ -47,7 +49,35 @@ const PAIRS: Array<[string, string, number]> = [
   ['capy-fur', 'surface', 3],
 ];
 
+/** The mix used by --ink-gradient at its lightest end: ink 55%, phase colour 45% (sRGB, like color-mix). */
+function inkTowards(index: 0 | 1, phase: string): string {
+  const [a, b] = [colors.ink![index], colors[phase]![index]].map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
+  return (
+    '#' +
+    a!
+      .map((v, i) =>
+        Math.round(v * 0.55 + b![i]! * 0.45)
+          .toString(16)
+          .padStart(2, '0'),
+      )
+      .join('')
+  );
+}
+
 describe('design tokens', () => {
+  for (const [mode, index] of [
+    ['light', 0],
+    ['dark', 1],
+  ] as const) {
+    it(`keeps the text on the ink gradient readable in the ${mode} theme`, () => {
+      const failures = PHASES.flatMap((p) => {
+        const ratio = contrast(colors['on-ink']![index], inkTowards(index, p));
+        return ratio >= 7 ? [] : [`on-ink on ink toward ${p}: ${ratio.toFixed(2)} < 7`];
+      });
+      expect(failures).toEqual([]);
+    });
+  }
+
   for (const [mode, index] of [
     ['light', 0],
     ['dark', 1],

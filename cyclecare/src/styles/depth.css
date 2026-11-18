@@ -1,0 +1,150 @@
+/* Colour and depth.
+   1. The page takes a faint colour from the current phase (a data-phase on <html>, set from the cycle).
+   2. Cards are lifted with soft shadows instead of outlines, in three kinds:
+        .card (and .list, .tip-card)  raised: the usual card
+        .card-hero                    the one that matters on a screen: tinted by the phase, deeper shadow
+        .card-flat                    secondary panels: translucent, no shadow, they sit in the page
+   Where there is no phase, no colour is added; where contrast is asked for, outlines come back. */
+
+:root {
+  --shadow-raised: 0 1px 2px color-mix(in srgb, var(--ink) 7%, transparent), 0 8px 22px -10px color-mix(in srgb, var(--ink) 20%, transparent);
+  --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--ink) 34%, transparent);
+  --ink-gradient: linear-gradient(155deg, var(--ink) 0%, var(--ink) 100%);
+}
+/* A custom property that holds var(--phase-c) is worked out where it is declared, so the two that use the
+   phase colour are declared again on .app, where it is set; on :root they are plain ink. */
+html[data-phase] .app {
+  --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--phase-c) 34%, transparent);
+  --ink-gradient: linear-gradient(155deg, color-mix(in srgb, var(--ink) 55%, var(--phase-c)) 0%, var(--ink) 90%);
+}
+
+/* ---------------------------------------------------------------- phase on the page */
+
+@media (prefers-contrast: no-preference), (prefers-contrast: less) {
+  html[data-phase='menstruation'] .app {
+    --bg: var(--bg-menstruation);
+    --glow: var(--glow-menstruation);
+    --phase-tint: var(--menstruation-tint);
+    --phase-c: var(--menstruation);
+  }
+  html[data-phase='follicular'] .app {
+    --bg: var(--bg-follicular);
+    --glow: var(--glow-follicular);
+    --phase-tint: var(--follicular-tint);
+    --phase-c: var(--follicular);
+  }
+  html[data-phase='ovulation'] .app {
+    --bg: var(--bg-ovulation);
+    --glow: var(--glow-ovulation);
+    --phase-tint: var(--ovulation-tint);
+    --phase-c: var(--ovulation);
+  }
+  html[data-phase='luteal'] .app {
+    --bg: var(--bg-luteal);
+    --glow: var(--glow-luteal);
+    --phase-tint: var(--luteal-tint);
+    --phase-c: var(--luteal);
+  }
+  html[data-phase] .app {
+    /* The frosted bars were made from the plain background at :root; make them from this one. */
+    --glass-bar: color-mix(in srgb, var(--bg) 74%, transparent);
+  }
+  /* A glow at the top that fades into the page, so the colour has a direction, not just a fill. */
+  html[data-phase] .app .page {
+    background: linear-gradient(180deg, var(--glow) 0, var(--bg) 22rem) var(--bg);
+  }
+}
+
+/* ---------------------------------------------------------------- a small gradient on what is chosen
+
+   The dark "ink" of the primary button, the current tab and every selected choice is no longer one flat
+   colour: it starts 45% toward the colour of the current phase (the ink itself where there is none) and
+   settles into plain ink. The text on top keeps its contrast with the lightest end (checked in tokens.test.ts). */
+
+.btn-primary,
+.tab[aria-current='page'] .tab-icon,
+.chip input:checked + .chip-face,
+.scale input:checked + .scale-face,
+.segmented input:checked + .segmented-face,
+.switch-row input:checked + .switch-track,
+.dial-action:not(.dial-quiet) {
+  background-image: var(--ink-gradient);
+}
+
+/* ---------------------------------------------------------------- raised */
+
+.card,
+.list,
+.tip-card {
+  border-color: var(--line);
+  border-color: light-dark(transparent, var(--line));
+  box-shadow: var(--shadow-raised);
+}
+.tip-card[data-applied] {
+  border-color: var(--ink);
+}
+
+/* ---------------------------------------------------------------- hero */
+
+.card-hero {
+  border-color: var(--line);
+  border-color: light-dark(transparent, color-mix(in srgb, var(--phase-c, var(--line)) 40%, var(--line)));
+  background: linear-gradient(165deg, color-mix(in srgb, var(--phase-tint, var(--surface-2)) 80%, var(--surface)) 0, var(--surface) 64%);
+  box-shadow: var(--shadow-hero);
+}
+
+/* ---------------------------------------------------------------- flat */
+
+.card-flat {
+  border-color: var(--line);
+  border-color: light-dark(transparent, color-mix(in srgb, var(--line) 60%, transparent));
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------- outlines return when asked for */
+
+@media (prefers-contrast: more) {
+  .card,
+  .list,
+  .tip-card,
+  .card-hero,
+  .card-flat {
+    border-color: var(--line);
+    box-shadow: none;
+  }
+  .card-hero,
+  .card-flat {
+    background: var(--surface);
+  }
+  .btn-primary,
+  .tab[aria-current='page'] .tab-icon,
+  .chip input:checked + .chip-face,
+  .scale input:checked + .scale-face,
+  .segmented input:checked + .segmented-face,
+  .switch-row input:checked + .switch-track,
+  .dial-action:not(.dial-quiet) {
+    background-image: none;
+  }
+}
+@media (forced-colors: active) {
+  .card,
+  .list,
+  .tip-card,
+  .card-hero,
+  .card-flat {
+    border-color: CanvasText;
+    box-shadow: none;
+    background: Canvas;
+  }
+  /* The system's own highlight colour, not a gradient. */
+  .btn-primary,
+  .tab[aria-current='page'] .tab-icon,
+  .chip input:checked + .chip-face,
+  .scale input:checked + .scale-face,
+  .segmented input:checked + .segmented-face,
+  .switch-row input:checked + .switch-track,
+  .dial-action:not(.dial-quiet) {
+    background-image: none;
+  }
+}

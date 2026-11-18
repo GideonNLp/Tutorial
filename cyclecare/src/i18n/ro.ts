@@ -413,7 +413,7 @@ export const ro = {
 
   profile: {
     title: 'Profil',
-    open: 'Profil',
+    open: 'Profil și setări',
     photoTitle: 'Poza de profil',
     noName: 'Fără nume',
     nameLabel: 'Nume sau poreclă',

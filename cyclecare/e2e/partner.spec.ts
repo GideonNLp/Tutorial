@@ -63,7 +63,7 @@ test('two phones: pairing with matching digits, then a read-only view that follo
   await expect(partner.getByRole('heading', { name: 'Cum poți ajuta' })).toBeVisible();
   await expect(partner.locator('.page[data-active] .tip-cards > li')).toHaveCount(2);
   // Read-only: no settings of hers, no profile, no journal controls.
-  await expect(partner.getByRole('button', { name: 'Profil', exact: true })).toHaveCount(0);
+  await expect(partner.getByRole('button', { name: 'Profil și setări', exact: true })).toHaveCount(0);
   await expect(partner.getByRole('navigation', { name: 'Navigare principală' }).getByRole('link')).toHaveText(['Azi', 'Calendar', 'Istoric']);
 
   // ---- Calendar and history.

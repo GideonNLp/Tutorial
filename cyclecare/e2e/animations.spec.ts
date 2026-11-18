@@ -93,8 +93,8 @@ test.describe('with motion', () => {
     await recordAnimations(page);
     await startWithJournal(page);
     await withMotion(page);
-    await page.getByRole('button', { name: 'Setări', exact: true }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+    await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
     await forget(page);
     await page.getByRole('button', { name: 'Înapoi' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Azi' })).toBeVisible();

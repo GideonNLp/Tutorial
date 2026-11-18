@@ -45,7 +45,7 @@ export function depthOf(route: Route): number {
 export function parentOf(route: Route): Route | undefined {
   if (isTab(route)) return undefined;
   if (route === 'setari' || route === 'profil') return HOME;
-  return route === 'politica' ? 'setari-confidentialitate' : 'setari';
+  return route === 'politica' ? 'setari-confidentialitate' : 'profil';
 }
 
 /** `push` / `pop`: the stack grows or shrinks. `fade`: a tab change. `none`: no animation (already shown by a gesture). */

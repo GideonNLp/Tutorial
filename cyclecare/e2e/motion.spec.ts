@@ -48,8 +48,8 @@ test.describe('with motion', () => {
     const samples = await recordMotion(page);
     const width = page.viewportSize()!.width;
 
-    await page.getByRole('button', { name: 'Setări', exact: true }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+    await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
     await settled(page);
     const push = await samples();
     expect(push.length).toBeGreaterThan(5);
@@ -59,7 +59,7 @@ test.describe('with motion', () => {
     expect(duration).toBeGreaterThan(200);
     expect(duration).toBeLessThan(600);
     // The new page comes from the right edge and never goes backwards.
-    const incoming = track(push, 'setari');
+    const incoming = track(push, 'profil');
     expect(incoming[0]!.x).toBeGreaterThan(width * 0.5);
     expect(incoming.at(-1)!.x).toBeLessThan(width * 0.1);
     for (let i = 1; i < incoming.length; i++) expect(incoming[i]!.x).toBeLessThanOrEqual(incoming[i - 1]!.x);
@@ -76,11 +76,11 @@ test.describe('with motion', () => {
     await settled(page);
     const pop = await samples();
     expect(new Set(pop.map((s) => s.moving))).toEqual(new Set(['pop']));
-    const leaving = track(pop, 'setari');
+    const leaving = track(pop, 'profil');
     expect(leaving.at(-1)!.x).toBeGreaterThan(width * 0.6);
     for (let i = 1; i < leaving.length; i++) expect(leaving[i]!.x).toBeGreaterThanOrEqual(leaving[i - 1]!.x);
     // A popped page is gone, not just hidden.
-    await expect(page.locator('.page[data-route="setari"]')).toHaveCount(0);
+    await expect(page.locator('.page[data-route="profil"]')).toHaveCount(0);
   });
 
   test('tabs cross-fade instead of jumping', async ({ page }) => {
@@ -139,7 +139,7 @@ test.describe('with motion', () => {
     await openSettings(page, 'Memento-uri');
     await settled(page);
     await page.getByRole('button', { name: 'Înapoi' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
     await settled(page);
     await page.getByRole('button', { name: 'Înapoi' }).click();
     await settled(page);
@@ -156,7 +156,7 @@ test.describe('with motion', () => {
     await expect(bar).not.toHaveAttribute('data-scrolled', '');
     await expect(small).toHaveCSS('opacity', '0');
     // At rest the settings button sits in the title row.
-    const button = await bar.getByRole('button', { name: 'Setări', exact: true }).boundingBox();
+    const button = await bar.getByRole('button', { name: 'Profil și setări', exact: true }).boundingBox();
     const title = await page.getByRole('heading', { level: 1, name: 'Azi' }).boundingBox();
     expect(Math.abs(button!.y - title!.y)).toBeLessThan(8);
 
@@ -166,7 +166,7 @@ test.describe('with motion', () => {
     await expect(small).toHaveCSS('opacity', '1');
     await expect(small).toHaveText('Azi');
     // The buttons stay reachable at the top of the screen.
-    expect((await bar.getByRole('button', { name: 'Setări', exact: true }).boundingBox())!.y).toBeLessThan(24);
+    expect((await bar.getByRole('button', { name: 'Profil și setări', exact: true }).boundingBox())!.y).toBeLessThan(24);
 
     // Tapping the bar returns to the top, like tapping the status bar.
     await small.locator('..').click({ position: { x: 60, y: 30 } });
@@ -195,7 +195,7 @@ test.describe('swipe back', () => {
     await withMotion(page);
     const finger = await touch(page);
     const current = page.locator('.page[data-route="setari-ciclu"]');
-    const under = page.locator('.page[data-route="setari"]');
+    const under = page.locator('.page[data-route="profil"]');
     const x = (locator: typeof current) => locator.evaluate((el) => Math.round(new DOMMatrix(getComputedStyle(el).transform).m41));
 
     await finger.start(6);
@@ -210,8 +210,8 @@ test.describe('swipe back', () => {
     await expect(page).toHaveURL(/#setari-ciclu$/);
 
     await finger.end();
-    await expect(page).toHaveURL(/#setari$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+    await expect(page).toHaveURL(/#profil$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
     await settled(page);
     await expect(current).toHaveCount(0);
     expect(await x(under)).toBe(0);
@@ -231,7 +231,7 @@ test.describe('swipe back', () => {
     await settled(page);
     await expect(page).toHaveURL(/#setari-ciclu$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Ciclul meu' })).toBeVisible();
-    await expect(page.locator('.page[data-route="setari"]')).toBeHidden();
+    await expect(page.locator('.page[data-route="profil"]')).toBeHidden();
     await expect(page.locator('.page[data-route="setari-ciclu"]')).toHaveCSS('transform', 'none');
   });
 
@@ -243,9 +243,9 @@ test.describe('swipe back', () => {
     await finger.start(6);
     for (const to of [25, 45, 70]) await finger.move(to);
     await finger.end();
-    await expect(page).toHaveURL(/#setari$/);
+    await expect(page).toHaveURL(/#profil$/);
     await settled(page);
-    await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
   });
 
   test('a drag that starts away from the edge, or on a tab, does nothing', async ({ page }) => {
@@ -265,7 +265,7 @@ test.describe('swipe back', () => {
     for (const to of [180, 260, 330]) await finger.move(to);
     await expect(page.locator('.stage[data-moving]')).toHaveCount(0);
     await finger.end();
-    await expect(page.getByRole('heading', { level: 1, name: 'Setări' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Profil' })).toBeVisible();
   });
 });
 

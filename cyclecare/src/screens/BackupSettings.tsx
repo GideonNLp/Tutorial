@@ -249,7 +249,7 @@ export function BackupSettings() {
           )}
 
           {backup && (reveal || unconfirmedCode) && (
-            <div className="card pair-card stack stack-3">
+            <div className="card card-flat pair-card stack stack-3">
               <p className="small ink-2">{unconfirmedCode ? t.code.unconfirmed : t.code.lead}</p>
               <CodeCard code={backup.code} />
               {unconfirmedCode && (
@@ -298,7 +298,7 @@ export function BackupSettings() {
           ) : (
             <>
               <p className="ink-2">{t.server.hint}</p>
-              <div className="card tight stack stack-3">
+              <div className="card card-flat tight stack stack-3">
                 <Switch
                   label={t.server.toggle}
                   hint={confirmed ? undefined : t.server.needCode}

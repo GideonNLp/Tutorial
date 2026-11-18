@@ -193,7 +193,7 @@ export function RestorePanel(props: {
       </div>
 
       {found && (
-        <section className="card tight stack stack-3" aria-live="polite" data-testid="restore-found">
+        <section className="card card-flat tight stack stack-3" aria-live="polite" data-testid="restore-found">
           <p className="strong">
             {days.length === 0 ? t.found(0, '', '') : t.found(days.length, formatDate(days[0]!, 'long'), formatDate(days[days.length - 1]!, 'long'))}
           </p>

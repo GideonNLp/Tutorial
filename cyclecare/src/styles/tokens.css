@@ -1,6 +1,14 @@
 /* GENERATED from tokens.json by scripts/gen-tokens.mjs — do not edit by hand. Run: npm run tokens */
 :root {
   --bg: #F6F5FB;
+  --bg-menstruation: #F7EEF4;
+  --glow-menstruation: #F8E7ED;
+  --bg-follicular: #ECF3F5;
+  --glow-follicular: #E2F2EF;
+  --bg-ovulation: #F8F1E8;
+  --glow-ovulation: #FAEDD5;
+  --bg-luteal: #F0EEFA;
+  --glow-luteal: #EAE7F9;
   --surface: #FFFFFF;
   --surface-2: #ECEBF5;
   --ink: #1F1B3A;
@@ -55,6 +63,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #14121E;
+    --bg-menstruation: #241421;
+    --glow-menstruation: #351724;
+    --bg-follicular: #131F24;
+    --glow-follicular: #122C2B;
+    --bg-ovulation: #231C18;
+    --glow-ovulation: #322511;
+    --bg-luteal: #1B1A30;
+    --glow-luteal: #222141;
     --surface: #1C1930;
     --surface-2: #252140;
     --ink: #F1EEF8;
@@ -109,6 +125,14 @@
 }
 :root[data-theme='dark'] {
   --bg: #14121E;
+  --bg-menstruation: #241421;
+  --glow-menstruation: #351724;
+  --bg-follicular: #131F24;
+  --glow-follicular: #122C2B;
+  --bg-ovulation: #231C18;
+  --glow-ovulation: #322511;
+  --bg-luteal: #1B1A30;
+  --glow-luteal: #222141;
   --surface: #1C1930;
   --surface-2: #252140;
   --ink: #F1EEF8;

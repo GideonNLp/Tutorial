@@ -107,7 +107,7 @@ test('"Nu acum" hides the invitation for good, and Settings still offers the ins
   await expect(page.getByRole('heading', { level: 1, name: 'Azi' })).toBeVisible();
   await offerInstall(page, 'accepted');
   await expect(card).toHaveCount(0);
-  await page.getByRole('button', { name: 'Setări', exact: true }).click();
+  await page.getByRole('button', { name: 'Profil și setări', exact: true }).click();
   await page.getByRole('link', { name: /Despre CycleCare/ }).click();
   await expect(page.getByRole('button', { name: 'Instalează aplicația' })).toBeVisible();
 });

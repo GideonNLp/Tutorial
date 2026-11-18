@@ -76,7 +76,7 @@ export function InstallCard() {
   const i = strings().install;
   if (installHintDismissed || (state !== 'available' && state !== 'manual-ios')) return null;
   return (
-    <section className="card tight stack stack-3" aria-labelledby={headingId}>
+    <section className="card card-flat tight stack stack-3" aria-labelledby={headingId}>
       <div className="stack stack-1">
         <h2 id={headingId} className="h3-like">
           {i.title}

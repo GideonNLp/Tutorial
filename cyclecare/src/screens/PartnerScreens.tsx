@@ -534,6 +534,7 @@ export const partnerRoutes = (route: Route): ReactNode => {
     case 'jurnal':
       return <PartnerHistory />;
     case 'setari':
+    case 'profil':
       return <PartnerSettings />;
     case 'setari-aspect':
       return <AppearanceSettings />;

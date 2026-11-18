@@ -10,6 +10,7 @@ import { Avatar } from '../ui/Avatar';
 import { ErrorText } from '../ui/controls';
 import { haptic } from '../ui/haptics';
 import { Notice, Screen } from '../ui/Shell';
+import { SettingsList } from './SettingsList';
 
 /** Name and picture. Both optional, both kept encrypted on this device with the journal. */
 export function ProfileScreen() {
@@ -105,7 +106,7 @@ export function ProfileScreen() {
         </section>
 
         <form
-          className="card tight stack stack-3"
+          className="card card-flat tight stack stack-3"
           noValidate
           onSubmit={(e) => {
             e.preventDefault();
@@ -145,6 +146,8 @@ export function ProfileScreen() {
             </button>
           </div>
         </form>
+
+        <SettingsList />
 
         <Notice icon={<ShieldCheck size={20} aria-hidden="true" />}>
           <p>{p.privacy}</p>
