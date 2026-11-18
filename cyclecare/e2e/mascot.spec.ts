@@ -138,6 +138,31 @@ test('the bubble stays inside the dial on a small phone, with the capybara still
   expect(edit!.x + edit!.width).toBeLessThanOrEqual(wrap!.x + wrap!.width);
 });
 
+test('the field is 16px, so iOS does not zoom into it, yet it is drawn inside the bubble at the old size', async ({ page }) => {
+  await startWithJournal(page);
+  await dial(page).click();
+  await page.clock.runFor(MASCOT_TURN_MS + THOUGHT_DELAY_MS + 100);
+  await bubble(page).click();
+  await expect(field(page)).toBeFocused();
+
+  // iOS Safari zooms into a field under 16px and stays zoomed when it closes.
+  expect(await field(page).evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
+
+  // What is drawn: 0.8 of that, inside the bubble, with no space left over under it.
+  const drawn = await field(page).boundingBox();
+  const frame = await page.locator('.page[data-active] .dial-bubble').boundingBox();
+  const actions = await page.locator('.page[data-active] .dial-actions').boundingBox();
+  expect(drawn!.x).toBeGreaterThanOrEqual(frame!.x);
+  expect(drawn!.x + drawn!.width).toBeLessThanOrEqual(frame!.x + frame!.width);
+  expect(actions!.y - (drawn!.y + drawn!.height)).toBeLessThan(12);
+
+  // Leaving it, the page is not left zoomed or scrolled sideways.
+  await field(page).press('Escape');
+  await expect(field(page)).toHaveCount(0);
+  expect(await page.evaluate(() => window.visualViewport?.scale ?? 1)).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
 test('the dial passes automated WCAG checks while the thought shows and while it is written', async ({ page }) => {
   await startWithJournal(page);
   await dial(page).click();
