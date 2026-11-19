@@ -281,3 +281,122 @@ test.describe('the tab bar folds up to the current tab while scrolling down, as 
     await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
   });
 });
+
+test.describe('dragging a finger along the tab bar moves the lens and changes the page, as in Apple Music', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  const centre = async (page: Page, selector: string) => {
+    const b = (await page.locator(selector).first().boundingBox())!;
+    return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+  };
+
+  test('the lens follows the pointer, the page changes under it, and on release it settles on that tab', async ({ page }) => {
+    await startWithJournal(page);
+    const azi = await centre(page, '.tab:has-text("Azi")');
+    const jurnal = await centre(page, '.tab:has-text("Jurnal")');
+    const stat = await centre(page, '.tab:has-text("Statistici")');
+
+    await page.mouse.move(azi.x, azi.y);
+    await page.mouse.down();
+    await page.mouse.move(azi.x + 20, azi.y, { steps: 3 });
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-dragging', '');
+    // Over "Jurnal": the page is Jurnal at once, with no slide between pages.
+    await page.mouse.move(jurnal.x, jurnal.y, { steps: 8 });
+    await expect(page).toHaveURL(/#jurnal$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Jurnal' })).toBeVisible();
+    await expect(page.locator('.stage[data-moving]')).toHaveCount(0);
+    // The lens is under the finger, not on a tab slot of its own.
+    await expect.poll(async () => Math.abs((await centre(page, '.tab-indicator')).x - jurnal.x), { timeout: 3000 }).toBeLessThan(6);
+    // Further on, to "Statistici".
+    await page.mouse.move(stat.x, stat.y, { steps: 8 });
+    await expect(page).toHaveURL(/#statistici$/);
+    await page.mouse.up();
+
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-dragging');
+    await expect(page.locator('.tab[aria-current="page"]')).toContainText('Statistici');
+    // It settles on the tab (the spring takes a moment).
+    await expect
+      .poll(async () => Math.abs((await centre(page, '.tab-indicator')).x - (await centre(page, '.tab:has-text("Statistici")')).x), { timeout: 3000 })
+      .toBeLessThan(2);
+    // The release is not a tap on the tab under the finger: nothing else happened.
+    await expect(page).toHaveURL(/#statistici$/);
+  });
+
+  test('a short press is still a tap, and a drag that ends where it began changes nothing', async ({ page }) => {
+    await startWithJournal(page);
+    const azi = await centre(page, '.tab:has-text("Azi")');
+    const cal = await centre(page, '.tab:has-text("Calendar")');
+    await page.mouse.click(cal.x, cal.y);
+    await expect(page).toHaveURL(/#calendar$/);
+
+    // Away and back, in one drag.
+    const start = await centre(page, '.tab:has-text("Calendar")');
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(azi.x, azi.y, { steps: 6 });
+    await expect(page).toHaveURL(/#azi$/);
+    await page.mouse.move(start.x, start.y, { steps: 6 });
+    await page.mouse.up();
+    await expect(page).toHaveURL(/#calendar$/);
+    await expect(page.locator('.tab[aria-current="page"]')).toContainText('Calendar');
+  });
+
+  test('one history entry for a whole drag: back returns to where it began', async ({ page }) => {
+    await startWithJournal(page);
+    const azi = await centre(page, '.tab:has-text("Azi")');
+    const stat = await centre(page, '.tab:has-text("Statistici")');
+    await page.mouse.move(azi.x, azi.y);
+    await page.mouse.down();
+    await page.mouse.move(stat.x, stat.y, { steps: 14 }); // across Calendar, Jurnal, Sfaturi
+    await page.mouse.up();
+    await expect(page).toHaveURL(/#statistici$/);
+    await page.goBack();
+    await expect(page).toHaveURL(/#azi$/);
+  });
+
+  test('the folded bar cannot be dragged: it only opens', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.locator('.page[data-active]').evaluate((el) => el.scrollTo(0, 500));
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    const c = await centre(page, '.tab[aria-current="page"]');
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await page.mouse.move(c.x + 120, c.y, { steps: 6 });
+    await page.mouse.up();
+    await expect(page).toHaveURL(/#azi$/);
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-dragging');
+  });
+});
+
+test.describe('the same drag with a finger on a touch screen', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('a finger dragged along the bar moves the lens and changes the page', async ({ page }) => {
+    await startWithJournal(page);
+    const centre = async (selector: string) => {
+      const b = (await page.locator(selector).first().boundingBox())!;
+      return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    };
+    const azi = await centre('.tab:has-text("Azi")');
+    const cal = await centre('.tab:has-text("Calendar")');
+    const stat = await centre('.tab:has-text("Statistici")');
+    const client = await page.context().newCDPSession(page);
+    const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', x?: number, y?: number) =>
+      client.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x: x!, y: y! }] });
+
+    // A tap first: it still switches tab.
+    await page.touchscreen.tap(cal.x, cal.y);
+    await expect(page).toHaveURL(/#calendar$/);
+
+    await touch('touchStart', cal.x, cal.y);
+    for (let i = 1; i <= 12; i++) await touch('touchMove', cal.x + ((stat.x - cal.x) * i) / 12, cal.y);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-dragging', '');
+    await expect(page).toHaveURL(/#statistici$/);
+    await touch('touchEnd');
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-dragging');
+    await expect(page.locator('.tab[aria-current="page"]')).toContainText('Statistici');
+    // The page did not scroll with the finger.
+    expect(await page.evaluate(() => document.querySelector('.page[data-active]')!.scrollTop)).toBe(0);
+    void azi;
+  });
+});

@@ -1,6 +1,6 @@
 import { CalendarDays, ChartColumn, ChevronLeft, CircleDot, Lightbulb, NotebookPen, Settings, type LucideIcon } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { goBack, navigate, useRoute, type Route } from '../app/router';
+import { getNav, goBack, navigate, useRoute, type Route } from '../app/router';
 import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
 import { prefersReducedMotion } from './motion';
@@ -151,6 +151,10 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
   // Scrolling down folds the bar up to the current tab; scrolling up (or touching it) unfolds it.
   const [folded, setFolded] = useState(false);
   const foldedRef = useRef(false);
+  // A finger dragging along the bar: the lens follows it and the page changes under it (see the handlers below).
+  const [lensX, setLensX] = useState<number | null>(null);
+  const press = useRef<{ id: number; startX: number; active: boolean; pushed: boolean } | null>(null);
+  const dragged = useRef(false);
   // A finger or a mouse is down on the bar: the focus it brings must not open the bar before the tap is handled.
   const pointerDown = useRef(false);
   const fold = (on: boolean) => {
@@ -166,22 +170,23 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     const measure = () => {
       const tab = list.querySelector<HTMLElement>('.tab[aria-current="page"]');
       if (!tab) return setSpot(null);
-      const l = list.getBoundingClientRect();
-      const t = tab.getBoundingClientRect();
+      // Layout sizes, not bounding rectangles: those include the transforms of the bar (it swells while a finger
+      // drags along it and the tabs shrink when it folds), and measuring them would feed back into the layout.
+      // The tab sits in the list's own coordinates (the list is its offset parent), at the list's own scale.
       const inset = 4;
       const next = {
-        x: Math.round((t.left - l.left + inset) * 10) / 10,
-        y: Math.round((t.top - l.top + inset) * 10) / 10,
-        w: Math.round((t.width - 2 * inset) * 10) / 10,
-        h: Math.round((t.height - 2 * inset) * 10) / 10,
+        x: tab.offsetLeft + inset,
+        y: tab.offsetTop + inset,
+        w: tab.offsetWidth - 2 * inset,
+        h: tab.offsetHeight - 2 * inset,
       };
       setSpot((was) => (was && was.x === next.x && was.y === next.y && was.w === next.w && was.h === next.h ? was : next));
       // What the folded bar needs to know: where the current tab is, how wide it is, and how wide the list is
       // when open (the list keeps that width while the bar around it narrows).
       if (!foldedRef.current) {
-        nav.style.setProperty('--tab-x', `${t.left - l.left}px`);
-        nav.style.setProperty('--tab-w', `${t.width}px`);
-        nav.style.setProperty('--list-w', `${l.width}px`);
+        nav.style.setProperty('--tab-x', `${tab.offsetLeft}px`);
+        nav.style.setProperty('--tab-w', `${tab.offsetWidth}px`);
+        nav.style.setProperty('--list-w', `${list.offsetWidth}px`);
       }
     };
     measure();
@@ -212,6 +217,32 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
   }, [route]);
 
+  const follow = (clientX: number) => {
+    const list = listRef.current;
+    if (!list || !spot) return;
+    const l = list.getBoundingClientRect(); // on screen, scale included
+    const scale = l.width / list.offsetWidth || 1; // the bar swells while dragging: back to the list's own pixels
+    const x = (clientX - l.left) / scale;
+    // The lens stays inside the bar, centred on the finger.
+    setLensX(Math.min(Math.max(x - spot.w / 2, 4), list.offsetWidth - spot.w - 4));
+    const under = tabs[Math.min(tabs.length - 1, Math.max(0, Math.floor((x / list.offsetWidth) * tabs.length)))];
+    if (under && under.route !== getNav().route) {
+      // One history entry for the whole drag: the first change adds it, the next ones replace it.
+      navigate(under.route, { replace: press.current?.pushed, instant: true });
+      if (press.current) press.current.pushed = true;
+      haptic('light');
+    }
+  };
+  const endPress = (event: React.PointerEvent) => {
+    const p = press.current;
+    if (!p || p.id !== event.pointerId) return;
+    press.current = null;
+    if (p.active) {
+      navRef.current?.releasePointerCapture?.(event.pointerId);
+      setLensX(null); // the lens settles on the tab the page is now on
+    }
+  };
+
   const current = Math.max(
     0,
     tabs.findIndex((t) => t.route === route),
@@ -222,6 +253,7 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
       className="tabbar"
       aria-label={strings().nav.label}
       data-folded={folded ? '' : undefined}
+      data-dragging={lensX !== null ? '' : undefined}
       style={{ '--active': current, '--count': tabs.length } as CSSProperties}
       onPointerDownCapture={() => {
         pointerDown.current = true;
@@ -229,8 +261,32 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
       onPointerUpCapture={() => {
         pointerDown.current = false;
       }}
-      onPointerCancel={() => {
+      onPointerCancel={(e) => {
         pointerDown.current = false;
+        endPress(e);
+      }}
+      onPointerDown={(e) => {
+        if (e.button !== 0 || foldedRef.current) return;
+        press.current = { id: e.pointerId, startX: e.clientX, active: false, pushed: false };
+        dragged.current = false;
+      }}
+      onPointerMove={(e) => {
+        const p = press.current;
+        if (!p || p.id !== e.pointerId) return;
+        if (!p.active) {
+          if (Math.abs(e.clientX - p.startX) < 8) return; // still a tap
+          p.active = true;
+          dragged.current = true;
+          navRef.current?.setPointerCapture?.(e.pointerId);
+          haptic('light');
+        }
+        follow(e.clientX);
+      }}
+      onPointerUp={endPress}
+      onLostPointerCapture={(e) => {
+        // On a touch screen the tab under the finger holds the pointer first and loses it when the bar takes it
+        // over: only the bar losing it is the end of the drag.
+        if (e.target === e.currentTarget) endPress(e);
       }}
       onFocus={() => {
         if (!pointerDown.current) fold(false);
@@ -241,17 +297,23 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
           <span
             className="tab-indicator"
             aria-hidden="true"
-            style={{ width: spot.w, height: spot.h, transform: `translate(${spot.x}px, ${spot.y}px)` }}
+            style={{ width: spot.w, height: spot.h, transform: `translate(${lensX ?? spot.x}px, ${spot.y}px)` }}
           />
         )}
         {tabs.map(({ route: to, icon: Icon, label }, index) => (
           <li key={to} style={{ '--index': index } as CSSProperties}>
             <a
               className="tab"
+              draggable={false}
               href={`#${to}`}
               aria-current={route === to ? 'page' : undefined}
               onClick={(e) => {
                 e.preventDefault();
+                // The end of a drag is not a tap on the tab under the finger.
+                if (dragged.current) {
+                  dragged.current = false;
+                  return;
+                }
                 // The folded bar opens when touched; touching the tab it shows does nothing more. Another tab
                 // can only be reached here by a screen reader or a keyboard: it opens the bar and goes there.
                 if (foldedRef.current) {
