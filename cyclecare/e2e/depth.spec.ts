@@ -440,3 +440,124 @@ test('the lens glides to the new tab without swaying: it never passes it and com
   const after = xs.slice(xs.findIndex((x) => x !== xs[0]));
   expect(after.every((x, i) => i === 0 || x >= after[i - 1]! - 0.2)).toBe(true);
 });
+
+test.describe('the lens follows a finger smoothly, and stretches like a drop of water when it moves fast', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  const centre = async (page: Page, selector: string) => {
+    const b = (await page.locator(selector).first().boundingBox())!;
+    return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+  };
+  /** Records the on-screen centre of the lens, and its stretch, on every frame. */
+  const record = (page: Page) =>
+    page.evaluate(() => {
+      const frames: Array<{ x: number; sx: number }> = [];
+      (window as unknown as { __frames: typeof frames }).__frames = frames;
+      const frame = () => {
+        const lens = document.querySelector('.tab-indicator');
+        if (lens) {
+          const r = lens.getBoundingClientRect();
+          frames.push({ x: r.left + r.width / 2, sx: Number(getComputedStyle(lens).getPropertyValue('--sx')) || 1 });
+        }
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    });
+  const frames = (page: Page) => page.evaluate(() => (window as unknown as { __frames: Array<{ x: number; sx: number }> }).__frames);
+
+  test('a very slow drag does not shake: the lens only ever goes forward, in small even steps', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const azi = await centre(page, '.tab:has-text("Azi")');
+    await record(page);
+    await page.mouse.move(azi.x, azi.y);
+    await page.mouse.down();
+    // 120 px to the right at about 1 px every 25 ms: a hand moving slowly.
+    for (let i = 1; i <= 120; i++) {
+      await page.mouse.move(azi.x + i, azi.y);
+      await page.waitForTimeout(25);
+    }
+    const f = await frames(page);
+    await page.mouse.up();
+    // From the moment the lens has caught up with the finger (the last 70 samples of the drag):
+    const slow = f.slice(-90, -20).map((p) => p.x);
+    expect(slow.length).toBeGreaterThan(30);
+    for (let i = 1; i < slow.length; i++) {
+      expect(slow[i]! - slow[i - 1]!, `frame ${i}`).toBeGreaterThanOrEqual(-0.25); // never back
+      expect(slow[i]! - slow[i - 1]!, `frame ${i}`).toBeLessThan(3); // never a jump
+    }
+    // And it stays under the finger, not far behind it.
+    expect(Math.abs(slow.at(-1)! - (azi.x + 120 - 0))).toBeLessThan(30);
+  });
+
+  test('it stretches along a fast move and is round again when it is slow or still', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const azi = await centre(page, '.tab:has-text("Azi")');
+    const stat = await centre(page, '.tab:has-text("Statistici")');
+    await record(page);
+    await page.mouse.move(azi.x, azi.y);
+    await page.mouse.down();
+    await page.mouse.move(azi.x + 20, azi.y, { steps: 2 });
+    await page.mouse.move(stat.x, stat.y, { steps: 6 }); // a fast swipe
+    await page.waitForTimeout(120);
+    const swipe = await frames(page);
+    expect(Math.max(...swipe.map((p) => p.sx))).toBeGreaterThan(1.03);
+    await page.waitForTimeout(700); // the finger rests
+    const still = (await frames(page)).at(-1)!;
+    expect(still.sx).toBeLessThan(1.01);
+    await page.mouse.up();
+    // After the release it is back to its plain shape on the new tab.
+    await expect.poll(async () => (await frames(page)).at(-1)!.sx, { timeout: 3000 }).toBeLessThan(1.005);
+    await expect(page).toHaveURL(/#statistici$/);
+  });
+
+  test('with reduced motion it sticks to the finger exactly, with no stretch', async ({ page }) => {
+    await startWithJournal(page); // reduced motion by default
+    const azi = await centre(page, '.tab:has-text("Azi")');
+    const jurnal = await centre(page, '.tab:has-text("Jurnal")');
+    await record(page);
+    await page.mouse.move(azi.x, azi.y);
+    await page.mouse.down();
+    await page.mouse.move(azi.x + 20, azi.y, { steps: 2 });
+    await page.mouse.move(jurnal.x, jurnal.y, { steps: 4 });
+    await page.waitForTimeout(150);
+    const f = await frames(page);
+    expect(Math.max(...f.map((p) => p.sx))).toBeLessThan(1.001);
+    expect(Math.abs(f.at(-1)!.x - jurnal.x)).toBeLessThan(6);
+    await page.mouse.up();
+  });
+});
+
+test('a finger resting on the line between two tabs does not make the choice flicker back and forth', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await startWithJournal(page);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const tabs = await page.evaluate(() => [...document.querySelectorAll('.tab')].map((t) => t.getBoundingClientRect()));
+  const border = tabs[1]!.right; // between Calendar and Jurnal
+  const y = tabs[0]!.top + tabs[0]!.height / 2;
+  await page.evaluate(() => {
+    const changes: string[] = [];
+    (window as unknown as { __pv: string[] }).__pv = changes;
+    new MutationObserver(() => changes.push(document.querySelector('.tab[data-preview]')?.textContent ?? '-')).observe(
+      document.querySelector('.tabbar')!,
+      {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-preview'],
+      },
+    );
+  });
+  await page.mouse.move(tabs[0]!.left + 30, y);
+  await page.mouse.down();
+  await page.mouse.move(border - 25, y, { steps: 6 });
+  await page.mouse.move(border - 1, y, { steps: 4 }); // just short of the line
+  // The hand shakes by a pixel or two on either side of the line, as a hand does.
+  for (let i = 0; i < 24; i++) {
+    await page.mouse.move(border + (i % 2 === 0 ? 2 : -2), y);
+    await page.waitForTimeout(12);
+  }
+  const changes = await page.evaluate(() => (window as unknown as { __pv: string[] }).__pv);
+  await page.mouse.up();
+  // Reaching Calendar and perhaps tipping over to Jurnal once is fine; going back and forth is the shake.
+  expect(changes.length, changes.join(' | ')).toBeLessThanOrEqual(4);
+});

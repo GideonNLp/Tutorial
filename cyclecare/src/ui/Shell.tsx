@@ -128,6 +128,8 @@ const TABS: TabItem[] = [
 /** How far the page has to be scrolled before the bar may fold up, and how much movement counts as a direction. */
 const FOLD_AFTER = 48;
 const FOLD_STEP = 10;
+/** How far past the line between two tabs (in tab widths) the finger must go before the lens counts as over the next one. */
+const STAY = 0.2;
 
 /**
  * Whether the bar folds: only the floating bar of a phone. Folding is a change of state, not a motion
@@ -151,8 +153,13 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
   // Scrolling down folds the bar up to the current tab; scrolling up (or touching it) unfolds it.
   const [folded, setFolded] = useState(false);
   const foldedRef = useRef(false);
-  // A finger dragging along the bar: the lens follows it and the page changes under it (see the handlers below).
-  const [lensX, setLensX] = useState<number | null>(null);
+  // A finger dragging along the bar: the lens follows it (see the handlers below).
+  const [dragging, setDragging] = useState(false);
+  const lensRef = useRef<HTMLSpanElement>(null);
+  const spotRef = useRef(spot);
+  spotRef.current = spot;
+  // The lens while dragged: where it is, where the finger wants it, and the frame loop that brings the one to the other.
+  const glide = useRef({ x: 0, target: 0, raf: 0, last: 0 });
   const press = useRef<{ id: number; startX: number; active: boolean } | null>(null);
   // The tab under the lens while it is dragged: the page changes to it only when the finger is lifted.
   const [preview, setPreview] = useState<number | null>(null);
@@ -220,15 +227,49 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     return () => document.removeEventListener('scroll', onScroll, { capture: true });
   }, [route]);
 
+  /** Puts the lens at `x` (the list's own pixels), stretched a little along its movement, like a drop of water. */
+  const placeLens = (x: number, stretch: number) => {
+    const lens = lensRef.current;
+    const sp = spotRef.current;
+    if (!lens || !sp) return;
+    lens.style.transform = `translate(${x.toFixed(2)}px, ${sp.y}px)`;
+    lens.style.setProperty('--sx', (1 + stretch).toFixed(3));
+    lens.style.setProperty('--sy', (1 - stretch * 0.55).toFixed(3));
+  };
+  /** The frame loop: the lens eases toward the finger (not jumping to it, which shows every little shake of the hand). */
+  const runGlide = (now: number) => {
+    const g = glide.current;
+    const dt = Math.min(48, Math.max(1, now - (g.last || now - 16)));
+    g.last = now;
+    const before = g.x;
+    g.x += (g.target - g.x) * (1 - Math.exp(-dt / 55));
+    if (Math.abs(g.target - g.x) < 0.05) g.x = g.target;
+    placeLens(g.x, Math.min(0.2, (Math.abs(g.x - before) / dt) * 0.1));
+    g.raf = Math.abs(g.target - g.x) > 0 || press.current?.active ? requestAnimationFrame(runGlide) : 0;
+  };
   const follow = (clientX: number) => {
     const list = listRef.current;
-    if (!list || !spot) return;
+    const sp = spotRef.current;
+    if (!list || !sp) return;
     const l = list.getBoundingClientRect(); // on screen, scale included
     const scale = l.width / list.offsetWidth || 1; // the bar swells while dragging: back to the list's own pixels
     const x = (clientX - l.left) / scale;
     // The lens stays inside the bar, centred on the finger.
-    setLensX(Math.min(Math.max(x - spot.w / 2, 4), list.offsetWidth - spot.w - 4));
-    const index = Math.min(tabs.length - 1, Math.max(0, Math.floor((x / list.offsetWidth) * tabs.length)));
+    const g = glide.current;
+    g.target = Math.min(Math.max(x - sp.w / 2, 4), list.offsetWidth - sp.w - 4);
+    if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function') {
+      g.x = g.target;
+      placeLens(g.x, 0);
+    } else if (!g.raf) {
+      g.last = 0;
+      g.raf = requestAnimationFrame(runGlide);
+    }
+    // Which tab the lens is over, in tab widths from the left. It keeps the tab it is on until the finger is a good way
+    // past the line (a fifth of a tab): a hand resting on the line shakes by a pixel or two, and without this the choice,
+    // the bold label and the enlarged icon would flicker between the two tabs.
+    const at = (x / list.offsetWidth) * tabs.length;
+    const held = previewRef.current;
+    const index = held !== null && at >= held - STAY && at <= held + 1 + STAY ? held : Math.min(tabs.length - 1, Math.max(0, Math.floor(at)));
     if (index !== previewRef.current) {
       // A tick each time the lens passes onto another tab (not for the one it started on).
       if (previewRef.current !== null) haptic('light');
@@ -242,12 +283,23 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     press.current = null;
     if (p.active) {
       navRef.current?.releasePointerCapture?.(event.pointerId);
+      cancelAnimationFrame(glide.current.raf);
+      glide.current.raf = 0;
       // The finger is lifted: now the page goes to the tab the lens is over (a cancelled touch goes nowhere).
-      const target = event.type === 'pointercancel' ? undefined : tabs[previewRef.current ?? -1];
+      const goTo = event.type === 'pointercancel' ? undefined : tabs[previewRef.current ?? -1];
+      // The lens glides onto the tab it is over (or back to the one it left): its place is written now, and the
+      // stylesheet, which stops following the finger the moment the drag ends, moves it there with a transition.
+      const landing = listRef.current?.querySelectorAll<HTMLElement>('.tab')[goTo ? tabs.indexOf(goTo) : current];
+      const sp = spotRef.current;
+      if (landing && sp && lensRef.current) {
+        lensRef.current.style.transform = `translate(${landing.offsetLeft + 4}px, ${sp.y}px)`;
+        lensRef.current.style.setProperty('--sx', '1');
+        lensRef.current.style.setProperty('--sy', '1');
+      }
       previewRef.current = null;
       setPreview(null);
-      setLensX(null); // the lens glides onto the tab the page is now on
-      if (target && target.route !== getNav().route) navigate(target.route);
+      setDragging(false);
+      if (goTo && goTo.route !== getNav().route) navigate(goTo.route);
     }
   };
 
@@ -261,7 +313,7 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
       className="tabbar"
       aria-label={strings().nav.label}
       data-folded={folded ? '' : undefined}
-      data-dragging={lensX !== null ? '' : undefined}
+      data-dragging={dragging ? '' : undefined}
       style={{ '--active': current, '--count': tabs.length } as CSSProperties}
       onPointerDownCapture={() => {
         pointerDown.current = true;
@@ -286,6 +338,9 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
           if (Math.abs(e.clientX - p.startX) < 8) return; // still a tap
           p.active = true;
           dragged.current = true;
+          // The lens starts from where it rests and catches up with the finger.
+          glide.current.x = spotRef.current?.x ?? 0;
+          setDragging(true);
           navRef.current?.setPointerCapture?.(e.pointerId);
           haptic('light');
         }
@@ -304,9 +359,10 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
       <ul ref={listRef} style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
         {spot && (
           <span
+            ref={lensRef}
             className="tab-indicator"
             aria-hidden="true"
-            style={{ width: spot.w, height: spot.h, transform: `translate(${lensX ?? spot.x}px, ${spot.y}px)` }}
+            style={{ width: spot.w, height: spot.h, transform: `translate(${spot.x}px, ${spot.y}px)` }}
           />
         )}
         {tabs.map(({ route: to, icon: Icon, label }, index) => (

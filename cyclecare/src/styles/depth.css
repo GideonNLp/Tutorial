@@ -504,12 +504,21 @@ html[data-phase] .app {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 1.5rem;
-  background: color-mix(in srgb, var(--grad-c, var(--ink)) 15%, transparent);
+  border-radius: 1.65rem;
+  /* A drop of clear glass: a bright reflection high on the left, a faint tint of the phase pooling at the bottom
+     right, almost nothing in the middle, so the icon and what is behind the bar show through. */
+  background:
+    radial-gradient(120% 85% at 26% 8%, light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.3)), rgb(255 255 255 / 0) 58%),
+    radial-gradient(95% 80% at 82% 108%, color-mix(in srgb, var(--grad-c, var(--ink)) 30%, transparent), transparent 70%),
+    color-mix(in srgb, var(--grad-c, var(--ink)) 6%, transparent);
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent),
-    inset 0 2px 8px color-mix(in srgb, var(--ink) 9%, transparent);
+    inset 0 0 0 1px light-dark(rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.2)),
+    inset 0 7px 9px -5px light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.28)),
+    inset 0 -8px 12px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 32%, transparent),
+    0 5px 14px -7px color-mix(in srgb, var(--ink) 30%, transparent);
   scale: 1;
+  /* Stretched along its movement while it is dragged (Shell.tsx sets --sx and --sy on every frame). */
+  transform: scale(var(--sx, 1), var(--sy, 1));
   transition:
     scale 0.3s var(--ease-nav),
     box-shadow 0.3s ease;
@@ -528,6 +537,9 @@ html[data-phase] .app {
 @media (prefers-contrast: more) {
   .tab-indicator::before {
     background: var(--surface-2);
+    box-shadow: inset 0 0 0 2px var(--ink);
+  }
+  .tabbar[data-dragging] .tab-indicator::before {
     box-shadow: inset 0 0 0 2px var(--ink);
   }
   .tab[aria-current='page'] .tab-icon {
@@ -650,17 +662,18 @@ html[data-phase] .app {
   .tab .tab-icon {
     transition: scale 0.3s var(--ease-nav);
   }
+  /* While dragged, the lens is moved by a frame loop (Shell.tsx): a CSS transition restarted on every
+     move showed as a shake when the finger went slowly. */
   .tabbar[data-dragging] .tab-indicator {
-    transition:
-      transform 0.07s linear,
-      opacity 0.25s ease;
+    transition: opacity 0.25s ease;
   }
   .tabbar[data-dragging] .tab-indicator::before {
     scale: 1.14;
     box-shadow:
-      inset 0 0 0 1.5px light-dark(rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.28)),
-      inset 0 2px 10px color-mix(in srgb, var(--ink) 10%, transparent),
-      0 8px 20px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 45%, transparent);
+      inset 0 0 0 1.5px light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.32)),
+      inset 0 8px 10px -5px light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.35)),
+      inset 0 -9px 14px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 40%, transparent),
+      0 10px 22px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 45%, transparent);
   }
   /* While the lens is dragged, the tab it is over is the one that looks chosen; the page is still the old one
      and changes only when the finger is lifted. */
