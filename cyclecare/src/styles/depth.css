@@ -148,3 +148,60 @@ html[data-phase] .app {
     background-image: none;
   }
 }
+
+/* ---------------------------------------------------------------- tonal controls
+
+   Buttons and choices that were drawn as an outline are filled instead. On the page they are white and
+   lifted by a soft shadow; inside a card, which is already white, they are a soft tone of the phase colour
+   (plain ink where there is no phase). What is chosen takes the gradient above. Text fields and the
+   switch keep their outline: it is what shows where they are. */
+
+.btn-secondary,
+.chip-face,
+.scale-face {
+  border-color: transparent;
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+}
+.card .btn-secondary,
+.card .chip-face,
+.card .scale-face,
+.tip-card .btn-secondary,
+.list .btn-secondary {
+  background: color-mix(in srgb, var(--phase-c, var(--ink)) 10%, var(--surface));
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .btn-secondary:hover:not([disabled]) {
+    background: color-mix(in srgb, var(--phase-c, var(--ink)) 17%, var(--surface));
+  }
+}
+/* The chosen one keeps no outline shadow of its own: the gradient is enough. */
+.chip input:checked + .chip-face,
+.scale input:checked + .scale-face {
+  box-shadow: none;
+}
+.icon-btn.outlined {
+  border-color: transparent;
+  background: var(--surface);
+  box-shadow: var(--shadow-raised);
+}
+@media (prefers-contrast: more) {
+  .btn-secondary,
+  .chip-face,
+  .scale-face,
+  .icon-btn.outlined {
+    border-color: var(--line-strong);
+    background: var(--surface);
+    box-shadow: none;
+  }
+}
+@media (forced-colors: active) {
+  .btn-secondary,
+  .chip-face,
+  .scale-face,
+  .icon-btn.outlined {
+    border-color: ButtonText;
+    box-shadow: none;
+  }
+}
