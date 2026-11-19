@@ -111,3 +111,14 @@ test('buttons are filled, not outlined: white on the page, tonal in a card', asy
   expect(await style(page, '.page[data-active] .chip-face', 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
   expect(await style(page, '.page[data-active] .chip-face', 'background-color')).toBe('rgb(255, 255, 255)');
 });
+
+test('the charts have gradient fills with ids that are unique across the pages that stay mounted', async ({ page }) => {
+  await startWithJournal(page);
+  await tab(page, 'Statistici');
+  await expect(page.locator('.page[data-active] .chart-bar').first()).toBeVisible();
+  expect(await page.locator('.page[data-active] .chart-bar path').first().getAttribute('fill')).toMatch(/^url\(#[\w-]+\)$/);
+  await tab(page, 'Azi');
+  await tab(page, 'Statistici');
+  const ids = await page.evaluate(() => [...document.querySelectorAll('[id]')].map((el) => el.id));
+  expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+});

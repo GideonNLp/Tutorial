@@ -95,7 +95,7 @@ export function StatsScreen() {
                     {st.cycles.legendPeriod}
                   </li>
                   <li>
-                    <span className="key-rect" style={{ background: 'var(--ink-2)' }} aria-hidden="true" />
+                    <span className="key-rect" style={{ background: 'linear-gradient(180deg, var(--luteal), var(--ink-2))' }} aria-hidden="true" />
                     {st.cycles.legendRest}
                   </li>
                 </ul>

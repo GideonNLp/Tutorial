@@ -326,3 +326,47 @@ html[data-phase] .app {
     color: CanvasText;
   }
 }
+
+/* ---------------------------------------------------------------- charts
+
+   The frame of a chart is lifted like a card instead of outlined. */
+
+.chart-plot {
+  border-color: var(--line);
+  border-color: light-dark(transparent, var(--line));
+  box-shadow: var(--shadow-raised);
+}
+@media (prefers-contrast: more) {
+  .chart-plot {
+    border-color: var(--line);
+    box-shadow: none;
+  }
+}
+@media (forced-colors: active) {
+  .chart-plot {
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+}
+
+/* ---------------------------------------------------------------- charts
+
+   The frame of a chart is lifted like a card instead of outlined. */
+
+.chart-plot {
+  border-color: var(--line);
+  border-color: light-dark(transparent, var(--line));
+  box-shadow: var(--shadow-raised);
+}
+@media (prefers-contrast: more) {
+  .chart-plot {
+    border-color: var(--line);
+    box-shadow: none;
+  }
+}
+@media (forced-colors: active) {
+  .chart-plot {
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+}
