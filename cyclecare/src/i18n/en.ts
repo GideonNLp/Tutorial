@@ -478,6 +478,13 @@ export const en: Dictionary = {
       due: (latest: string) => `It could start any day now. The estimated range runs until ${latest}.`,
       late: (n: number) => `${days(n)} later than estimated.`,
       lateHint: 'A late period has many possible causes. See a few pointers in Tips.',
+      /** The big figure on the card (the sentences below it say the same in words). */
+      figure: {
+        today: 'today',
+        tomorrow: 'tomorrow',
+        unit: (n: number) => (n === 1 ? 'day' : 'days'),
+        lateUnit: (n: number) => (n === 1 ? 'day late' : 'days late'),
+      },
     },
     confidence: { low: 'Low accuracy', medium: 'Medium accuracy', high: 'Good accuracy' },
     basis: {
@@ -491,6 +498,7 @@ export const en: Dictionary = {
       ovulation: (date: string) => `Estimated ovulation: ${date}, give or take a few days`,
       todayFertile: 'Today is an estimated fertile day.',
       todayOvulation: 'Today is the estimated day of ovulation.',
+      untilUnit: (n: number) => (n === 1 ? 'day until the fertile days' : 'days until the fertile days'),
       unreliable:
         'While your period is late, we can no longer estimate the fertile days of this cycle. Estimates come back once you log your next period.',
     },

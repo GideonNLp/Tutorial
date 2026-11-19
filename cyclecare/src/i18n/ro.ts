@@ -478,6 +478,13 @@ export const ro = {
       due: (latest: string) => `Poate începe în orice zi. Intervalul estimat ține până pe ${latest}.`,
       late: (n: number) => `Întârzie cu ${zile(n)} față de estimare.`,
       lateHint: 'Întârzierile au multe cauze posibile. Vezi câteva repere în Sfaturi.',
+      /** The big figure on the card (the sentences below it say the same in words). */
+      figure: {
+        today: 'azi',
+        tomorrow: 'mâine',
+        unit: (n: number): string => (n === 1 ? 'zi' : 'zile'),
+        lateUnit: (n: number): string => (n === 1 ? 'zi întârziere' : 'zile întârziere'),
+      },
     },
     confidence: { low: 'Precizie scăzută', medium: 'Precizie medie', high: 'Precizie bună' },
     basis: {
@@ -491,6 +498,7 @@ export const ro = {
       ovulation: (date: string) => `Ovulație estimată: ${date}, cu o marjă de câteva zile`,
       todayFertile: 'Azi este o zi fertilă estimată.',
       todayOvulation: 'Azi este ziua estimată a ovulației.',
+      untilUnit: (n: number): string => (n === 1 ? 'zi până la zilele fertile' : 'zile până la zilele fertile'),
       unreliable:
         'Cât timp menstruația întârzie, nu mai putem estima zilele fertile ale acestui ciclu. Estimările revin după ce notezi următoarea menstruație.',
     },

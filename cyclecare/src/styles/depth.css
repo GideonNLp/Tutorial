@@ -245,3 +245,84 @@ html[data-phase] .app {
     box-shadow: none;
   }
 }
+
+/* ---------------------------------------------------------------- the cards of "Azi"
+
+   Each block under the dial is a card: a round badge in the colour of what it is about, its heading, and
+   where there is a number worth seeing from across the room, the number, big. The sentences stay as they
+   were; the figure is for the eye only (aria-hidden), so nothing is read twice. */
+
+.today-card {
+  --c: var(--ink);
+  --tint: var(--surface-2);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tint) 55%, var(--surface)) 0, var(--surface) 8.5rem);
+}
+.today-card[data-kind='next'] {
+  --c: var(--menstruation);
+  --tint: var(--menstruation-tint);
+}
+.today-card[data-kind='fertility'] {
+  --c: var(--ovulation);
+  --tint: var(--ovulation-tint);
+}
+.today-card[data-kind='risk'] {
+  --c: var(--luteal);
+  --tint: var(--luteal-tint);
+}
+.today-card[data-kind='tip'] {
+  --c: var(--follicular);
+  --tint: var(--follicular-tint);
+}
+.today-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.icon-badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--tint), color-mix(in srgb, var(--c) 22%, var(--tint)));
+  color: var(--c);
+}
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--s2);
+  margin: 0;
+  color: var(--c);
+}
+.figure-num {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.figure-unit {
+  font-size: var(--fs-h3);
+  font-weight: 650;
+  color: var(--ink-2);
+}
+@media (prefers-contrast: more) {
+  .today-card {
+    background: var(--surface);
+  }
+}
+@media (forced-colors: active) {
+  .today-card {
+    background: Canvas;
+  }
+  .icon-badge {
+    background: Canvas;
+    color: CanvasText;
+  }
+  .figure {
+    color: CanvasText;
+  }
+}

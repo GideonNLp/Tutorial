@@ -72,3 +72,42 @@ test('what is chosen carries a small gradient, and it goes away with "increase c
   await page.emulateMedia({ colorScheme: 'light', contrast: 'more' });
   expect(await style(page, tabIcon, 'background-image')).toBe('none');
 });
+
+test('under the dial, each block is a card with a badge and, for the next period, a big number for the eye only', async ({ page }) => {
+  await startWithJournal(page); // 15 November, the next period expected in 17 days
+  const next = page.locator('.page[data-active] .today-card[data-kind="next"]');
+  await expect(next.getByRole('heading', { name: 'Următoarea menstruație' })).toBeVisible();
+  await expect(next.locator('.icon-badge')).toHaveAttribute('aria-hidden', 'true');
+  const figure = next.locator('.figure');
+  await expect(figure).toHaveAttribute('aria-hidden', 'true');
+  await expect(figure.locator('.figure-num')).toHaveText('17');
+  await expect(figure.locator('.figure-unit')).toHaveText('zile');
+  // The sentence says the same in words, and is what a screen reader reads.
+  await expect(next.getByText(/peste 17 zile/)).toBeVisible();
+  for (const kind of ['fertility', 'risk']) await expect(page.locator(`.page[data-active] .today-card[data-kind="${kind}"]`)).toBeVisible();
+});
+
+test('the tab bar floats above the bottom edge as a rounded pill, on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await startWithJournal(page);
+  const bar = (await page.locator('.tabbar').boundingBox())!;
+  expect(844 - (bar.y + bar.height)).toBeGreaterThanOrEqual(6); // air under it
+  expect(bar.x).toBeGreaterThanOrEqual(10); // and at the sides
+  expect(bar.x + bar.width).toBeLessThanOrEqual(380);
+  expect(await style(page, '.tabbar', 'border-top-left-radius')).not.toBe('0px');
+  // The last card can be scrolled clear of it.
+  await page.locator('.page[data-active]').evaluate((el) => el.scrollTo(0, el.scrollHeight));
+  const last = (await page.locator('.page[data-active] .today-card[data-kind="tip"]').boundingBox())!;
+  expect(last.y + last.height).toBeLessThanOrEqual(bar.y);
+});
+
+test('buttons are filled, not outlined: white on the page, tonal in a card', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await startWithJournal(page);
+  const quiet = '.page[data-active] .card .btn-secondary';
+  expect(await style(page, quiet, 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+  expect(await style(page, quiet, 'background-color')).not.toBe('rgb(255, 255, 255)');
+  await tab(page, 'Sfaturi');
+  expect(await style(page, '.page[data-active] .chip-face', 'border-top-color')).toBe('rgba(0, 0, 0, 0)');
+  expect(await style(page, '.page[data-active] .chip-face', 'background-color')).toBe('rgb(255, 255, 255)');
+});
