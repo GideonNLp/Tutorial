@@ -130,6 +130,8 @@ const FOLD_AFTER = 48;
 const FOLD_STEP = 10;
 /** How far past the line between two tabs (in tab widths) the finger must go before the lens counts as over the next one. */
 const STAY = 0.2;
+/** How close to the ends of the list the carrier of the lens may go while it is held (its glass reaches about 22 px further). */
+const LENS_EDGE = 10;
 
 /**
  * Whether the bar folds: only the floating bar of a phone. Folding is a change of state, not a motion
@@ -256,7 +258,8 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     const x = (clientX - l.left) / scale;
     // The lens stays inside the bar, centred on the finger.
     const g = glide.current;
-    g.target = Math.min(Math.max(x - sp.w / 2, 4), list.offsetWidth - sp.w - 4);
+    // The drop is wider than its tab while held (about 22 px more on each side): it stops where it would leave the screen.
+    g.target = Math.min(Math.max(x - sp.w / 2, LENS_EDGE), list.offsetWidth - sp.w - LENS_EDGE);
     if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function') {
       g.x = g.target;
       placeLens(g.x, 0);
@@ -356,7 +359,9 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
         if (!pointerDown.current) fold(false);
       }}
     >
-      <ul ref={listRef} style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+      <div className="tabbar-body">
+        {/* The lens is outside the wrapper that clips the list (when the bar folds), so that while it is dragged it may
+          grow larger than the bar and stand out above and below it, as in Apple Music. */}
         {spot && (
           <span
             ref={lensRef}
@@ -365,40 +370,44 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
             style={{ width: spot.w, height: spot.h, transform: `translate(${spot.x}px, ${spot.y}px)` }}
           />
         )}
-        {tabs.map(({ route: to, icon: Icon, label }, index) => (
-          <li key={to} style={{ '--index': index } as CSSProperties}>
-            <a
-              className="tab"
-              draggable={false}
-              href={`#${to}`}
-              aria-current={route === to ? 'page' : undefined}
-              data-preview={preview === index ? '' : undefined}
-              onClick={(e) => {
-                e.preventDefault();
-                // The end of a drag is not a tap on the tab under the finger.
-                if (dragged.current) {
-                  dragged.current = false;
-                  return;
-                }
-                // The folded bar opens when touched; touching the tab it shows does nothing more. Another tab
-                // can only be reached here by a screen reader or a keyboard: it opens the bar and goes there.
-                if (foldedRef.current) {
-                  fold(false);
-                  if (route === to) return;
-                }
-                // Tapping the tab you are on goes back to the top of its page.
-                if (route === to) scrollToTop(document.querySelector('.page[data-active]'));
-                else navigate(to);
-              }}
-            >
-              <span className="tab-icon">
-                <Icon size={20} aria-hidden="true" />
-              </span>
-              <span className="tab-label">{label()}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+        <div className="tabbar-clip">
+          <ul ref={listRef} style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+            {tabs.map(({ route: to, icon: Icon, label }, index) => (
+              <li key={to} style={{ '--index': index } as CSSProperties}>
+                <a
+                  className="tab"
+                  draggable={false}
+                  href={`#${to}`}
+                  aria-current={route === to ? 'page' : undefined}
+                  data-preview={preview === index ? '' : undefined}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // The end of a drag is not a tap on the tab under the finger.
+                    if (dragged.current) {
+                      dragged.current = false;
+                      return;
+                    }
+                    // The folded bar opens when touched; touching the tab it shows does nothing more. Another tab
+                    // can only be reached here by a screen reader or a keyboard: it opens the bar and goes there.
+                    if (foldedRef.current) {
+                      fold(false);
+                      if (route === to) return;
+                    }
+                    // Tapping the tab you are on goes back to the top of its page.
+                    if (route === to) scrollToTop(document.querySelector('.page[data-active]'));
+                    else navigate(to);
+                  }}
+                >
+                  <span className="tab-icon">
+                    <Icon size={20} aria-hidden="true" />
+                  </span>
+                  <span className="tab-label">{label()}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </nav>
   );
 }
