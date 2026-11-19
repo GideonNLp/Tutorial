@@ -573,6 +573,18 @@ html[data-phase] .app {
     }
   }
 }
+/* Behind the drop's glass, a layer that blurs what is under it more and more toward its edge: a tab or a label that
+   reaches the end of the drop goes soft little by little, and stays sharp in the middle (the mask hides the blur at
+   the centre and shows all of it at the rim). Only while the drop is held and only where blur is supported. */
+.tab-indicator::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 1.65rem;
+  pointer-events: none;
+  display: none;
+}
 .tab .tab-icon {
   position: relative;
   z-index: 1;
@@ -718,10 +730,14 @@ html[data-phase] .app {
     z-index: 2; /* it rises over the icons, as glass over what it magnifies */
     transition: opacity 0.25s ease;
   }
-  /* Held down, the drop is bigger than the bar: it stands out above and below it and a little to each side. */
+  /* Held down, the drop is bigger than the bar: it stands out above and below it, and wider than its tab, an oval
+     (about 1.4 times as wide as high, with round ends), as Apple Music draws it. */
+  .tabbar[data-dragging] .tab-indicator::before,
+  .tabbar[data-dragging] .tab-indicator::after {
+    inset: -12px -22px;
+    border-radius: 999px;
+  }
   .tabbar[data-dragging] .tab-indicator::before {
-    inset: -12px -9px;
-    border-radius: 2.4rem;
     box-shadow:
       0 0 0 0.5px light-dark(rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.55)),
       inset 0 0 0 1.5px light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.28)),
@@ -766,5 +782,17 @@ html[data-phase] .app {
 @media (forced-colors: active) {
   .tabbar[data-dragging] .tab-indicator::before {
     box-shadow: none;
+  }
+}
+
+@media (max-width: 55.99rem) and (prefers-reduced-transparency: no-preference) and (prefers-contrast: no-preference) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .tabbar[data-dragging] .tab-indicator::after {
+      display: block;
+      -webkit-backdrop-filter: blur(5px);
+      backdrop-filter: blur(5px);
+      -webkit-mask-image: radial-gradient(closest-side, transparent 52%, rgb(0 0 0 / 0.55) 82%, #000 100%);
+      mask-image: radial-gradient(closest-side, transparent 52%, rgb(0 0 0 / 0.55) 82%, #000 100%);
+    }
   }
 }

@@ -130,6 +130,8 @@ const FOLD_AFTER = 48;
 const FOLD_STEP = 10;
 /** How far past the line between two tabs (in tab widths) the finger must go before the lens counts as over the next one. */
 const STAY = 0.2;
+/** How close to the ends of the list the carrier of the lens may go while it is held (its glass reaches about 22 px further). */
+const LENS_EDGE = 10;
 
 /**
  * Whether the bar folds: only the floating bar of a phone. Folding is a change of state, not a motion
@@ -256,7 +258,8 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     const x = (clientX - l.left) / scale;
     // The lens stays inside the bar, centred on the finger.
     const g = glide.current;
-    g.target = Math.min(Math.max(x - sp.w / 2, 4), list.offsetWidth - sp.w - 4);
+    // The drop is wider than its tab while held (about 22 px more on each side): it stops where it would leave the screen.
+    g.target = Math.min(Math.max(x - sp.w / 2, LENS_EDGE), list.offsetWidth - sp.w - LENS_EDGE);
     if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function') {
       g.x = g.target;
       placeLens(g.x, 0);

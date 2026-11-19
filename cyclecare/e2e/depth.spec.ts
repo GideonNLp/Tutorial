@@ -609,6 +609,46 @@ test.describe('held down, the drop of glass is bigger than the bar', () => {
     expect(await page.locator('.tab-indicator').evaluate((el) => getComputedStyle(el).zIndex)).not.toBe('2');
   });
 
+  test('held, the drop is an oval about 1.4 times as wide as high, and blurs what reaches its edge gradually', async ({ page }) => {
+    await startWithJournal(page);
+    const b = (await page.locator('.tab:has-text("Jurnal")').first().boundingBox())!;
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(b.x + b.width / 2 + 15, b.y + b.height / 2, { steps: 3 });
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-dragging', '');
+    await expect
+      .poll(
+        async () => {
+          const g = await glass(page);
+          return Math.round(((g.right - g.left) / (g.bottom - g.top)) * 100) / 100;
+        },
+        { timeout: 3000 },
+      )
+      .toBeGreaterThan(1.25);
+    const g = await glass(page);
+    const ratio = (g.right - g.left) / (g.bottom - g.top);
+    expect(ratio).toBeLessThan(1.6);
+    // Fully rounded ends: an oval, not a rounded square.
+    expect(await page.locator('.tab-indicator').evaluate((el) => parseFloat(getComputedStyle(el, '::before').borderTopLeftRadius))).toBeGreaterThan(
+      100,
+    );
+    // The blur layer: some blur, shown fully only at the rim (the middle is masked out, so the icon stays sharp).
+    const layer = await page.locator('.tab-indicator').evaluate((el) => {
+      const c = getComputedStyle(el, '::after');
+      return {
+        display: c.display,
+        filter: c.backdropFilter || '',
+        mask: c.maskImage || (c as unknown as { webkitMaskImage: string }).webkitMaskImage || '',
+      };
+    });
+    expect(layer.display).toBe('block');
+    expect(layer.filter).toContain('blur(5px)');
+    expect(layer.mask).toContain('radial-gradient');
+    await page.mouse.up();
+    // Not there when the lens is at rest.
+    await expect.poll(() => page.locator('.tab-indicator').evaluate((el) => getComputedStyle(el, '::after').display), { timeout: 3000 }).toBe('none');
+  });
+
   test('the bar still clips its list when it folds: the other tabs are not seen outside the small circle', async ({ page }) => {
     await startWithJournal(page);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
