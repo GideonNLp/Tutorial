@@ -1,11 +1,12 @@
-import { CircleAlert, Info, NotebookPen, ShieldAlert } from 'lucide-react';
+import { CircleAlert, Droplets, Gauge, Info, Lightbulb, NotebookPen, ShieldAlert, Sprout, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { reminderText } from '../app/lifecycle';
 import { navigate } from '../app/router';
 import { update, useData, useStorageMode, useTimeline, useToday } from '../app/store';
 import { openJournal, toast } from '../app/ui';
 import { content, TIP_CATEGORIES } from '../content';
-import { toDayNumber } from '../domain/dates';
+import { diffDays, toDayNumber } from '../domain/dates';
 import { computeFlags, visibleFlags } from '../domain/insights';
 import { updateDay } from '../domain/journal';
 import { currentPhase } from '../domain/prediction';
@@ -21,6 +22,45 @@ import { flagText, summarizeLog, visiblePhase } from '../ui/summaries';
 import { haptic } from '../ui/haptics';
 import { summarizePregnancyRisk } from '../domain/pregnancyRisk';
 import { ChanceScale, RiskIcons } from '../ui/PregnancyRisk';
+
+/** The head of a card on this screen: a round badge in the colour of the card, then its heading. */
+function CardHead({ icon: Icon, id, progress, children }: { icon: LucideIcon; id: string; progress?: number; children: ReactNode }) {
+  return (
+    <div className="today-card-head">
+      <span className="icon-badge-wrap" aria-hidden="true">
+        {progress !== undefined && <ProgressRing progress={progress} />}
+        <span className="icon-badge">
+          <Icon size={20} />
+        </span>
+      </span>
+      <h2 id={id}>{children}</h2>
+    </div>
+  );
+}
+
+/** A ring round the badge, filled as far as the cycle has gone (decoration: the figure and the sentences carry the facts). */
+function ProgressRing({ progress }: { progress: number }) {
+  const p = Math.min(0.995, Math.max(0.02, progress));
+  const r = 24;
+  const angle = 2 * Math.PI * p;
+  const end = `${(26 + r * Math.sin(angle)).toFixed(2)} ${(26 - r * Math.cos(angle)).toFixed(2)}`;
+  return (
+    <svg className="progress-ring" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+      <circle className="ring-track" cx="26" cy="26" r={r} />
+      <path className="ring-arc" pathLength={1} d={`M26 ${26 - r}A${r} ${r} 0 ${angle > Math.PI ? 1 : 0} 1 ${end}`} />
+    </svg>
+  );
+}
+
+/** A big number with its unit, for the eye only: the sentences under it say the same, so it is hidden from readers. */
+function Figure({ num, unit }: { num: string; unit?: string }) {
+  return (
+    <p className="figure" aria-hidden="true">
+      <span className="figure-num">{num}</span>
+      {unit && <span className="figure-unit">{unit}</span>}
+    </p>
+  );
+}
 
 export function TodayScreen() {
   const s = strings();
@@ -73,8 +113,21 @@ export function TodayScreen() {
   const symptomsFirst = goals.includes('symptoms');
 
   const nextBlock = current && forecast && (
-    <section aria-labelledby="next-heading" className="stack stack-2" data-tap="">
-      <h2 id="next-heading">{s.today.next.heading}</h2>
+    <section aria-labelledby="next-heading" className="card today-card stack stack-2" data-kind="next" data-tap="">
+      <CardHead
+        icon={Droplets}
+        id="next-heading"
+        progress={Math.max(0, diffDays(today, current.start)) / Math.max(1, diffDays(current.expectedNext, current.start))}
+      >
+        {s.today.next.heading}
+      </CardHead>
+      {late ? (
+        <Figure num={String(-current.daysUntil)} unit={s.today.next.figure.lateUnit(-current.daysUntil)} />
+      ) : prediction.status === 'due' ? null : current.daysUntil <= 1 ? (
+        <Figure num={current.daysUntil <= 0 ? s.today.next.figure.today : s.today.next.figure.tomorrow} />
+      ) : (
+        <Figure num={String(current.daysUntil)} unit={s.today.next.figure.unit(current.daysUntil)} />
+      )}
       {late ? (
         <>
           <p className="lead strong">{s.today.next.late(-current.daysUntil)}</p>
@@ -101,8 +154,16 @@ export function TodayScreen() {
     </section>
   );
   const fertilityBlock = current && showFertility && (
-    <section aria-labelledby="fertility-heading" className="stack stack-2" data-tap="">
-      <h2 id="fertility-heading">{s.today.fertility.heading}</h2>
+    <section aria-labelledby="fertility-heading" className="card today-card stack stack-2" data-kind="fertility" data-tap="">
+      <CardHead icon={Sprout} id="fertility-heading">
+        {s.today.fertility.heading}
+      </CardHead>
+      {!late &&
+        (() => {
+          const upcoming = current.fertileEnd >= today ? current : forecast;
+          const until = upcoming ? diffDays(upcoming.fertileStart, today) : 0;
+          return until > 0 ? <Figure num={String(until)} unit={s.today.fertility.untilUnit(until)} /> : null;
+        })()}
       {late ? (
         // With the period overdue nobody knows where this cycle stands, so no fertile days are claimed.
         <p>{s.today.fertility.unreliable}</p>
@@ -132,8 +193,10 @@ export function TodayScreen() {
   const p = s.pregnancy;
   const showRisk = risk.contacts.length > 0 || (!!current && showFertility);
   const pregnancyBlock = showRisk && (
-    <section aria-labelledby="pregnancy-heading" className="stack stack-2" data-tap="">
-      <h2 id="pregnancy-heading">{fertilityFirst ? p.titleChance : p.titleRisk}</h2>
+    <section aria-labelledby="pregnancy-heading" className="card today-card stack stack-2" data-kind="risk" data-tap="">
+      <CardHead icon={Gauge} id="pregnancy-heading">
+        {fertilityFirst ? p.titleChance : p.titleRisk}
+      </CardHead>
       <p className="risk-today">
         <ChanceScale level={risk.today.level} />
         <span className="strong">{p.today(p.chance[risk.today.level])}</span>
@@ -186,7 +249,7 @@ export function TodayScreen() {
         clearable
       />
       <p className="small ink-2">{summary.length ? `${s.today.quick.logged} ${summary.join(', ')}.` : s.today.quick.nothing}</p>
-      <button type="button" className="btn btn-secondary btn-block" onClick={() => openJournal(today)}>
+      <button type="button" className="btn btn-primary btn-block" onClick={() => openJournal(today)}>
         <NotebookPen size={18} aria-hidden="true" />
         {s.today.quick.open}
       </button>
@@ -227,8 +290,10 @@ export function TodayScreen() {
     </section>
   );
   const tipBlock = tip && phase && (
-    <section aria-labelledby="tip-heading" className="stack stack-2" data-tap="">
-      <h2 id="tip-heading">{s.today.tip.title}</h2>
+    <section aria-labelledby="tip-heading" className="card today-card stack stack-2" data-kind="tip" data-tap="">
+      <CardHead icon={Lightbulb} id="tip-heading">
+        {s.today.tip.title}
+      </CardHead>
       <p className="caption">
         {s.phase[phase]}, {s.tips.category[tip.category].toLowerCase()}
       </p>
@@ -274,7 +339,7 @@ export function TodayScreen() {
                 ))}
               </ul>
             ) : (
-              <div className="stack stack-3" style={{ textAlign: 'center' }}>
+              <div className="empty-state stack stack-3">
                 <h3>{s.today.noData.title}</h3>
                 <p className="ink-2">{s.today.noData.body}</p>
                 <button type="button" className="btn btn-primary" onClick={() => openJournal(today)}>

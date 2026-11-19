@@ -83,7 +83,7 @@ test.describe('with motion', () => {
     await expect(page.locator('.page[data-route="profil"]')).toHaveCount(0);
   });
 
-  test('tabs cross-fade instead of jumping', async ({ page }) => {
+  test('tabs move instead of jumping: they fade as they slide', async ({ page }) => {
     await startEmpty(page);
     await withMotion(page);
     const samples = await recordMotion(page);
@@ -95,6 +95,66 @@ test.describe('with motion', () => {
     const incoming = track(fade, 'calendar');
     expect(incoming[0]!.opacity).toBeLessThan(0.6);
     await expect(page.locator('.page[data-route="calendar"]')).toHaveCSS('opacity', '1');
+  });
+
+  test('tabs slide in from the side they lie on, and the old page drifts the other way', async ({ page }) => {
+    await startEmpty(page);
+    await withMotion(page);
+    const width = page.viewportSize()!.width;
+    const samples = await recordMotion(page);
+
+    // Azi -> Calendar: to the right.
+    await tab(page, 'Calendar');
+    await settled(page);
+    const right = await samples();
+    const comingIn = track(right, 'calendar');
+    expect(comingIn[0]!.x).toBeGreaterThan(width * 0.1); // starts to the right...
+    expect(comingIn.at(-1)!.x).toBe(0); // ...and lands
+    expect(comingIn.map((p) => p!.x)).toEqual([...comingIn.map((p) => p!.x)].sort((a, b) => b - a)); // never going back
+    const leaving = track(right, 'azi');
+    expect(leaving.some((p) => p!.x < -5)).toBe(true); // the old page moves left
+
+    // Calendar -> Azi: the other way round.
+    await tab(page, 'Azi');
+    await settled(page);
+    const left = await samples();
+    expect(track(left, 'azi')[0]!.x).toBeLessThan(-width * 0.1);
+    expect(track(left, 'calendar').some((p) => p!.x > 5)).toBe(true);
+    await expect(page.locator('.page[data-route="azi"]')).toHaveCSS('transform', 'none');
+  });
+
+  test('a veil of frosted glass passes over the page while the tabs slide', async ({ page }) => {
+    await startEmpty(page);
+    await withMotion(page);
+    const veil = () =>
+      page.evaluate(() => {
+        const stage = document.querySelector('.stage')!;
+        const after = getComputedStyle(stage, '::after');
+        return { content: after.content, blur: after.backdropFilter || (after as unknown as { webkitBackdropFilter: string }).webkitBackdropFilter };
+      });
+    expect((await veil()).content).not.toBe('"\"\""'); // nothing while the page is still
+    await page.evaluate(() => {
+      (window as unknown as { __veil: unknown[] }).__veil = [];
+      const frame = () => {
+        const stage = document.querySelector('.stage');
+        if (stage?.hasAttribute('data-moving')) {
+          const after = getComputedStyle(stage, '::after');
+          (window as unknown as { __veil: unknown[] }).__veil.push({
+            content: after.content,
+            blur: after.backdropFilter,
+            opacity: Number(after.opacity),
+          });
+        }
+        requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    });
+    await tab(page, 'Calendar');
+    await settled(page);
+    const frames = await page.evaluate(() => (window as unknown as { __veil: Array<{ content: string; blur: string; opacity: number }> }).__veil);
+    expect(frames.length).toBeGreaterThan(3);
+    expect(frames.every((f) => f.blur.includes('blur'))).toBe(true);
+    expect(Math.max(...frames.map((f) => f.opacity))).toBeGreaterThan(0.5); // it clouds over in the middle
   });
 
   test('first-run steps move like the rest of the app', async ({ page }) => {
@@ -437,11 +497,11 @@ test.describe('small movements', () => {
     await startWithJournal(page);
     const blur = (selector: string, pseudo?: string) =>
       page.evaluate(([sel, ps]) => getComputedStyle(document.querySelector(sel!)!, ps).backdropFilter, [selector, pseudo] as const);
-    expect(await blur('.tabbar')).toContain('blur(20px)');
+    expect(await blur('.tabbar')).toContain('blur(28px)');
     expect(await blur('.page[data-active] .navbar', '::before')).toContain('blur(20px)');
     // Translucent, in the same colour as before.
     const tabbar = await page.evaluate(() => getComputedStyle(document.querySelector('.tabbar')!).backgroundColor);
-    expect(tabbar).toMatch(/0\.8\)$|\/ 0\.8\)$/);
+    expect(tabbar).toMatch(/0\.56\)$|\/ 0\.56\)$/);
 
     // "Increase contrast" turns the glass back into solid surfaces.
     await page.emulateMedia({ contrast: 'more' });

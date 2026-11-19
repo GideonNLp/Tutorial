@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode, type RefObject } from 'react';
 import { addDays, fromDayNumber, parts, toDayNumber } from '../domain/dates';
 import type { BbtPoint, CycleRow, WeekPoint } from '../domain/stats';
 import type { ISODate } from '../domain/types';
@@ -100,8 +100,12 @@ function column(x: number, top: number, width: number, bottom: number, radius = 
 
 // ---------------------------------------------------------------- cycle lengths
 
+/** An id for a gradient: unique per chart (the tab pages stay mounted, so a fixed id would be there twice) and free of colons. */
+const useGradientId = (name: string) => `${useId().replace(/:/g, '')}-${name}`;
+
 export function CycleLengthChart({ rows, label }: { rows: CycleRow[]; label: string }) {
   const s = strings();
+  const barGradient = useGradientId('bar');
   const [ref, W] = useWidth();
   const cursor = useCursor(rows.length);
   const H = 208;
@@ -133,6 +137,13 @@ export function CycleLengthChart({ rows, label }: { rows: CycleRow[]; label: str
           onPointerDown={(e) => cursor.setIndex(cursor.clamp(Math.floor((pointerX(e) - m.l) / slot)))}
           onPointerLeave={() => cursor.setIndex(null)}
         >
+          <defs>
+            {/* The rest of the cycle: violet at the top of the bar, settling into the slate of the legend below. */}
+            <linearGradient id={barGradient} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--luteal)" />
+              <stop offset="1" stopColor="var(--ink-2)" />
+            </linearGradient>
+          </defs>
           {ticks.map((t) => (
             <g key={t}>
               <line className={t === 0 ? 'chart-baseline' : 'chart-grid'} x1={m.l} x2={W - m.r} y1={y(t)} y2={y(t)} />
@@ -151,7 +162,7 @@ export function CycleLengthChart({ rows, label }: { rows: CycleRow[]; label: str
                 {/* period days at the base, the rest of the cycle above, separated by a 2px gap; the bar grows from the baseline */}
                 <g className="chart-bar" style={{ '--i': i } as CSSProperties}>
                   <rect x={x} y={y(period)} width={barW} height={y(0) - y(period)} fill="var(--menstruation)" />
-                  <path d={column(x, y(length), barW, y(period) - 2)} fill="var(--ink-2)" />
+                  <path d={column(x, y(length), barW, y(period) - 2)} fill={`url(#${barGradient})`} />
                 </g>
                 <text className="chart-value chart-late" x={cx(i)} y={y(length) - 7} textAnchor="middle">
                   {length}
@@ -354,6 +365,7 @@ export function BbtChart({
   const cursor = useCursor(points.length);
   const H = 196;
   const m = { l: 34, r: 12, t: 12, b: 24 };
+  const areaGradient = useGradientId('area');
   const plotW = W - m.l - m.r;
   const plotH = H - m.t - m.b;
   const d0 = toDayNumber(from);
@@ -418,6 +430,20 @@ export function BbtChart({
           )}
           {active && cursor.index !== null && (
             <line className="chart-baseline" x1={xs[cursor.index]} x2={xs[cursor.index]} y1={m.t} y2={m.t + plotH} />
+          )}
+          <defs>
+            <linearGradient id={areaGradient} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--luteal)" stopOpacity="0.3" />
+              <stop offset="1" stopColor="var(--luteal)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {points.length > 1 && (
+            // A soft area under the line: decoration only, the line and the points carry the data.
+            <path
+              className="chart-area"
+              d={`${points.map((p, i) => `${i === 0 ? 'M' : 'L'}${xs[i]!.toFixed(1)} ${y(p.celsius).toFixed(1)}`).join('')}L${xs[points.length - 1]!.toFixed(1)} ${m.t + plotH}L${xs[0]!.toFixed(1)} ${m.t + plotH}Z`}
+              fill={`url(#${areaGradient})`}
+            />
           )}
           <path
             className="chart-line"

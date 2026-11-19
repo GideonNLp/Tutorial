@@ -36,7 +36,7 @@ describe('the recovery code', () => {
     }
   });
 
-  it('notices any single wrong character, and almost every pair of neighbours swapped', () => {
+  it('notices any single wrong character', () => {
     const code = generateRecoveryCode();
     for (let i = 0; i < code.length; i++) {
       for (const c of ALPHABET) {
@@ -44,12 +44,19 @@ describe('the recovery code', () => {
         expect(isRecoveryCode(code.slice(0, i) + c + code.slice(i + 1)), `${i}:${c}`).toBe(false);
       }
     }
+  });
+
+  it('notices almost every swap of two neighbouring characters', () => {
+    // One code has only about twenty swaps, too few for a rate that does not wobble: count over many codes.
     let swaps = 0;
     let caught = 0;
-    for (let i = 0; i + 1 < code.length; i++) {
-      if (code[i] === code[i + 1]) continue;
-      swaps++;
-      if (!isRecoveryCode(code.slice(0, i) + code[i + 1] + code[i] + code.slice(i + 2))) caught++;
+    for (let n = 0; n < 300; n++) {
+      const code = generateRecoveryCode();
+      for (let i = 0; i + 1 < code.length; i++) {
+        if (code[i] === code[i + 1]) continue;
+        swaps++;
+        if (!isRecoveryCode(code.slice(0, i) + code[i + 1] + code[i] + code.slice(i + 2))) caught++;
+      }
     }
     expect(caught / swaps).toBeGreaterThan(0.9);
   });

@@ -19,6 +19,8 @@ function count(n: number, one: string, few: string, other: string): string {
 }
 
 const zile = (n: number) => count(n, 'zi', 'zile', 'de zile');
+/** Only the word of „zile”, as it follows the number: „zi”, „zile”, „de zile”. */
+const zileCuvant = (n: number): string => zile(n).replace(/^\d+ /, '');
 const cicluri = (n: number) => count(n, 'ciclu', 'cicluri', 'de cicluri');
 const luni = (n: number) => count(n, 'lună', 'luni', 'de luni');
 
@@ -478,6 +480,13 @@ export const ro = {
       due: (latest: string) => `Poate începe în orice zi. Intervalul estimat ține până pe ${latest}.`,
       late: (n: number) => `Întârzie cu ${zile(n)} față de estimare.`,
       lateHint: 'Întârzierile au multe cauze posibile. Vezi câteva repere în Sfaturi.',
+      /** The big figure on the card (the sentences below it say the same in words). */
+      figure: {
+        today: 'azi',
+        tomorrow: 'mâine',
+        unit: (n: number): string => zileCuvant(n),
+        lateUnit: (n: number): string => `${zileCuvant(n)} de întârziere`,
+      },
     },
     confidence: { low: 'Precizie scăzută', medium: 'Precizie medie', high: 'Precizie bună' },
     basis: {
@@ -491,6 +500,7 @@ export const ro = {
       ovulation: (date: string) => `Ovulație estimată: ${date}, cu o marjă de câteva zile`,
       todayFertile: 'Azi este o zi fertilă estimată.',
       todayOvulation: 'Azi este ziua estimată a ovulației.',
+      untilUnit: (n: number): string => `${zileCuvant(n)} până la zilele fertile`,
       unreliable:
         'Cât timp menstruația întârzie, nu mai putem estima zilele fertile ale acestui ciclu. Estimările revin după ce notezi următoarea menstruație.',
     },

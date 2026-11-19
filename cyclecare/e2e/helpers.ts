@@ -59,7 +59,17 @@ export async function editJournalSection(page: Page, title: string): Promise<voi
 }
 
 export async function tab(page: Page, name: 'Azi' | 'Calendar' | 'Jurnal' | 'Sfaturi' | 'Statistici'): Promise<void> {
-  await page.getByRole('navigation', { name: 'Navigare principală' }).getByRole('link', { name, exact: true }).click();
+  const link = page.getByRole('navigation', { name: 'Navigare principală' }).getByRole('link', { name, exact: true });
+  const folded = page.locator('.tabbar[data-folded]');
+  // A bar folded by scrolling shows only the current tab: like a person, touch it first to open the bar. The bar can
+  // fold between that look and the click (a page that has just been scrolled), so the two are tried together.
+  await expect(async () => {
+    if ((await folded.count()) > 0) {
+      await page.locator('.tab[aria-current="page"]').click({ timeout: 2000 });
+      await expect(folded).toHaveCount(0, { timeout: 2000 });
+    }
+    await link.click({ timeout: 2000 });
+  }).toPass({ timeout: 15_000 });
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
 }
 

@@ -25,6 +25,7 @@
   --follicular-tint: #DDF1EC;
   --ovulation-tint: #FBEBCB;
   --luteal-tint: #E7E4F8;
+  --sky: #2F9BEA;
   --on-menstruation: #FFFFFF;
   --danger: #B42318;
   --on-danger: #FFFFFF;
@@ -87,6 +88,7 @@
     --follicular-tint: #11332E;
     --ovulation-tint: #3A2A0E;
     --luteal-tint: #25254A;
+    --sky: #6CC0F5;
     --on-menstruation: #FFFFFF;
     --danger: #F97066;
     --on-danger: #14121E;
@@ -149,6 +151,7 @@
   --follicular-tint: #11332E;
   --ovulation-tint: #3A2A0E;
   --luteal-tint: #25254A;
+  --sky: #6CC0F5;
   --on-menstruation: #FFFFFF;
   --danger: #F97066;
   --on-danger: #14121E;

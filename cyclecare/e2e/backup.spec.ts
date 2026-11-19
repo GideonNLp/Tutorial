@@ -123,7 +123,10 @@ test('an encrypted file holds nothing readable and opens only with the code, on 
   expect(file.suggestedFilename()).toMatch(/^CycleCare-copie-2026-11-15\.cyclecare$/);
   const text = (await (await import('node:fs/promises')).readFile((await file.path())!, 'utf8')) as string;
   expect(parseBackupFile(text)).toBeDefined();
-  for (const secret of ['"flow"', 'Crampe', 'Ana', code]) expect(text).not.toContain(secret);
+  // Long strings cannot turn up by chance in the encrypted text; a short one such as a name can (three letters of
+  // random base64 are a hit about once in a hundred files), so the name is looked for only outside the ciphertext.
+  for (const secret of ['"flow"', 'Crampe', code]) expect(text).not.toContain(secret);
+  expect(JSON.stringify({ ...JSON.parse(text), ct: '' })).not.toContain('Ana');
 
   const phone = await newPhone(browser);
   await openRestore(phone, generateRecoveryCode()); // a code that is not this one

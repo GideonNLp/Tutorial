@@ -132,7 +132,7 @@ export function CalendarScreen() {
   return (
     <Screen title={c.title} settings>
       <div className="cal-layout" data-stagger="">
-        <section className="stack stack-3" aria-label={c.gridLabel(monthTitle)}>
+        <section className="card cal-card stack stack-3" aria-label={c.gridLabel(monthTitle)}>
           <div className="cal-nav">
             <button type="button" className="icon-btn outlined" aria-label={c.prevMonth} onClick={() => shiftMonth(-1)}>
               <ChevronLeft size={22} aria-hidden="true" />
