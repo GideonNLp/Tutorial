@@ -400,3 +400,30 @@ test.describe('the same drag with a finger on a touch screen', () => {
     void azi;
   });
 });
+
+test('the lens glides to the new tab without swaying: it never passes it and comes back', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await startWithJournal(page);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  // Record the horizontal position of the lens on every frame while the tab changes.
+  await page.evaluate(() => {
+    const xs: number[] = [];
+    (window as unknown as { __lens: number[] }).__lens = xs;
+    const frame = () => {
+      const el = document.querySelector('.tab-indicator');
+      if (el) xs.push(Math.round(new DOMMatrix(getComputedStyle(el).transform).m41 * 10) / 10);
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
+  await tab(page, 'Statistici'); // from the first tab to the last
+  await page.waitForTimeout(900);
+  const xs = await page.evaluate(() => (window as unknown as { __lens: number[] }).__lens);
+  const end = xs.at(-1)!;
+  const moving = xs.filter((x) => x !== xs[0]);
+  expect(moving.length).toBeGreaterThan(4);
+  expect(Math.max(...xs)).toBeLessThanOrEqual(end + 0.5); // never past where it stops
+  // Never turning back: from the first frame that moved, positions only grow.
+  const after = xs.slice(xs.findIndex((x) => x !== xs[0]));
+  expect(after.every((x, i) => i === 0 || x >= after[i - 1]! - 0.2)).toBe(true);
+});

@@ -482,7 +482,7 @@ html[data-phase] .app {
 
 /* ---------------------------------------------------------------- the lens behind the current tab
 
-   One lens of soft tinted glass, behind the icons, that glides to the tab you pick. It covers the whole tab
+   One lens of soft tinted glass, behind the icons, that glides to the tab you pick (smoothly, with no overshoot: a spring made it sway back and forth before it settled). It covers the whole tab
    (icon and label) and is placed from the measured position of the tab (Shell.tsx), so it is right in the
    pill at the bottom of a phone and in the side rail of a wide screen. The icon of the current tab takes the
    colour of the phase; its label stays ink, which reads on the glass in every phase. */
@@ -496,7 +496,7 @@ html[data-phase] .app {
   left: 0;
   pointer-events: none;
   transition:
-    transform 0.5s var(--ease-spring),
+    transform 0.38s var(--ease-nav),
     opacity 0.25s ease;
 }
 /* The glass itself is a layer inside, so it can swell (scale) without that scaling the move (transform) of its carrier. */
@@ -511,7 +511,7 @@ html[data-phase] .app {
     inset 0 2px 8px color-mix(in srgb, var(--ink) 9%, transparent);
   scale: 1;
   transition:
-    scale 0.35s var(--ease-spring),
+    scale 0.3s var(--ease-nav),
     box-shadow 0.3s ease;
 }
 .tab .tab-icon {
@@ -630,8 +630,8 @@ html[data-phase] .app {
 
    Pressing the bar and dragging sideways moves the lens under the finger (Shell.tsx). While it does, the
    bar swells a little, the lens grows and gets a brighter rim, and the icon under it is enlarged as if seen
-   through glass. The page changes at once as the lens passes a tab; on release the lens settles with a spring
-   on the tab it ended on. The bar takes no scrolling or text selection of its own, so the finger is its alone. */
+   through glass. The page changes at once as the lens passes a tab; on release the lens glides
+   onto the tab it ended on. The bar takes no scrolling or text selection of its own, so the finger is its alone. */
 
 .tabbar {
   touch-action: none;
@@ -642,13 +642,13 @@ html[data-phase] .app {
   .tabbar {
     transition:
       right 0.55s var(--ease-nav),
-      scale 0.4s var(--ease-spring);
+      scale 0.3s var(--ease-nav);
   }
   .tabbar[data-dragging] {
     scale: 1.035;
   }
   .tab .tab-icon {
-    transition: scale 0.35s var(--ease-spring);
+    transition: scale 0.3s var(--ease-nav);
   }
   .tabbar[data-dragging] .tab-indicator {
     transition:
