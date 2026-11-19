@@ -49,14 +49,17 @@ const PAIRS: Array<[string, string, number]> = [
   ['capy-fur', 'surface', 3],
 ];
 
-/** The lightest end of --ink-gradient: 20% ink, 80% follicular green (sRGB, like color-mix). */
-function gradientStart(index: 0 | 1): string {
-  const [a, b] = [colors.ink![index], colors.follicular![index]].map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
+/** The colour each phase gives the gradient: its own, except ovulation, which is light blue (the "sky" token). */
+const GRADIENT_COLOUR: Record<string, string> = { menstruation: 'menstruation', follicular: 'follicular', ovulation: 'sky', luteal: 'luteal' };
+
+/** The lightest end of --ink-gradient: 55% ink, 45% the colour of the phase (sRGB, like color-mix). */
+function gradientStart(index: 0 | 1, phase: string): string {
+  const [a, b] = [colors.ink![index], colors[GRADIENT_COLOUR[phase]!]![index]].map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
   return (
     '#' +
     a!
       .map((v, i) =>
-        Math.round(v * 0.2 + b![i]! * 0.8)
+        Math.round(v * 0.55 + b![i]! * 0.45)
           .toString(16)
           .padStart(2, '0'),
       )
@@ -69,9 +72,12 @@ describe('design tokens', () => {
     ['light', 0],
     ['dark', 1],
   ] as const) {
-    it(`keeps the text on the green gradient readable (AA) in the ${mode} theme`, () => {
-      const ratio = contrast(colors['on-ink']![index], gradientStart(index));
-      expect(ratio, `on-ink on the gradient start: ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(4.5);
+    it(`keeps the text on the gradient readable in every phase in the ${mode} theme`, () => {
+      const failures = PHASES.flatMap((p) => {
+        const ratio = contrast(colors['on-ink']![index], gradientStart(index, p));
+        return ratio >= 7 ? [] : [`on-ink on the gradient toward ${p}: ${ratio.toFixed(2)} < 7`];
+      });
+      expect(failures).toEqual([]);
     });
   }
 

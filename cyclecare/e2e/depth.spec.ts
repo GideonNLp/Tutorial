@@ -64,7 +64,7 @@ test('what is chosen carries a small gradient, and it goes away with "increase c
   await tab(page, 'Jurnal');
   expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
 
-  // The gradient is the app's green in every phase; the hero card's shadow takes the colour of the phase.
+  // It leans toward the green of the follicular phase here, and the hero card's shadow takes the colour of the phase.
   const app = (prop: string) => page.locator('.app').evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop);
   expect((await app('--ink-gradient')).toUpperCase()).toContain('#14937C');
   expect((await app('--shadow-hero')).toUpperCase()).toContain('#14937C');
@@ -160,4 +160,18 @@ test('on the next-period card, a ring round the badge shows how far the cycle ha
   await expect(ring.locator('.ring-track')).toHaveCount(1);
   // The other cards have no ring.
   await expect(page.locator('.page[data-active] .today-card[data-kind="fertility"] .progress-ring')).toHaveCount(0);
+});
+
+test('the gradient takes a colour from the phase: red, green, light blue, violet', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await startWithJournal(page);
+  const gradient = () => page.locator('.app').evaluate((el) => getComputedStyle(el).getPropertyValue('--ink-gradient').toUpperCase());
+  const expected: Record<string, string> = { menstruation: '#B3264F', follicular: '#14937C', ovulation: '#2F9BEA', luteal: '#6257C4' };
+  for (const [phase, colour] of Object.entries(expected)) {
+    await page.evaluate((p) => (document.documentElement.dataset.phase = p), phase);
+    expect(await gradient(), phase).toContain(colour);
+  }
+  // Ovulation is light blue, not the amber of its other colours.
+  await page.evaluate(() => (document.documentElement.dataset.phase = 'ovulation'));
+  expect(await gradient()).not.toContain('#B67500');
 });

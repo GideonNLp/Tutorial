@@ -9,11 +9,12 @@
 :root {
   --shadow-raised: 0 1px 2px color-mix(in srgb, var(--ink) 7%, transparent), 0 8px 22px -10px color-mix(in srgb, var(--ink) 20%, transparent);
   --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--ink) 34%, transparent);
-  --ink-gradient: linear-gradient(135deg, color-mix(in srgb, var(--ink) 20%, var(--follicular)) 0%, var(--ink) 100%);
+  --ink-gradient: linear-gradient(155deg, var(--ink) 0%, var(--ink) 100%);
 }
 /* A custom property that holds var(--phase-c) is worked out where it is declared, so the shadow of the hero
-   card is declared again on .app, where the phase colour is set; on :root it is plain ink. */
+   card and the gradient are declared again on .app, where the phase colours are set; on :root they are plain ink. */
 html[data-phase] .app {
+  --ink-gradient: linear-gradient(155deg, color-mix(in srgb, var(--ink) 55%, var(--grad-c, var(--ink))) 0%, var(--ink) 90%);
   --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--phase-c) 34%, transparent);
 }
 
@@ -25,24 +26,28 @@ html[data-phase] .app {
     --glow: var(--glow-menstruation);
     --phase-tint: var(--menstruation-tint);
     --phase-c: var(--menstruation);
+    --grad-c: var(--menstruation);
   }
   html[data-phase='follicular'] .app {
     --bg: var(--bg-follicular);
     --glow: var(--glow-follicular);
     --phase-tint: var(--follicular-tint);
     --phase-c: var(--follicular);
+    --grad-c: var(--follicular);
   }
   html[data-phase='ovulation'] .app {
     --bg: var(--bg-ovulation);
     --glow: var(--glow-ovulation);
     --phase-tint: var(--ovulation-tint);
     --phase-c: var(--ovulation);
+    --grad-c: var(--sky);
   }
   html[data-phase='luteal'] .app {
     --bg: var(--bg-luteal);
     --glow: var(--glow-luteal);
     --phase-tint: var(--luteal-tint);
     --phase-c: var(--luteal);
+    --grad-c: var(--luteal);
   }
   html[data-phase] .app {
     /* The frosted bars were made from the plain background at :root; make them from this one. */
@@ -56,9 +61,10 @@ html[data-phase] .app {
 
 /* ---------------------------------------------------------------- a small gradient on what is chosen
 
-   The dark "ink" of the primary button and of every selected choice is no longer one flat colour: it runs
-   from a green-teal (80% of the follicular green, 20% ink) into plain ink. The green is the app's accent and
-   the same in every phase. The text on top keeps its contrast with the lightest end (tokens.test.ts). */
+   The dark "ink" of the primary button and of every selected choice is no longer one flat colour: it starts
+   45% toward a colour of the current phase and settles into plain ink. The colour is red for the period,
+   green in the follicular phase, light blue at ovulation and violet in the luteal phase; where there is no
+   phase it is plain ink. The text on top keeps its contrast with the lightest end (tokens.test.ts). */
 
 .btn-primary,
 .chip input:checked + .chip-face,
