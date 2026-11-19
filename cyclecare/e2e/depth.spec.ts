@@ -235,12 +235,41 @@ test.describe('the tab bar folds up to the current tab while scrolling down, as 
     await expect(page.locator('.tab-indicator')).toHaveCount(1);
   });
 
-  test('with reduced motion the bar never folds', async ({ page }) => {
+  test('with reduced motion the bar still folds, at once and without animation', async ({ page }) => {
     await startWithJournal(page); // the tests run with reduced motion
     await scrollTo(page, 500);
-    await page.waitForTimeout(400);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    // No transition to wait for: it is already the width of one tab.
+    expect(await barWidth(page)).toBeLessThan(100);
+    await scrollTo(page, 420);
     await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
     expect(await barWidth(page)).toBeGreaterThan(300);
+  });
+
+  test('a page bouncing past its end does not open the bar', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const max = await page.locator('.page[data-active]').evaluate((el) => el.scrollHeight - el.clientHeight);
+    await scrollTo(page, max);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    // A bounce reports a position past the end that then shrinks back: it clamps to the end, so it is not a move up.
+    await page.locator('.page[data-active]').evaluate((el, end) => {
+      Object.defineProperty(el, 'scrollTop', { configurable: true, get: () => end + 30 });
+      el.dispatchEvent(new Event('scroll'));
+      Object.defineProperty(el, 'scrollTop', { configurable: true, get: () => end + 5 });
+      el.dispatchEvent(new Event('scroll'));
+    }, max);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+  });
+
+  test('a screen reader or keyboard can still reach another tab on the folded bar: one activation opens the bar and goes there', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await scrollTo(page, 500);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    await page.locator('.tab:has-text("Calendar")').dispatchEvent('click');
+    await expect(page).toHaveURL(/#calendar$/);
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
   });
 
   test('tabbing into the folded bar opens it', async ({ page }) => {

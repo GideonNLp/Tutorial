@@ -129,10 +129,14 @@ const TABS: TabItem[] = [
 const FOLD_AFTER = 48;
 const FOLD_STEP = 10;
 
-/** Whether the bar folds: only the floating bar of a phone, and only where motion is allowed. */
+/**
+ * Whether the bar folds: only the floating bar of a phone. Folding is a change of state, not a motion
+ * (iOS folds its bar with Reduce Motion on as well); with reduced motion it simply happens at once,
+ * because the stylesheet turns the transitions off.
+ */
 function foldingAllowed(): boolean {
   try {
-    return matchMedia('(max-width: 55.99rem)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return matchMedia('(max-width: 55.99rem)').matches;
   } catch {
     return false;
   }
@@ -194,7 +198,8 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
       const page = event.target;
       if (!(page instanceof HTMLElement) || !page.classList.contains('page') || !page.hasAttribute('data-active')) return;
       if (!foldingAllowed()) return fold(false);
-      const y = page.scrollTop;
+      // iOS lets a page bounce past its ends and settle back; that is not a scroll the other way.
+      const y = Math.min(Math.max(0, page.scrollTop), Math.max(0, page.scrollHeight - page.clientHeight));
       if (y < FOLD_AFTER) {
         last = y;
         return fold(false);
@@ -247,8 +252,12 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
               aria-current={route === to ? 'page' : undefined}
               onClick={(e) => {
                 e.preventDefault();
-                // The folded bar opens when touched; it does not also act on the tab.
-                if (foldedRef.current) return fold(false);
+                // The folded bar opens when touched; touching the tab it shows does nothing more. Another tab
+                // can only be reached here by a screen reader or a keyboard: it opens the bar and goes there.
+                if (foldedRef.current) {
+                  fold(false);
+                  if (route === to) return;
+                }
                 // Tapping the tab you are on goes back to the top of its page.
                 if (route === to) scrollToTop(document.querySelector('.page[data-active]'));
                 else navigate(to);
