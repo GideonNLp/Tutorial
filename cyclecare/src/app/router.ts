@@ -126,8 +126,8 @@ let shownByGesture: Route | undefined;
 /** A page the swipe-back gesture is revealing right now; kept mounted and visible below the current one. */
 const peek = createStore<Route | null>(null);
 
-function go(to: Route, instant = false): void {
-  const forced = instant || shownByGesture === to ? 'none' : undefined;
+function go(to: Route): void {
+  const forced = shownByGesture === to ? 'none' : undefined;
   shownByGesture = undefined;
   nav.set((state) => nextNav(state, to, ++transitionId, forced));
 }
@@ -142,11 +142,7 @@ export const useNav = (): NavState => useStore(nav, (s) => s);
 export const useRoute = (): Route => useStore(nav, (s) => s.route);
 export const usePeek = (): Route | null => useStore(peek, (p) => p);
 
-/**
- * `replace`: change the current history entry instead of adding one. `instant`: no animation (the tab bar
- * uses both while a finger drags across it: the page changes under it at once, one history entry for the drag).
- */
-export function navigate(to: Route, options: { replace?: boolean; instant?: boolean } = {}): void {
+export function navigate(to: Route, options: { replace?: boolean } = {}): void {
   if (to === nav.get().route) return;
   try {
     if (options.replace) {
@@ -158,7 +154,7 @@ export function navigate(to: Route, options: { replace?: boolean; instant?: bool
   } catch {
     // History not available (sandboxed frame): keep routing in memory.
   }
-  go(to, options.instant);
+  go(to);
 }
 
 /** Back to the previous view when we navigated here ourselves; otherwise to the page's parent. */

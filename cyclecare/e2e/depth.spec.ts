@@ -282,14 +282,14 @@ test.describe('the tab bar folds up to the current tab while scrolling down, as 
   });
 });
 
-test.describe('dragging a finger along the tab bar moves the lens and changes the page, as in Apple Music', () => {
+test.describe('dragging a finger along the tab bar moves the lens; the page changes when the finger is lifted, as in Apple Music', () => {
   test.use({ viewport: { width: 390, height: 844 } });
   const centre = async (page: Page, selector: string) => {
     const b = (await page.locator(selector).first().boundingBox())!;
     return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
   };
 
-  test('the lens follows the pointer, the page changes under it, and on release it settles on that tab', async ({ page }) => {
+  test('the lens follows the pointer and the page stays put; lifting the finger goes to the tab under the lens', async ({ page }) => {
     await startWithJournal(page);
     const azi = await centre(page, '.tab:has-text("Azi")');
     const jurnal = await centre(page, '.tab:has-text("Jurnal")');
@@ -299,26 +299,32 @@ test.describe('dragging a finger along the tab bar moves the lens and changes th
     await page.mouse.down();
     await page.mouse.move(azi.x + 20, azi.y, { steps: 3 });
     await expect(page.locator('.tabbar')).toHaveAttribute('data-dragging', '');
-    // Over "Jurnal": the page is Jurnal at once, with no slide between pages.
+    // Over "Jurnal": that tab looks chosen and the lens is under the finger, but the page is still Azi.
     await page.mouse.move(jurnal.x, jurnal.y, { steps: 8 });
-    await expect(page).toHaveURL(/#jurnal$/);
-    await expect(page.getByRole('heading', { level: 1, name: 'Jurnal' })).toBeVisible();
-    await expect(page.locator('.stage[data-moving]')).toHaveCount(0);
-    // The lens is under the finger, not on a tab slot of its own.
+    await expect(page.locator('.tab[data-preview]')).toContainText('Jurnal');
+    await expect(page).toHaveURL(/#azi$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Azi' })).toBeVisible();
+    await expect(page.locator('.tab[aria-current="page"]')).toContainText('Azi');
     await expect.poll(async () => Math.abs((await centre(page, '.tab-indicator')).x - jurnal.x), { timeout: 3000 }).toBeLessThan(6);
-    // Further on, to "Statistici".
+    // Further on, to "Statistici": still the same page.
     await page.mouse.move(stat.x, stat.y, { steps: 8 });
-    await expect(page).toHaveURL(/#statistici$/);
-    await page.mouse.up();
+    await expect(page.locator('.tab[data-preview]')).toContainText('Statistici');
+    await expect(page).toHaveURL(/#azi$/);
 
+    // Finger up: now the page goes there.
+    await page.mouse.up();
+    await expect(page).toHaveURL(/#statistici$/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Statistici' })).toBeVisible();
     await expect(page.locator('.tabbar')).not.toHaveAttribute('data-dragging');
+    await expect(page.locator('.tab[data-preview]')).toHaveCount(0);
     await expect(page.locator('.tab[aria-current="page"]')).toContainText('Statistici');
-    // It settles on the tab (the spring takes a moment).
+    // The lens glides onto that tab (the transition takes a moment).
     await expect
       .poll(async () => Math.abs((await centre(page, '.tab-indicator')).x - (await centre(page, '.tab:has-text("Statistici")')).x), { timeout: 3000 })
       .toBeLessThan(2);
-    // The release is not a tap on the tab under the finger: nothing else happened.
-    await expect(page).toHaveURL(/#statistici$/);
+    // One history entry: back returns to where the drag began.
+    await page.goBack();
+    await expect(page).toHaveURL(/#azi$/);
   });
 
   test('a short press is still a tap, and a drag that ends where it began changes nothing', async ({ page }) => {
@@ -328,29 +334,36 @@ test.describe('dragging a finger along the tab bar moves the lens and changes th
     await page.mouse.click(cal.x, cal.y);
     await expect(page).toHaveURL(/#calendar$/);
 
-    // Away and back, in one drag.
+    // Away and back, in one drag: the page never moves.
     const start = await centre(page, '.tab:has-text("Calendar")');
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
     await page.mouse.move(azi.x, azi.y, { steps: 6 });
-    await expect(page).toHaveURL(/#azi$/);
+    await expect(page.locator('.tab[data-preview]')).toContainText('Azi');
     await page.mouse.move(start.x, start.y, { steps: 6 });
     await page.mouse.up();
     await expect(page).toHaveURL(/#calendar$/);
     await expect(page.locator('.tab[aria-current="page"]')).toContainText('Calendar');
+    // Nothing was added to the history: back goes to where it was before Calendar.
+    await page.goBack();
+    await expect(page).toHaveURL(/#azi$/);
   });
 
-  test('one history entry for a whole drag: back returns to where it began', async ({ page }) => {
+  test('the page does not move while the lens is dragged across several tabs, however long it takes', async ({ page }) => {
     await startWithJournal(page);
     const azi = await centre(page, '.tab:has-text("Azi")');
     const stat = await centre(page, '.tab:has-text("Statistici")');
     await page.mouse.move(azi.x, azi.y);
     await page.mouse.down();
-    await page.mouse.move(stat.x, stat.y, { steps: 14 }); // across Calendar, Jurnal, Sfaturi
+    const seen = new Set<string>();
+    for (let i = 1; i <= 14; i++) {
+      await page.mouse.move(azi.x + ((stat.x - azi.x) * i) / 14, azi.y);
+      seen.add(await page.evaluate(() => location.hash));
+      await expect(page.locator('.stage[data-moving]')).toHaveCount(0);
+    }
+    expect([...seen]).toEqual(['#azi']);
     await page.mouse.up();
     await expect(page).toHaveURL(/#statistici$/);
-    await page.goBack();
-    await expect(page).toHaveURL(/#azi$/);
   });
 
   test('the folded bar cannot be dragged: it only opens', async ({ page }) => {
@@ -371,13 +384,12 @@ test.describe('dragging a finger along the tab bar moves the lens and changes th
 test.describe('the same drag with a finger on a touch screen', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
 
-  test('a finger dragged along the bar moves the lens and changes the page', async ({ page }) => {
+  test('a finger dragged along the bar moves the lens; the page changes when it is lifted', async ({ page }) => {
     await startWithJournal(page);
     const centre = async (selector: string) => {
       const b = (await page.locator(selector).first().boundingBox())!;
       return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
     };
-    const azi = await centre('.tab:has-text("Azi")');
     const cal = await centre('.tab:has-text("Calendar")');
     const stat = await centre('.tab:has-text("Statistici")');
     const client = await page.context().newCDPSession(page);
@@ -391,13 +403,14 @@ test.describe('the same drag with a finger on a touch screen', () => {
     await touch('touchStart', cal.x, cal.y);
     for (let i = 1; i <= 12; i++) await touch('touchMove', cal.x + ((stat.x - cal.x) * i) / 12, cal.y);
     await expect(page.locator('.tabbar')).toHaveAttribute('data-dragging', '');
-    await expect(page).toHaveURL(/#statistici$/);
+    await expect(page.locator('.tab[data-preview]')).toContainText('Statistici');
+    await expect(page).toHaveURL(/#calendar$/); // still the old page under the finger
     await touch('touchEnd');
+    await expect(page).toHaveURL(/#statistici$/);
     await expect(page.locator('.tabbar')).not.toHaveAttribute('data-dragging');
     await expect(page.locator('.tab[aria-current="page"]')).toContainText('Statistici');
     // The page did not scroll with the finger.
     expect(await page.evaluate(() => document.querySelector('.page[data-active]')!.scrollTop)).toBe(0);
-    void azi;
   });
 });
 

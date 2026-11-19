@@ -153,7 +153,10 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
   const foldedRef = useRef(false);
   // A finger dragging along the bar: the lens follows it and the page changes under it (see the handlers below).
   const [lensX, setLensX] = useState<number | null>(null);
-  const press = useRef<{ id: number; startX: number; active: boolean; pushed: boolean } | null>(null);
+  const press = useRef<{ id: number; startX: number; active: boolean } | null>(null);
+  // The tab under the lens while it is dragged: the page changes to it only when the finger is lifted.
+  const [preview, setPreview] = useState<number | null>(null);
+  const previewRef = useRef<number | null>(null);
   const dragged = useRef(false);
   // A finger or a mouse is down on the bar: the focus it brings must not open the bar before the tap is handled.
   const pointerDown = useRef(false);
@@ -225,12 +228,12 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     const x = (clientX - l.left) / scale;
     // The lens stays inside the bar, centred on the finger.
     setLensX(Math.min(Math.max(x - spot.w / 2, 4), list.offsetWidth - spot.w - 4));
-    const under = tabs[Math.min(tabs.length - 1, Math.max(0, Math.floor((x / list.offsetWidth) * tabs.length)))];
-    if (under && under.route !== getNav().route) {
-      // One history entry for the whole drag: the first change adds it, the next ones replace it.
-      navigate(under.route, { replace: press.current?.pushed, instant: true });
-      if (press.current) press.current.pushed = true;
-      haptic('light');
+    const index = Math.min(tabs.length - 1, Math.max(0, Math.floor((x / list.offsetWidth) * tabs.length)));
+    if (index !== previewRef.current) {
+      // A tick each time the lens passes onto another tab (not for the one it started on).
+      if (previewRef.current !== null) haptic('light');
+      previewRef.current = index;
+      setPreview(index);
     }
   };
   const endPress = (event: React.PointerEvent) => {
@@ -239,7 +242,12 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
     press.current = null;
     if (p.active) {
       navRef.current?.releasePointerCapture?.(event.pointerId);
-      setLensX(null); // the lens settles on the tab the page is now on
+      // The finger is lifted: now the page goes to the tab the lens is over (a cancelled touch goes nowhere).
+      const target = event.type === 'pointercancel' ? undefined : tabs[previewRef.current ?? -1];
+      previewRef.current = null;
+      setPreview(null);
+      setLensX(null); // the lens glides onto the tab the page is now on
+      if (target && target.route !== getNav().route) navigate(target.route);
     }
   };
 
@@ -267,7 +275,8 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
       }}
       onPointerDown={(e) => {
         if (e.button !== 0 || foldedRef.current) return;
-        press.current = { id: e.pointerId, startX: e.clientX, active: false, pushed: false };
+        press.current = { id: e.pointerId, startX: e.clientX, active: false };
+        previewRef.current = null;
         dragged.current = false;
       }}
       onPointerMove={(e) => {
@@ -307,6 +316,7 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
               draggable={false}
               href={`#${to}`}
               aria-current={route === to ? 'page' : undefined}
+              data-preview={preview === index ? '' : undefined}
               onClick={(e) => {
                 e.preventDefault();
                 // The end of a drag is not a tap on the tab under the finger.

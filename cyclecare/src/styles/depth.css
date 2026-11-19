@@ -630,7 +630,7 @@ html[data-phase] .app {
 
    Pressing the bar and dragging sideways moves the lens under the finger (Shell.tsx). While it does, the
    bar swells a little, the lens grows and gets a brighter rim, and the icon under it is enlarged as if seen
-   through glass. The page changes at once as the lens passes a tab; on release the lens glides
+   through glass. The page changes only when the finger is lifted; the lens then glides
    onto the tab it ended on. The bar takes no scrolling or text selection of its own, so the finger is its alone. */
 
 .tabbar {
@@ -662,7 +662,21 @@ html[data-phase] .app {
       inset 0 2px 10px color-mix(in srgb, var(--ink) 10%, transparent),
       0 8px 20px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 45%, transparent);
   }
-  .tabbar[data-dragging] .tab[aria-current='page'] .tab-icon {
+  /* While the lens is dragged, the tab it is over is the one that looks chosen; the page is still the old one
+     and changes only when the finger is lifted. */
+  .tabbar[data-dragging] .tab[aria-current='page']:not([data-preview]) {
+    color: var(--ink-2);
+    font-weight: 550;
+  }
+  .tabbar[data-dragging] .tab[aria-current='page']:not([data-preview]) .tab-icon {
+    color: var(--ink-2);
+  }
+  .tabbar[data-dragging] .tab[data-preview] {
+    color: var(--ink);
+    font-weight: 750;
+  }
+  .tabbar[data-dragging] .tab[data-preview] .tab-icon {
+    color: var(--grad-c, var(--ink));
     scale: 1.22;
   }
 }
