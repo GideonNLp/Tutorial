@@ -370,3 +370,47 @@ html[data-phase] .app {
     box-shadow: none;
   }
 }
+
+/* ---------------------------------------------------------------- calendar
+
+   The month sits on a card of its own. The phase bands get a soft gradient and their rails round off at the
+   ends of a run. Today is a filled circle (a day with its own mark keeps that mark and an underline). The
+   rail, the marks and the legend are unchanged: they are what carries the phase besides colour. */
+
+.cal-card {
+  padding: var(--s3) var(--s2) var(--s2);
+}
+.cal-card .cal-nav {
+  padding-inline: var(--s1);
+}
+.cal-cell[data-phase]::before {
+  background: linear-gradient(180deg, var(--tint), color-mix(in srgb, var(--tint) 60%, var(--surface)));
+}
+.cal-cell[data-run='start']::after {
+  border-radius: 3px 0 0 3px;
+}
+.cal-cell[data-run='end']::after {
+  border-radius: 0 3px 3px 0;
+}
+.cal-cell[data-run='single']::after {
+  border-radius: 3px;
+}
+.cal-day[aria-current='date'] .cal-num:not([data-period]):not([data-ovulation]) {
+  background-color: var(--ink);
+  background-image: var(--ink-gradient);
+  color: var(--on-ink);
+  text-decoration: none;
+}
+@media (prefers-contrast: more) {
+  .cal-day[aria-current='date'] .cal-num:not([data-period]):not([data-ovulation]) {
+    background-image: none;
+  }
+}
+@media (forced-colors: active) {
+  .cal-day[aria-current='date'] .cal-num:not([data-period]):not([data-ovulation]) {
+    background-image: none;
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
