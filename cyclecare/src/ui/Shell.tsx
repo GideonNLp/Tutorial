@@ -1,5 +1,5 @@
 import { CalendarDays, ChartColumn, ChevronLeft, CircleDot, Lightbulb, NotebookPen, Settings, type LucideIcon } from 'lucide-react';
-import { useLayoutEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { goBack, navigate, useRoute, type Route } from '../app/router';
 import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
@@ -127,9 +127,35 @@ const TABS: TabItem[] = [
 
 export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
   const route = useRoute();
+  const listRef = useRef<HTMLUListElement>(null);
+  // Where the current tab's icon sits, so the highlight can glide there from the tab it was on.
+  const [spot, setSpot] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const measure = () => {
+      const icon = list.querySelector<HTMLElement>('.tab[aria-current="page"] .tab-icon');
+      if (!icon) return setSpot(null);
+      const l = list.getBoundingClientRect();
+      const i = icon.getBoundingClientRect();
+      const next = { x: Math.round((i.left - l.left) * 10) / 10, y: Math.round((i.top - l.top) * 10) / 10, w: i.width, h: i.height };
+      setSpot((was) => (was && was.x === next.x && was.y === next.y && was.w === next.w && was.h === next.h ? was : next));
+    };
+    measure();
+    const watch = new ResizeObserver(measure);
+    watch.observe(list);
+    return () => watch.disconnect();
+  }, [route, tabs.length]);
   return (
     <nav className="tabbar" aria-label={strings().nav.label}>
-      <ul style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+      <ul ref={listRef} style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+        {spot && (
+          <span
+            className="tab-indicator"
+            aria-hidden="true"
+            style={{ width: spot.w, height: spot.h, transform: `translate(${spot.x}px, ${spot.y}px)` }}
+          />
+        )}
         {tabs.map(({ route: to, icon: Icon, label }) => (
           <li key={to}>
             <a

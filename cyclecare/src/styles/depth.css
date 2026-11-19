@@ -9,13 +9,12 @@
 :root {
   --shadow-raised: 0 1px 2px color-mix(in srgb, var(--ink) 7%, transparent), 0 8px 22px -10px color-mix(in srgb, var(--ink) 20%, transparent);
   --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--ink) 34%, transparent);
-  --ink-gradient: linear-gradient(155deg, var(--ink) 0%, var(--ink) 100%);
+  --ink-gradient: linear-gradient(135deg, color-mix(in srgb, var(--ink) 20%, var(--follicular)) 0%, var(--ink) 100%);
 }
-/* A custom property that holds var(--phase-c) is worked out where it is declared, so the two that use the
-   phase colour are declared again on .app, where it is set; on :root they are plain ink. */
+/* A custom property that holds var(--phase-c) is worked out where it is declared, so the shadow of the hero
+   card is declared again on .app, where the phase colour is set; on :root it is plain ink. */
 html[data-phase] .app {
   --shadow-hero: 0 2px 4px color-mix(in srgb, var(--ink) 6%, transparent), 0 18px 40px -16px color-mix(in srgb, var(--phase-c) 34%, transparent);
-  --ink-gradient: linear-gradient(155deg, color-mix(in srgb, var(--ink) 55%, var(--phase-c)) 0%, var(--ink) 90%);
 }
 
 /* ---------------------------------------------------------------- phase on the page */
@@ -57,12 +56,11 @@ html[data-phase] .app {
 
 /* ---------------------------------------------------------------- a small gradient on what is chosen
 
-   The dark "ink" of the primary button, the current tab and every selected choice is no longer one flat
-   colour: it starts 45% toward the colour of the current phase (the ink itself where there is none) and
-   settles into plain ink. The text on top keeps its contrast with the lightest end (checked in tokens.test.ts). */
+   The dark "ink" of the primary button and of every selected choice is no longer one flat colour: it runs
+   from a green-teal (80% of the follicular green, 20% ink) into plain ink. The green is the app's accent and
+   the same in every phase. The text on top keeps its contrast with the lightest end (tokens.test.ts). */
 
 .btn-primary,
-.tab[aria-current='page'] .tab-icon,
 .chip input:checked + .chip-face,
 .scale input:checked + .scale-face,
 .segmented input:checked + .segmented-face,
@@ -118,7 +116,6 @@ html[data-phase] .app {
     background: var(--surface);
   }
   .btn-primary,
-  .tab[aria-current='page'] .tab-icon,
   .chip input:checked + .chip-face,
   .scale input:checked + .scale-face,
   .segmented input:checked + .segmented-face,
@@ -139,7 +136,6 @@ html[data-phase] .app {
   }
   /* The system's own highlight colour, not a gradient. */
   .btn-primary,
-  .tab[aria-current='page'] .tab-icon,
   .chip input:checked + .chip-face,
   .scale input:checked + .scale-face,
   .segmented input:checked + .segmented-face,
@@ -426,4 +422,94 @@ html[data-phase] .app {
 .capy-full.empty-mascot {
   width: min(11rem, 62%);
   margin-inline: auto;
+}
+
+/* ---------------------------------------------------------------- the tab highlight glides
+
+   One highlight, behind the icons, that moves to the tab you pick instead of switching off on one and on
+   on the next. It is placed from the measured position of the current icon (Shell.tsx), so it is right in
+   the pill at the bottom of a phone and in the side rail of a wide screen. */
+
+.tabbar ul {
+  position: relative;
+}
+.tab-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--r-pill);
+  background-color: var(--ink);
+  background-image: var(--ink-gradient);
+  pointer-events: none;
+  transition: transform 0.5s var(--ease-spring);
+}
+.tab .tab-icon {
+  position: relative;
+  z-index: 1;
+}
+.tab[aria-current='page'] .tab-icon {
+  background: none;
+  color: var(--on-ink);
+}
+@media (prefers-contrast: more) {
+  .tab-indicator {
+    background-image: none;
+  }
+}
+@media (forced-colors: active) {
+  .tab-indicator {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+  .tab[aria-current='page'] .tab-icon {
+    color: HighlightText;
+  }
+}
+
+/* ---------------------------------------------------------------- progress round the badge
+
+   On the next-period card the badge has a ring that shows how far this cycle has gone. The arc is drawn
+   with the same stroke animation as the dial (motion.css); without motion it is simply there. */
+
+.icon-badge-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3.25rem;
+  height: 3.25rem;
+}
+.progress-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ring-track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--c) 18%, transparent);
+  stroke-width: 3.5;
+}
+.ring-arc {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+@media (forced-colors: active) {
+  .ring-track {
+    stroke: GrayText;
+  }
+  .ring-arc {
+    stroke: CanvasText;
+  }
+}
+
+/* A long heading word at the largest text size on a small phone may break instead of pushing the card wider. */
+.today-card-head h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }

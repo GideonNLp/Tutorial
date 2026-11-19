@@ -24,14 +24,31 @@ import { summarizePregnancyRisk } from '../domain/pregnancyRisk';
 import { ChanceScale, RiskIcons } from '../ui/PregnancyRisk';
 
 /** The head of a card on this screen: a round badge in the colour of the card, then its heading. */
-function CardHead({ icon: Icon, id, children }: { icon: LucideIcon; id: string; children: ReactNode }) {
+function CardHead({ icon: Icon, id, progress, children }: { icon: LucideIcon; id: string; progress?: number; children: ReactNode }) {
   return (
     <div className="today-card-head">
-      <span className="icon-badge" aria-hidden="true">
-        <Icon size={20} />
+      <span className="icon-badge-wrap" aria-hidden="true">
+        {progress !== undefined && <ProgressRing progress={progress} />}
+        <span className="icon-badge">
+          <Icon size={20} />
+        </span>
       </span>
       <h2 id={id}>{children}</h2>
     </div>
+  );
+}
+
+/** A ring round the badge, filled as far as the cycle has gone (decoration: the figure and the sentences carry the facts). */
+function ProgressRing({ progress }: { progress: number }) {
+  const p = Math.min(0.995, Math.max(0.02, progress));
+  const r = 24;
+  const angle = 2 * Math.PI * p;
+  const end = `${(26 + r * Math.sin(angle)).toFixed(2)} ${(26 - r * Math.cos(angle)).toFixed(2)}`;
+  return (
+    <svg className="progress-ring" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+      <circle className="ring-track" cx="26" cy="26" r={r} />
+      <path className="ring-arc" pathLength={1} d={`M26 ${26 - r}A${r} ${r} 0 ${angle > Math.PI ? 1 : 0} 1 ${end}`} />
+    </svg>
   );
 }
 
@@ -97,7 +114,11 @@ export function TodayScreen() {
 
   const nextBlock = current && forecast && (
     <section aria-labelledby="next-heading" className="card today-card stack stack-2" data-kind="next" data-tap="">
-      <CardHead icon={Droplets} id="next-heading">
+      <CardHead
+        icon={Droplets}
+        id="next-heading"
+        progress={Math.max(0, diffDays(today, current.start)) / Math.max(1, diffDays(current.expectedNext, current.start))}
+      >
         {s.today.next.heading}
       </CardHead>
       {late ? (

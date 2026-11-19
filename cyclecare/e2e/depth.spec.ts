@@ -59,12 +59,12 @@ test('"increase contrast" brings the outlines back and drops the colour', async 
 test('what is chosen carries a small gradient, and it goes away with "increase contrast"', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
   await startWithJournal(page);
-  const tabIcon = '.tab[aria-current="page"] .tab-icon';
+  const tabIcon = '.tab-indicator';
   expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
   await tab(page, 'Jurnal');
   expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
 
-  // It leans toward the colour of the phase (follicular green here), and so does the hero card's shadow.
+  // The gradient is the app's green in every phase; the hero card's shadow takes the colour of the phase.
   const app = (prop: string) => page.locator('.app').evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop);
   expect((await app('--ink-gradient')).toUpperCase()).toContain('#14937C');
   expect((await app('--shadow-hero')).toUpperCase()).toContain('#14937C');
@@ -77,7 +77,7 @@ test('under the dial, each block is a card with a badge and, for the next period
   await startWithJournal(page); // 15 November, the next period expected in 17 days
   const next = page.locator('.page[data-active] .today-card[data-kind="next"]');
   await expect(next.getByRole('heading', { name: 'Următoarea menstruație' })).toBeVisible();
-  await expect(next.locator('.icon-badge')).toHaveAttribute('aria-hidden', 'true');
+  await expect(next.locator('.icon-badge-wrap')).toHaveAttribute('aria-hidden', 'true');
   const figure = next.locator('.figure');
   await expect(figure).toHaveAttribute('aria-hidden', 'true');
   await expect(figure.locator('.figure-num')).toHaveText('17');
@@ -132,4 +132,32 @@ test('with nothing to show yet, Statistics has the capybara waving, once, and no
   await expect(empty.locator('svg.capy-full')).toHaveAttribute('aria-hidden', 'true');
   const ids = await page.evaluate(() => [...document.querySelectorAll('[id]')].map((el) => el.id));
   expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+});
+
+test('the tab highlight sits behind the current icon and glides to the next one', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await startWithJournal(page);
+  const box = async (selector: string) => (await page.locator(selector).first().boundingBox())!;
+  const center = (b: { x: number; width: number }) => b.x + b.width / 2;
+
+  const indicator = () => box('.tab-indicator');
+  const icon = (name: string) => box(`.tab:has-text("${name}") .tab-icon`);
+  expect(Math.abs(center(await indicator()) - center(await icon('Azi')))).toBeLessThan(1.5);
+  await expect(page.locator('.tab-indicator')).toHaveCount(1);
+
+  await tab(page, 'Jurnal');
+  // At rest again (the page clock is fake, so wait for the real transition to end).
+  await expect.poll(async () => Math.abs(center(await indicator()) - center(await icon('Jurnal'))), { timeout: 3000 }).toBeLessThan(1.5);
+  await tab(page, 'Statistici');
+  await expect.poll(async () => Math.abs(center(await indicator()) - center(await icon('Statistici'))), { timeout: 3000 }).toBeLessThan(1.5);
+});
+
+test('on the next-period card, a ring round the badge shows how far the cycle has gone', async ({ page }) => {
+  await startWithJournal(page); // day 12 of a 28-day cycle
+  const ring = page.locator('.page[data-active] .today-card[data-kind="next"] .progress-ring');
+  await expect(ring).toHaveAttribute('aria-hidden', 'true');
+  await expect(ring.locator('.ring-arc')).toHaveCount(1);
+  await expect(ring.locator('.ring-track')).toHaveCount(1);
+  // The other cards have no ring.
+  await expect(page.locator('.page[data-active] .today-card[data-kind="fertility"] .progress-ring')).toHaveCount(0);
 });
