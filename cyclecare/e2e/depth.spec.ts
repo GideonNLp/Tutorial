@@ -122,3 +122,14 @@ test('the charts have gradient fills with ids that are unique across the pages t
   const ids = await page.evaluate(() => [...document.querySelectorAll('[id]')].map((el) => el.id));
   expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
 });
+
+test('with nothing to show yet, Statistics has the capybara waving, once, and no duplicate ids', async ({ page }) => {
+  await startEmpty(page);
+  await tab(page, 'Statistici');
+  const empty = page.locator('.page[data-active] .empty-state');
+  await expect(empty.getByRole('heading', { name: 'Încă nu sunt destule date' })).toBeVisible();
+  await expect(empty.locator('svg.capy-full')).toHaveCount(1);
+  await expect(empty.locator('svg.capy-full')).toHaveAttribute('aria-hidden', 'true');
+  const ids = await page.evaluate(() => [...document.querySelectorAll('[id]')].map((el) => el.id));
+  expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
+});

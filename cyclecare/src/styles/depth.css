@@ -378,7 +378,7 @@ html[data-phase] .app {
    rail, the marks and the legend are unchanged: they are what carries the phase besides colour. */
 
 .cal-card {
-  padding: var(--s3) var(--s2) var(--s2);
+  padding: var(--s3) var(--s1) var(--s2);
 }
 .cal-card .cal-nav {
   padding-inline: var(--s1);
@@ -413,4 +413,17 @@ html[data-phase] .app {
     background-color: Highlight;
     color: HighlightText;
   }
+}
+
+/* ---------------------------------------------------------------- empty states
+
+   Where there is nothing to show yet, the capybara waves instead of a bare line of text. */
+
+.empty-state {
+  align-items: center;
+  text-align: center;
+}
+.capy-full.empty-mascot {
+  width: min(11rem, 62%);
+  margin-inline: auto;
 }

@@ -8,6 +8,7 @@ import { addDays } from '../domain/dates';
 import { bbtSeries, cycleRows, moodByPhase, moodSeries, periodRuns, symptomMatrix } from '../domain/stats';
 import { formatDate, formatMonthKey, formatNumber, strings } from '../i18n';
 import { buildReportPdf } from '../pdf/report';
+import { Capybara } from '../ui/Capybara';
 import { BbtChart, ChartFrame, CycleLengthChart, MoodChart } from '../ui/charts';
 import { Segmented } from '../ui/controls';
 import { Sheet } from '../ui/Sheet';
@@ -54,7 +55,8 @@ export function StatsScreen() {
   return (
     <Screen title={st.title} settings>
       {!hasAnything ? (
-        <div className="stack stack-3">
+        <div className="card empty-state stack stack-3">
+          <Capybara mood="hello" className="empty-mascot" />
           <h2>{st.empty.title}</h2>
           <p className="ink-2">{st.empty.body}</p>
         </div>

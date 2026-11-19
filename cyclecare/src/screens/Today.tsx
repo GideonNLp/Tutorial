@@ -318,7 +318,7 @@ export function TodayScreen() {
                 ))}
               </ul>
             ) : (
-              <div className="stack stack-3" style={{ textAlign: 'center' }}>
+              <div className="empty-state stack stack-3">
                 <h3>{s.today.noData.title}</h3>
                 <p className="ink-2">{s.today.noData.body}</p>
                 <button type="button" className="btn btn-primary" onClick={() => openJournal(today)}>

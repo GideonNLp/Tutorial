@@ -423,11 +423,17 @@ function Blanket({ r }: { r: Refs }) {
  * arms up with sparkles in the follicular phase, a flower and stars at ovulation, wrapped in a fluffy
  * blanket in the luteal phase, and a wave, with a yuzu on its head, when there is no phase to show.
  */
-export function Capybara({ mood }: { mood: MascotMood }) {
+export function Capybara({ mood, className }: { mood: MascotMood; className?: string }) {
   const r = useRefs();
   const { eyes, mouth, hat } = POSE[mood];
   return (
-    <svg className="capy capy-full" data-mood={mood} viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+    <svg
+      className={className ? `capy capy-full ${className}` : 'capy capy-full'}
+      data-mood={mood}
+      viewBox="0 0 200 200"
+      aria-hidden="true"
+      focusable="false"
+    >
       <Defs r={r} />
       <ellipse cx={100} cy={190} rx={64} ry={8} fill={paint(r, 'shadow')} />
 
