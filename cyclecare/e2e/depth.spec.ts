@@ -561,3 +561,60 @@ test('a finger resting on the line between two tabs does not make the choice fli
   // Reaching Calendar and perhaps tipping over to Jurnal once is fine; going back and forth is the shake.
   expect(changes.length, changes.join(' | ')).toBeLessThanOrEqual(4);
 });
+
+test.describe('held down, the drop of glass is bigger than the bar', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  /** The glass of the lens: the carrier's box grown by the insets of its ::before layer. */
+  const glass = (page: Page) =>
+    page.evaluate(() => {
+      const lens = document.querySelector('.tab-indicator') as HTMLElement;
+      const r = lens.getBoundingClientRect();
+      const after = getComputedStyle(lens, '::before');
+      const [t, rt, b, l] = [after.top, after.right, after.bottom, after.left].map((v) => parseFloat(v));
+      const bar = document.querySelector('.tabbar')!.getBoundingClientRect();
+      return {
+        top: r.top + t!,
+        bottom: r.bottom - b!,
+        left: r.left + l!,
+        right: r.right - rt!,
+        bar: { top: bar.top, bottom: bar.bottom },
+        barOverflow: getComputedStyle(document.querySelector('.tabbar')!).overflow,
+        filter: after.backdropFilter || '',
+      };
+    });
+
+  test('at rest it sits inside the bar; held, it stands out above and below it and is not clipped', async ({ page }) => {
+    await startWithJournal(page);
+    const rest = await glass(page);
+    expect(rest.top).toBeGreaterThan(rest.bar.top);
+    expect(rest.bottom).toBeLessThan(rest.bar.bottom);
+
+    const b = (await page.locator('.tab:has-text("Azi")').first().boundingBox())!;
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(b.x + b.width / 2 + 20, b.y + b.height / 2, { steps: 3 });
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-dragging', '');
+    // The bar does not clip it (only the list inside is clipped, for the folding).
+    await expect.poll(async () => (await glass(page)).top, { timeout: 3000 }).toBeLessThan(rest.bar.top - 5);
+    const held = await glass(page);
+    expect(held.barOverflow).toBe('visible');
+    expect(held.bottom).toBeGreaterThan(held.bar.bottom + 5);
+    expect(held.top).toBeLessThan(held.bar.top - 5);
+    // It sees the page behind and makes it richer, which is what gives it the look of glass.
+    expect(held.filter).toContain('saturate');
+    // It rises over the icons.
+    expect(await page.locator('.tab-indicator').evaluate((el) => getComputedStyle(el).zIndex)).toBe('2');
+    await page.mouse.up();
+    await expect.poll(async () => (await glass(page)).top, { timeout: 3000 }).toBeGreaterThan(rest.bar.top);
+    expect(await page.locator('.tab-indicator').evaluate((el) => getComputedStyle(el).zIndex)).not.toBe('2');
+  });
+
+  test('the bar still clips its list when it folds: the other tabs are not seen outside the small circle', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.locator('.page[data-active]').evaluate((el) => el.scrollTo(0, 500));
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    await expect(page.locator('.tabbar-clip')).toHaveCSS('overflow', 'hidden');
+    await expect.poll(async () => (await page.locator('.tabbar').boundingBox())!.width, { timeout: 3000 }).toBeLessThan(100);
+  });
+});

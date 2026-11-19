@@ -228,15 +228,30 @@ html[data-phase] .app {
     width: auto;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: visible; /* the lens may stand out of the bar; the list is clipped by .tabbar-clip */
     border: 0;
     border-radius: 2rem;
     box-shadow:
-      inset 0 0 0 1px var(--glass-line),
-      inset 0 1px 0 light-dark(rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.12)),
       0 2px 6px color-mix(in srgb, var(--ink) 10%, transparent),
       0 14px 34px -10px color-mix(in srgb, var(--ink) 34%, transparent);
     transition: right 0.55s var(--ease-nav);
+  }
+  /* The glass of the bar is a layer of its own, not the bar itself: an element with a backdrop filter hides the page
+     from the backdrop filters of what is inside it, and the lens needs to see (and enrich) what is behind the bar. */
+  .tabbar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 0 0 1px var(--glass-line),
+      inset 0 1px 0 light-dark(rgb(255 255 255 / 0.75), rgb(255 255 255 / 0.12));
+    pointer-events: none;
+  }
+  .tabbar-body {
+    flex: 1 1 auto;
+    min-width: 0;
   }
   .tabbar ul {
     flex: none;
@@ -285,6 +300,9 @@ html[data-phase] .app {
 @media (max-width: 55.99rem) and (prefers-reduced-transparency: no-preference) and (prefers-contrast: no-preference) {
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .tabbar {
+      background: transparent;
+    }
+    .tabbar::before {
       background: color-mix(in srgb, var(--surface) 56%, transparent);
       -webkit-backdrop-filter: blur(28px) saturate(1.9);
       backdrop-filter: blur(28px) saturate(1.9);
@@ -490,6 +508,19 @@ html[data-phase] .app {
 .tabbar ul {
   position: relative;
 }
+/* The body is where the lens and the list share their coordinates; the clip inside it cuts the list (and only the
+   list) when the bar folds; the lens, outside the clip, may stand out of the bar. */
+.tabbar-body {
+  position: relative;
+  width: 100%;
+  border-radius: inherit;
+}
+.tabbar-clip {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: inherit;
+}
 .tab-indicator {
   position: absolute;
   top: 0;
@@ -505,23 +536,42 @@ html[data-phase] .app {
   position: absolute;
   inset: 0;
   border-radius: 1.65rem;
-  /* A drop of clear glass: a bright reflection high on the left, a faint tint of the phase pooling at the bottom
-     right, almost nothing in the middle, so the icon and what is behind the bar show through. */
+  /* A drop of clear glass, close to what Apple Music draws: the middle is almost clear (the icon and what is behind
+     the bar show through, a little richer in colour); light gathers along the top edge and, fainter, along the
+     bottom one; a hint of the phase pools low on the right. */
   background:
-    radial-gradient(120% 85% at 26% 8%, light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.3)), rgb(255 255 255 / 0) 58%),
-    radial-gradient(95% 80% at 82% 108%, color-mix(in srgb, var(--grad-c, var(--ink)) 30%, transparent), transparent 70%),
-    color-mix(in srgb, var(--grad-c, var(--ink)) 6%, transparent);
+    linear-gradient(
+      180deg,
+      light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.2)) 0%,
+      rgb(255 255 255 / 0) 24%,
+      rgb(255 255 255 / 0) 74%,
+      light-dark(rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.1)) 100%
+    ),
+    radial-gradient(90% 70% at 80% 112%, color-mix(in srgb, var(--grad-c, var(--ink)) 26%, transparent), transparent 72%),
+    color-mix(in srgb, var(--grad-c, var(--ink)) 5%, transparent);
   box-shadow:
-    inset 0 0 0 1px light-dark(rgb(255 255 255 / 0.7), rgb(255 255 255 / 0.2)),
-    inset 0 7px 9px -5px light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.28)),
-    inset 0 -8px 12px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 32%, transparent),
-    0 5px 14px -7px color-mix(in srgb, var(--ink) 30%, transparent);
-  scale: 1;
+    /* the edge of the glass: a dark hairline outside, a bright one inside */
+    0 0 0 0.5px light-dark(rgb(0 0 0 / 0.16), rgb(0 0 0 / 0.5)),
+    inset 0 0 0 1px light-dark(rgb(255 255 255 / 0.62), rgb(255 255 255 / 0.2)),
+    /* light on the top and bottom lips */ inset 0 2px 1.5px -1px light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.5)),
+    inset 0 -2px 2px -1px light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.18)),
+    /* the faint colour fringe where glass bends light: cool on the left, warm on the right */ inset 4px 0 6px -4px rgb(80 150 255 / 0.4),
+    inset -4px 0 6px -4px rgb(255 100 130 / 0.34),
+    0 6px 16px -8px color-mix(in srgb, var(--ink) 38%, transparent);
   /* Stretched along its movement while it is dragged (Shell.tsx sets --sx and --sy on every frame). */
   transform: scale(var(--sx, 1), var(--sy, 1));
   transition:
-    scale 0.3s var(--ease-nav),
+    inset 0.3s var(--ease-nav),
+    border-radius 0.3s var(--ease-nav),
     box-shadow 0.3s ease;
+}
+@media (prefers-reduced-transparency: no-preference) and (prefers-contrast: no-preference) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .tab-indicator::before {
+      -webkit-backdrop-filter: saturate(1.5) brightness(1.04);
+      backdrop-filter: saturate(1.5) brightness(1.04);
+    }
+  }
 }
 .tab .tab-icon {
   position: relative;
@@ -665,15 +715,21 @@ html[data-phase] .app {
   /* While dragged, the lens is moved by a frame loop (Shell.tsx): a CSS transition restarted on every
      move showed as a shake when the finger went slowly. */
   .tabbar[data-dragging] .tab-indicator {
+    z-index: 2; /* it rises over the icons, as glass over what it magnifies */
     transition: opacity 0.25s ease;
   }
+  /* Held down, the drop is bigger than the bar: it stands out above and below it and a little to each side. */
   .tabbar[data-dragging] .tab-indicator::before {
-    scale: 1.14;
+    inset: -12px -9px;
+    border-radius: 2.4rem;
     box-shadow:
-      inset 0 0 0 1.5px light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.32)),
-      inset 0 8px 10px -5px light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.35)),
-      inset 0 -9px 14px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 40%, transparent),
-      0 10px 22px -6px color-mix(in srgb, var(--grad-c, var(--ink)) 45%, transparent);
+      0 0 0 0.5px light-dark(rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.55)),
+      inset 0 0 0 1.5px light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.28)),
+      inset 0 3px 2px -1px light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.6)),
+      inset 0 -3px 3px -1px light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.22)),
+      inset 6px 0 8px -5px rgb(80 150 255 / 0.5),
+      inset -6px 0 8px -5px rgb(255 100 130 / 0.42),
+      0 14px 26px -8px color-mix(in srgb, var(--ink) 42%, transparent);
   }
   /* While the lens is dragged, the tab it is over is the one that looks chosen; the page is still the old one
      and changes only when the finger is lifted. */
@@ -691,5 +747,24 @@ html[data-phase] .app {
   .tabbar[data-dragging] .tab[data-preview] .tab-icon {
     color: var(--grad-c, var(--ink));
     scale: 1.22;
+  }
+}
+
+@media (max-width: 55.99rem) and (prefers-reduced-transparency: no-preference) and (prefers-contrast: no-preference) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .tabbar[data-dragging] .tab-indicator::before {
+      -webkit-backdrop-filter: blur(0.6px) saturate(2.2) brightness(1.14) contrast(1.08);
+      backdrop-filter: blur(0.6px) saturate(2.2) brightness(1.14) contrast(1.08);
+    }
+  }
+}
+@media (prefers-contrast: more) {
+  .tabbar[data-dragging] .tab-indicator::before {
+    box-shadow: inset 0 0 0 2px var(--ink);
+  }
+}
+@media (forced-colors: active) {
+  .tabbar[data-dragging] .tab-indicator::before {
+    box-shadow: none;
   }
 }

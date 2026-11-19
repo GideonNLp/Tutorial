@@ -497,10 +497,11 @@ test.describe('small movements', () => {
     await startWithJournal(page);
     const blur = (selector: string, pseudo?: string) =>
       page.evaluate(([sel, ps]) => getComputedStyle(document.querySelector(sel!)!, ps).backdropFilter, [selector, pseudo] as const);
-    expect(await blur('.tabbar')).toContain('blur(28px)');
+    // The glass of the bar is a layer of its own (so that the lens can see the page through it).
+    expect(await blur('.tabbar', '::before')).toContain('blur(28px)');
     expect(await blur('.page[data-active] .navbar', '::before')).toContain('blur(20px)');
     // Translucent, in the same colour as before.
-    const tabbar = await page.evaluate(() => getComputedStyle(document.querySelector('.tabbar')!).backgroundColor);
+    const tabbar = await page.evaluate(() => getComputedStyle(document.querySelector('.tabbar')!, '::before').backgroundColor);
     expect(tabbar).toMatch(/0\.56\)$|\/ 0\.56\)$/);
 
     // "Increase contrast" turns the glass back into solid surfaces.
