@@ -59,9 +59,7 @@ test('"increase contrast" brings the outlines back and drops the colour', async 
 test('what is chosen carries a small gradient, and it goes away with "increase contrast"', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
   await startWithJournal(page);
-  const tabIcon = '.tab-indicator';
-  expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
-  await tab(page, 'Jurnal');
+  const tabIcon = '.page[data-active] .btn-primary';
   expect(await style(page, tabIcon, 'background-image')).toContain('gradient');
 
   // It leans toward the green of the follicular phase here, and the hero card's shadow takes the colour of the phase.
@@ -174,4 +172,83 @@ test('the gradient takes a colour from the phase: red, green, light blue, violet
   // Ovulation is light blue, not the amber of its other colours.
   await page.evaluate(() => (document.documentElement.dataset.phase = 'ovulation'));
   expect(await gradient()).not.toContain('#B67500');
+});
+
+test.describe('the tab bar folds up to the current tab while scrolling down, as in Apple Music', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  const scrollTo = (page: Page, y: number) => page.locator('.page[data-active]').evaluate((el, top) => el.scrollTo(0, top), y);
+  const barWidth = async (page: Page) => (await page.locator('.tabbar').boundingBox())!.width;
+
+  test('scrolling down folds it, scrolling up opens it again', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const open = await barWidth(page);
+    expect(open).toBeGreaterThan(300);
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+
+    await scrollTo(page, 400);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    // It narrows to about one tab, which is the current one; the others are gone.
+    await expect.poll(() => barWidth(page), { timeout: 3000 }).toBeLessThan(100);
+    await expect(page.locator('.tab[aria-current="page"]')).toBeVisible();
+    for (const name of ['Calendar', 'Jurnal', 'Sfaturi', 'Statistici']) {
+      await expect(page.locator(`.tab:has-text("${name}")`)).toHaveCSS('opacity', '0');
+    }
+    // It stays folded for as long as the person keeps going down, and a bounce at the top does not matter.
+    await scrollTo(page, 600);
+    await page.waitForTimeout(200); // let the scroll event be handled before the next move
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+
+    // A little scroll up opens it.
+    await scrollTo(page, 560);
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+    await expect.poll(() => barWidth(page), { timeout: 3000 }).toBeGreaterThan(300);
+    for (const name of ['Calendar', 'Jurnal', 'Sfaturi', 'Statistici']) {
+      await expect(page.locator(`.tab:has-text("${name}")`)).toHaveCSS('opacity', '1');
+    }
+  });
+
+  test('touching the folded bar opens it without going anywhere; back at the top it is open', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await scrollTo(page, 500);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    await expect.poll(() => barWidth(page), { timeout: 3000 }).toBeLessThan(100);
+    await page.locator('.tab[aria-current="page"]').click();
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+    await expect(page).toHaveURL(/#azi$/);
+    expect(await page.evaluate(() => document.querySelector('.page[data-active]')!.scrollTop)).toBeGreaterThan(300); // not sent to the top
+
+    await scrollTo(page, 500);
+    await scrollTo(page, 0);
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+  });
+
+  test('a new tab starts with the bar open, and the folded bar keeps the colour of the tab it shows', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await scrollTo(page, 500);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    await page.locator('.tab[aria-current="page"]').click(); // open it
+    await tab(page, 'Calendar');
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+    await expect(page.locator('.tab-indicator')).toHaveCount(1);
+  });
+
+  test('with reduced motion the bar never folds', async ({ page }) => {
+    await startWithJournal(page); // the tests run with reduced motion
+    await scrollTo(page, 500);
+    await page.waitForTimeout(400);
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+    expect(await barWidth(page)).toBeGreaterThan(300);
+  });
+
+  test('tabbing into the folded bar opens it', async ({ page }) => {
+    await startWithJournal(page);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await scrollTo(page, 500);
+    await expect(page.locator('.tabbar')).toHaveAttribute('data-folded', '');
+    await page.locator('.tab[aria-current="page"]').focus();
+    await expect(page.locator('.tabbar')).not.toHaveAttribute('data-folded');
+  });
 });

@@ -1,5 +1,5 @@
 import { CalendarDays, ChartColumn, ChevronLeft, CircleDot, Lightbulb, NotebookPen, Settings, type LucideIcon } from 'lucide-react';
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { goBack, navigate, useRoute, type Route } from '../app/router';
 import { dismissToast, useToasts } from '../app/ui';
 import { strings } from '../i18n';
@@ -125,29 +125,112 @@ const TABS: TabItem[] = [
   { route: 'statistici', icon: ChartColumn, label: () => strings().nav.stats },
 ];
 
+/** How far the page has to be scrolled before the bar may fold up, and how much movement counts as a direction. */
+const FOLD_AFTER = 48;
+const FOLD_STEP = 10;
+
+/** Whether the bar folds: only the floating bar of a phone, and only where motion is allowed. */
+function foldingAllowed(): boolean {
+  try {
+    return matchMedia('(max-width: 55.99rem)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
+
 export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
   const route = useRoute();
+  const navRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  // Where the current tab's icon sits, so the highlight can glide there from the tab it was on.
+  // Where the current tab sits, so the lens behind it can glide there from the tab it was on.
   const [spot, setSpot] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  // Scrolling down folds the bar up to the current tab; scrolling up (or touching it) unfolds it.
+  const [folded, setFolded] = useState(false);
+  const foldedRef = useRef(false);
+  // A finger or a mouse is down on the bar: the focus it brings must not open the bar before the tap is handled.
+  const pointerDown = useRef(false);
+  const fold = (on: boolean) => {
+    if (foldedRef.current === on) return;
+    foldedRef.current = on;
+    setFolded(on);
+  };
+
   useLayoutEffect(() => {
     const list = listRef.current;
-    if (!list) return;
+    const nav = navRef.current;
+    if (!list || !nav) return;
     const measure = () => {
-      const icon = list.querySelector<HTMLElement>('.tab[aria-current="page"] .tab-icon');
-      if (!icon) return setSpot(null);
+      const tab = list.querySelector<HTMLElement>('.tab[aria-current="page"]');
+      if (!tab) return setSpot(null);
       const l = list.getBoundingClientRect();
-      const i = icon.getBoundingClientRect();
-      const next = { x: Math.round((i.left - l.left) * 10) / 10, y: Math.round((i.top - l.top) * 10) / 10, w: i.width, h: i.height };
+      const t = tab.getBoundingClientRect();
+      const inset = 4;
+      const next = {
+        x: Math.round((t.left - l.left + inset) * 10) / 10,
+        y: Math.round((t.top - l.top + inset) * 10) / 10,
+        w: Math.round((t.width - 2 * inset) * 10) / 10,
+        h: Math.round((t.height - 2 * inset) * 10) / 10,
+      };
       setSpot((was) => (was && was.x === next.x && was.y === next.y && was.w === next.w && was.h === next.h ? was : next));
+      // What the folded bar needs to know: where the current tab is, how wide it is, and how wide the list is
+      // when open (the list keeps that width while the bar around it narrows).
+      if (!foldedRef.current) {
+        nav.style.setProperty('--tab-x', `${t.left - l.left}px`);
+        nav.style.setProperty('--tab-w', `${t.width}px`);
+        nav.style.setProperty('--list-w', `${l.width}px`);
+      }
     };
     measure();
     const watch = new ResizeObserver(measure);
     watch.observe(list);
     return () => watch.disconnect();
   }, [route, tabs.length]);
+
+  // A new page starts unfolded; then the scrolling of the current page decides.
+  useEffect(() => {
+    fold(false);
+    let last = 0;
+    const onScroll = (event: Event) => {
+      const page = event.target;
+      if (!(page instanceof HTMLElement) || !page.classList.contains('page') || !page.hasAttribute('data-active')) return;
+      if (!foldingAllowed()) return fold(false);
+      const y = page.scrollTop;
+      if (y < FOLD_AFTER) {
+        last = y;
+        return fold(false);
+      }
+      if (Math.abs(y - last) < FOLD_STEP) return;
+      fold(y > last);
+      last = y;
+    };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => document.removeEventListener('scroll', onScroll, { capture: true });
+  }, [route]);
+
+  const current = Math.max(
+    0,
+    tabs.findIndex((t) => t.route === route),
+  );
   return (
-    <nav className="tabbar" aria-label={strings().nav.label}>
+    <nav
+      ref={navRef}
+      className="tabbar"
+      aria-label={strings().nav.label}
+      data-folded={folded ? '' : undefined}
+      style={{ '--active': current, '--count': tabs.length } as CSSProperties}
+      onPointerDownCapture={() => {
+        pointerDown.current = true;
+      }}
+      onPointerUpCapture={() => {
+        pointerDown.current = false;
+      }}
+      onPointerCancel={() => {
+        pointerDown.current = false;
+      }}
+      onFocus={() => {
+        if (!pointerDown.current) fold(false);
+      }}
+    >
       <ul ref={listRef} style={tabs.length === 5 ? undefined : { gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
         {spot && (
           <span
@@ -156,14 +239,16 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
             style={{ width: spot.w, height: spot.h, transform: `translate(${spot.x}px, ${spot.y}px)` }}
           />
         )}
-        {tabs.map(({ route: to, icon: Icon, label }) => (
-          <li key={to}>
+        {tabs.map(({ route: to, icon: Icon, label }, index) => (
+          <li key={to} style={{ '--index': index } as CSSProperties}>
             <a
               className="tab"
               href={`#${to}`}
               aria-current={route === to ? 'page' : undefined}
               onClick={(e) => {
                 e.preventDefault();
+                // The folded bar opens when touched; it does not also act on the tab.
+                if (foldedRef.current) return fold(false);
                 // Tapping the tab you are on goes back to the top of its page.
                 if (route === to) scrollToTop(document.querySelector('.page[data-active]'));
                 else navigate(to);
@@ -172,7 +257,7 @@ export function TabBar({ tabs = TABS }: { tabs?: TabItem[] }) {
               <span className="tab-icon">
                 <Icon size={20} aria-hidden="true" />
               </span>
-              {label()}
+              <span className="tab-label">{label()}</span>
             </a>
           </li>
         ))}

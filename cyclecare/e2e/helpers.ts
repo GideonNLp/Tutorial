@@ -59,6 +59,12 @@ export async function editJournalSection(page: Page, title: string): Promise<voi
 }
 
 export async function tab(page: Page, name: 'Azi' | 'Calendar' | 'Jurnal' | 'Sfaturi' | 'Statistici'): Promise<void> {
+  // A bar folded by scrolling shows only the current tab: like a person, touch it first to open the bar.
+  const folded = page.locator('.tabbar[data-folded]');
+  if ((await folded.count()) > 0) {
+    await page.locator('.tab[aria-current="page"]').click();
+    await expect(folded).toHaveCount(0);
+  }
   await page.getByRole('navigation', { name: 'Navigare principală' }).getByRole('link', { name, exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
 }

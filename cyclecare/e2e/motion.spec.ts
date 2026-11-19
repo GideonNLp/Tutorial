@@ -497,11 +497,11 @@ test.describe('small movements', () => {
     await startWithJournal(page);
     const blur = (selector: string, pseudo?: string) =>
       page.evaluate(([sel, ps]) => getComputedStyle(document.querySelector(sel!)!, ps).backdropFilter, [selector, pseudo] as const);
-    expect(await blur('.tabbar')).toContain('blur(20px)');
+    expect(await blur('.tabbar')).toContain('blur(28px)');
     expect(await blur('.page[data-active] .navbar', '::before')).toContain('blur(20px)');
     // Translucent, in the same colour as before.
     const tabbar = await page.evaluate(() => getComputedStyle(document.querySelector('.tabbar')!).backgroundColor);
-    expect(tabbar).toMatch(/0\.8\)$|\/ 0\.8\)$/);
+    expect(tabbar).toMatch(/0\.56\)$|\/ 0\.56\)$/);
 
     // "Increase contrast" turns the glass back into solid surfaces.
     await page.emulateMedia({ contrast: 'more' });

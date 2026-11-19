@@ -24,7 +24,7 @@ function supportsLinearEasing(): boolean {
 export const EASE_SPRING = supportsLinearEasing() ? SPRING : 'cubic-bezier(0.34, 1.56, 0.64, 1)';
 export const NAV_MS = 320;
 /** Changing tab: the new page comes in from this share of its width, and the old one leaves by 60% of it. */
-export const TAB_SLIDE = 0.3;
+export const TAB_SLIDE = 0.42;
 
 /** Which way a tab change goes: 1 when the new tab lies to the right of the old one, -1 to the left, 0 when it is not a move between tabs. */
 export function tabDirection(from: Route | undefined, to: Route | undefined): -1 | 0 | 1 {
