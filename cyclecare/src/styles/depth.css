@@ -519,3 +519,35 @@ html[data-phase] .app {
   overflow-wrap: anywhere;
   hyphens: auto;
 }
+
+/* ---------------------------------------------------------------- changing tab: slide and frosted glass
+
+   The pages slide (motion.ts). While they do, a veil of frosted glass passes over them: the content blurs a
+   little at the middle of the move and clears as the new page lands, the way iOS lets a surface go soft
+   under a transition. It is only drawn where blur is supported, and not when motion or transparency is
+   reduced. It lives here and not in motion.css, which allows only transform and opacity. */
+
+@keyframes glass-veil {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (prefers-reduced-transparency: no-preference) and (prefers-contrast: no-preference) {
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .stage[data-moving='fade']::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      -webkit-backdrop-filter: blur(12px) saturate(1.25);
+      backdrop-filter: blur(12px) saturate(1.25);
+      background: color-mix(in srgb, var(--bg) 22%, transparent);
+      animation: glass-veil 0.32s ease-in-out both;
+    }
+  }
+}

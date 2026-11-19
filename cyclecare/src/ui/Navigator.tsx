@@ -2,7 +2,7 @@ import { Activity, useEffect, useLayoutEffect, useRef, type ReactNode } from 're
 import { ROUTES, collapseNav, finishTransition, getNav, useNav, usePeek, type Route } from '../app/router';
 import { ErrorBoundary } from './ErrorBoundary';
 import { hasInteracted } from './interaction';
-import { revealScreen, runPageTransition, stagger, staggerTargets, whenFinished } from './motion';
+import { revealScreen, runPageTransition, stagger, staggerTargets, tabDirection, whenFinished } from './motion';
 import { attachSwipeBack } from './swipeBack';
 
 /**
@@ -23,7 +23,7 @@ export function Navigator({ render }: { render: (route: Route) => ReactNode }) {
     if (!transition) return;
     const stage = stageRef.current;
     const page = (route: Route) => stage?.querySelector<HTMLElement>(`:scope > .page[data-route="${route}"]`) ?? null;
-    const animations = runPageTransition(transition.kind, page(transition.from), page(transition.to));
+    const animations = runPageTransition(transition.kind, page(transition.from), page(transition.to), tabDirection(transition.from, transition.to));
     if (animations.length === 0) {
       finishTransition(transition.id);
       return;

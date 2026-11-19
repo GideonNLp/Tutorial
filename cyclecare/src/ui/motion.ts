@@ -1,4 +1,4 @@
-import type { TransitionKind } from '../app/router';
+import { TAB_ROUTES, type Route, type TransitionKind } from '../app/router';
 
 /**
  * Motion vocabulary, in one place.
@@ -23,6 +23,15 @@ function supportsLinearEasing(): boolean {
 }
 export const EASE_SPRING = supportsLinearEasing() ? SPRING : 'cubic-bezier(0.34, 1.56, 0.64, 1)';
 export const NAV_MS = 320;
+/** Changing tab: the new page comes in from this share of its width, and the old one leaves by 60% of it. */
+export const TAB_SLIDE = 0.3;
+
+/** Which way a tab change goes: 1 when the new tab lies to the right of the old one, -1 to the left, 0 when it is not a move between tabs. */
+export function tabDirection(from: Route | undefined, to: Route | undefined): -1 | 0 | 1 {
+  const a = (TAB_ROUTES as readonly Route[]).indexOf(from as Route);
+  const b = (TAB_ROUTES as readonly Route[]).indexOf(to as Route);
+  return a < 0 || b < 0 || a === b ? 0 : b > a ? 1 : -1;
+}
 export const FADE_MS = 240;
 /** Blocks of a screen arrive this far apart: 50–80 ms reads as "one after another", not as a wave. */
 export const STAGGER_STEP = 60;
@@ -55,7 +64,7 @@ export function underStyle(progress: number): { transform: string; opacity: stri
  * Animates one page replacing another. Returns the running animations (empty when nothing moves);
  * they keep their final frame until cancelled, so the caller cancels them once the DOM has caught up.
  */
-export function runPageTransition(kind: TransitionKind, from: HTMLElement | null, to: HTMLElement | null): Animation[] {
+export function runPageTransition(kind: TransitionKind, from: HTMLElement | null, to: HTMLElement | null, direction: -1 | 0 | 1 = 0): Animation[] {
   if (kind === 'none' || prefersReducedMotion() || !to || !canAnimate(to)) return [];
   const slide: KeyframeAnimationOptions = { duration: NAV_MS, easing: EASE_NAV, fill: 'both' };
   const covered = underStyle(0);
@@ -68,8 +77,31 @@ export function runPageTransition(kind: TransitionKind, from: HTMLElement | null
   } else if (kind === 'pop') {
     if (from) animations.push(from.animate([{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(100%, 0, 0)' }], slide));
     animations.push(to.animate([covered, revealed], slide));
+  } else if (direction !== 0) {
+    // Tab change, as on iOS: the new page slides in from the side the tab lies on while the old one
+    // drifts the other way and fades (the frosted veil over both is in depth.css).
+    animations.push(
+      to.animate(
+        [
+          { opacity: 0, transform: `translate3d(${direction * TAB_SLIDE * 100}%, 0, 0)` },
+          { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+        ],
+        slide,
+      ),
+    );
+    if (from) {
+      animations.push(
+        from.animate(
+          [
+            { opacity: 1, transform: 'translate3d(0, 0, 0)' },
+            { opacity: 0, transform: `translate3d(${-direction * TAB_SLIDE * 60}%, 0, 0)` },
+          ],
+          slide,
+        ),
+      );
+    }
   } else {
-    // Tab change: a short cross-fade, the new page settling in from slightly below and a hair smaller.
+    // Another change between pages of the same level: a short cross-fade, the new page settling in from slightly below and a hair smaller.
     const fade: KeyframeAnimationOptions = { duration: FADE_MS, easing: EASE_OUT, fill: 'both' };
     animations.push(
       to.animate(
