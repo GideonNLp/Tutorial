@@ -107,3 +107,30 @@ describe('languages', () => {
     expect(legal.filter(([, text]) => ROMANIAN_LETTERS.test(text))).toEqual([]);
   });
 });
+
+describe('the big figures on Today', () => {
+  // The figure and the sentence under it must agree, in Romanian above all: 1 zi, 2 zile, 19 zile, 20 de zile, 101 zile, 120 de zile.
+  const sentence = (n: number) => ro.today.next.late(n).match(/^Întârzie cu (.+) față/)![1]!;
+  const cases: Array<[number, string]> = [
+    [1, 'zi'],
+    [2, 'zile'],
+    [19, 'zile'],
+    [20, 'de zile'],
+    [101, 'zile'],
+    [120, 'de zile'],
+  ];
+
+  for (const [n, word] of cases) {
+    it(`says "${n} ${word}" in Romanian, as the sentence does`, () => {
+      expect(ro.today.next.figure.unit(n)).toBe(word);
+      expect(sentence(n)).toBe(`${n} ${word}`);
+      expect(ro.today.next.figure.lateUnit(n)).toBe(`${word} de întârziere`);
+      expect(ro.today.fertility.untilUnit(n)).toBe(`${word} până la zilele fertile`);
+    });
+  }
+
+  it('says day and days in English', () => {
+    expect([1, 2, 20].map((n) => en.today.next.figure.unit(n))).toEqual(['day', 'days', 'days']);
+    expect(en.today.next.figure.lateUnit(1)).toBe('day late');
+  });
+});
