@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06171B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Liniște">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!--ARTIFACT-START-->
 <title>Liniște</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1769,6 +1776,7 @@ addEventListener('hashchange', () => {
 renderScene(true); renderPlay(); renderModes(); renderFocus(); renderBreath(); renderSleep(); renderClock();
 setInterval(renderClock, 20000);
 requestAnimationFrame(frame);
+if ('serviceWorker' in navigator && location.protocol.startsWith('http') && window.self === window.top) navigator.serviceWorker.register('sw.js').catch(() => {});
 
 /* exposed for testing and curiosity */
 window.__liniste = { SCENES, LAYERS, Engine, renderPiece, encodeWav, zipOne, crc32, state: S };

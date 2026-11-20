@@ -1,4 +1,4 @@
-# Checks, builds and publishes CycleCare on GitHub Pages (branch `gh-pages`).
+# Checks, builds and publishes CycleCare (and Liniște, at /liniste/) on GitHub Pages (branch `gh-pages`).
 #
 # It runs on every push to `main` and when started by hand (Actions → this workflow → "Run workflow",
 # choosing the branch to publish). Work-in-progress pushes to other branches publish nothing.
@@ -68,6 +68,12 @@ jobs:
             export VITE_PUBLIC_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
           fi
           npm run build
+
+      # Liniște is one static page; it ships beside CycleCare at /liniste/ (its own service worker and scope).
+      - name: Adaugă Liniște
+        run: |
+          mkdir -p dist/liniste
+          cp ../liniste/index.html ../liniste/sw.js ../liniste/manifest.webmanifest ../liniste/icon.svg ../liniste/*.png dist/liniste/
 
       - name: Publicare pe gh-pages
         working-directory: cyclecare/dist
